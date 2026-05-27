@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -550,12 +551,14 @@ body {
 .modal-close:hover { color: var(--ink); }
 .modal-body {
   flex: 1; overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   background: #f2f2f2;
   padding: 24px;
-  display: flex; justify-content: center;
+  min-height: 0;
 }
 .modal-frame-wrap {
   width: 720px; max-width: 100%;
+  margin: 0 auto;
   background: #f2f2f2;
   border-radius: 4px;
   box-shadow: 0 4px 16px rgba(0,0,0,0.08);
@@ -966,30 +969,23 @@ body {
     document.getElementById('modalTitle').textContent = email.title;
     document.getElementById('modalSubject').textContent = 'Subject: ' + email.subject;
     const frame = document.getElementById('modalFrame');
-    const html = decodeEmail(email.sourceId);
-    // Use srcdoc — works in sandboxed iframes where document.write() is blocked
-    frame.setAttribute('srcdoc', html);
+    const doc = frame.contentDocument || frame.contentWindow.document;
+    doc.open();
+    doc.write(decodeEmail(email.sourceId));
+    doc.close();
     document.getElementById('modalCopyBtn').dataset.id = id;
     document.getElementById('modal').classList.add('open');
     document.body.style.overflow = 'hidden';
-    // Auto-size the iframe to its content once loaded
-    frame.onload = () => {
+    setTimeout(() => {
       try {
-        const doc = frame.contentDocument || frame.contentWindow.document;
         const h = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight);
         if (h > 100) frame.style.height = (h + 40) + 'px';
-      } catch (e) {
-        // Cross-origin or sandbox restrictions — keep default height
-      }
-    };
+      } catch (e) {}
+    }, 300);
   }
   function closePreview() {
     document.getElementById('modal').classList.remove('open');
     document.body.style.overflow = '';
-    // Reset iframe so reopening gets fresh load event
-    const frame = document.getElementById('modalFrame');
-    frame.removeAttribute('srcdoc');
-    frame.style.height = '';
   }
   function copyHTML(id, btn) {
     const html = decodeEmail(id);
