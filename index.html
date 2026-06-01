@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -292,6 +293,191 @@ body {
   color: var(--ink-3);
 }
 
+/* ===== TAG FILTER ===== */
+.filter-bar {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.tag-filter { position: relative; }
+.tag-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 9px 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.tag-filter-btn:hover { border-color: var(--accent); color: var(--ink); }
+.tag-filter-btn svg { width: 15px; height: 15px; }
+.tag-filter-btn .tf-chevron { transition: transform 0.18s; }
+.tag-filter.open .tag-filter-btn .tf-chevron { transform: rotate(180deg); }
+.tag-filter-count {
+  background: var(--accent);
+  color: #fff;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 999px;
+  min-width: 20px;
+  text-align: center;
+}
+.tag-filter-panel {
+  display: none;
+  position: absolute;
+  z-index: 60;
+  top: calc(100% + 6px);
+  left: 0;
+  width: 320px;
+  max-width: 90vw;
+  background: var(--panel);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r);
+  box-shadow: 0 8px 28px rgba(17,56,89,.14);
+  overflow: hidden;
+}
+.tag-filter.open .tag-filter-panel { display: block; }
+.tag-filter-search {
+  position: relative;
+  padding: 12px 12px 8px;
+  border-bottom: 1px solid var(--line);
+}
+.tag-filter-search input {
+  width: 100%;
+  padding: 8px 12px 8px 32px;
+  border-radius: 7px;
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--ink);
+}
+.tag-filter-search input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+.tag-filter-search svg {
+  position: absolute;
+  left: 22px; top: 21px;
+  width: 14px; height: 14px;
+  color: var(--ink-3);
+  pointer-events: none;
+}
+.tag-filter-actions {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+}
+.tag-filter-action {
+  flex: 1;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.tag-filter-action:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); }
+.tag-filter-list {
+  max-height: 280px;
+  overflow-y: auto;
+  padding: 6px;
+}
+.tag-filter-list::-webkit-scrollbar { width: 6px; }
+.tag-filter-list::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 3px; }
+.tag-option {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 9px;
+  border-radius: 6px;
+  cursor: pointer;
+  user-select: none;
+}
+.tag-option:hover { background: var(--panel-2); }
+.tag-option input { width: 14px; height: 14px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
+.tag-option-label {
+  flex: 1;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tag-option-count {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ink-3);
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 1px 7px;
+  flex-shrink: 0;
+}
+.tag-filter-empty {
+  padding: 18px 12px;
+  text-align: center;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+.active-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.active-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--accent-2);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  padding: 3px 6px 3px 10px;
+}
+.active-tag button {
+  border: 0;
+  background: transparent;
+  color: var(--accent-2);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  line-height: 0;
+}
+.active-tag button svg { width: 11px; height: 11px; }
+.active-tag-clear {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-3);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 3px 4px;
+}
+.active-tag-clear:hover { color: var(--ink); }
+
 /* In-campaign email search */
 .detail-search { position: relative; max-width: 420px; margin: 0 0 20px 0; }
 .detail-search input {
@@ -474,6 +660,18 @@ body {
   border-radius: 999px;
   padding: 2px 9px;
   white-space: nowrap;
+}
+.email-tag.tag-matched {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent-2);
+}
+.email-tag-sep {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: var(--ink-3);
+  align-self: center;
+  margin: 0 1px;
 }
 .email-date {
   display: inline-flex;
@@ -665,10 +863,34 @@ body {
       <!-- ===== HOME VIEW: Campaign cards list ===== -->
       <div id="homeView">
         <div class="search-row">
-          <div class="search-wrap">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" id="searchInput" placeholder="Search campaigns or emails..." />
+          <div class="filter-bar">
+            <div class="search-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="searchInput" placeholder="Search campaigns or emails..." />
+            </div>
+
+            <div class="tag-filter" id="tagFilter">
+              <button class="tag-filter-btn" id="tagFilterBtn" type="button" aria-expanded="false">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                <span>Filter by tags</span>
+                <span class="tag-filter-count" id="tagFilterCount" style="display:none;">0</span>
+                <svg class="tf-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="tag-filter-panel" id="tagFilterPanel">
+                <div class="tag-filter-search">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <input type="text" id="tagSearchInput" placeholder="Search tags…" autocomplete="off" />
+                </div>
+                <div class="tag-filter-actions">
+                  <button class="tag-filter-action" id="tagSelectAll" type="button">Select all</button>
+                  <button class="tag-filter-action" id="tagClearAll" type="button">Clear all</button>
+                </div>
+                <div class="tag-filter-list" id="tagFilterList"></div>
+              </div>
+            </div>
           </div>
+
+          <div class="active-tags" id="activeTags" style="display:none;"></div>
         </div>
 
         <div class="view-label" id="viewLabel">All campaigns</div>
@@ -840,10 +1062,12 @@ body {
     check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>',
     arrow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>',
     search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
-    link: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>'
+    link: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
+    x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
   };
 
   let detailCampaign = null, detailFocusEmailId = null;
+  const selectedTags = new Set();
 
   let currentView = { type: 'all', value: null };
 
@@ -854,6 +1078,45 @@ body {
 
   function getCampaignById(id) {
     return CAMPAIGNS.find(c => c.id === id);
+  }
+
+  function getCampaignByEmailId(id) {
+    return CAMPAIGNS.find(c => c.emails.some(e => e.id === id)) || null;
+  }
+
+  // Unique tags across the library (respecting an active year filter), with email counts.
+  function getAllTags() {
+    const counts = {};
+    CAMPAIGNS.forEach(c => {
+      if (currentView.type === 'year' && c.year !== currentView.value) return;
+      c.emails.forEach(e => (e.tags || []).forEach(t => { counts[t] = (counts[t] || 0) + 1; }));
+    });
+    return Object.keys(counts).sort().map(t => ({ tag: t, count: counts[t] }));
+  }
+
+  function emailMatchesSelectedTags(email) {
+    if (selectedTags.size === 0) return true;
+    const tags = email.tags || [];
+    // OR logic: show emails that carry ANY of the selected tags.
+    for (const t of selectedTags) if (tags.includes(t)) return true;
+    return false;
+  }
+
+  function getFilteredEmails(textSearch) {
+    const q = (textSearch || '').toLowerCase().trim();
+    const out = [];
+    CAMPAIGNS.forEach(c => {
+      if (currentView.type === 'year' && c.year !== currentView.value) return;
+      c.emails.forEach(e => {
+        if (!emailMatchesSelectedTags(e)) return;
+        if (q) {
+          const hay = (e.title + ' ' + e.subject + ' ' + e.kind + ' ' + (e.tags || []).join(' ')).toLowerCase();
+          if (!hay.includes(q)) return;
+        }
+        out.push({ email: e, campaign: c });
+      });
+    });
+    return out;
   }
 
   function updateCounts() {
@@ -1011,7 +1274,13 @@ body {
       grid.innerHTML = '<div class="empty-hint">No emails match your search.</div>';
       return;
     }
-    grid.innerHTML = list.map(emailCardHTML).join('');
+    grid.innerHTML = list.map(e => emailCardHTML(e, campaign.id)).join('');
+    wireEmailCardButtons(grid);
+  }
+
+  // Shared wiring for email card buttons (used by both the detail view and the
+  // tag-filtered home view). The link button carries its own campaign id.
+  function wireEmailCardButtons(grid) {
     grid.querySelectorAll('.btn-preview').forEach(btn => {
       btn.addEventListener('click', () => openPreview(btn.dataset.id));
     });
@@ -1020,13 +1289,15 @@ body {
     });
     grid.querySelectorAll('.btn-link').forEach(btn => {
       btn.addEventListener('click', () => {
-        const url = window.location.origin + window.location.pathname + '#/campaign/' + detailCampaign.id + '/' + btn.dataset.id;
+        const cid = btn.dataset.campaign || (detailCampaign && detailCampaign.id);
+        if (!cid) return;
+        const url = window.location.origin + window.location.pathname + '#/campaign/' + cid + '/' + btn.dataset.id;
         copyText(url, btn);
       });
     });
   }
 
-  function emailCardHTML(email) {
+  function emailCardHTML(email, campaignId) {
     return `
       <div class="email-card" id="emailCard-${email.id}">
         <div class="email-card-top">
@@ -1038,13 +1309,13 @@ body {
         </div>
         ${((email.tags && email.tags.length) || email.sendDate) ? `
         <div class="email-meta">
-          ${(email.tags && email.tags.length) ? `<div class="email-tags">${email.tags.map(t => `<span class="email-tag">${t}</span>`).join('')}</div>` : ''}
+          ${(email.tags && email.tags.length) ? `<div class="email-tags">${email.tags.map(t => `<span class="email-tag${selectedTags.has(t) ? ' tag-matched' : ''}">${t}</span>`).join('<span class="email-tag-sep">, </span>')}</div>` : ''}
           ${email.sendDate ? `<div class="email-date">${ICONS.calendar} Send Date: ${email.sendDate}</div>` : ''}
         </div>` : ''}
         <div class="email-actions">
           <button class="btn btn-preview" data-id="${email.id}">${ICONS.eye} Preview</button>
           <button class="btn btn-copy" data-id="${email.id}">${ICONS.copy} Copy HTML</button>
-          <button class="btn btn-link" data-id="${email.id}" title="Copy a direct review link to this email">${ICONS.link} Copy link</button>
+          <button class="btn btn-link" data-id="${email.id}" data-campaign="${campaignId || ''}" title="Copy a direct review link to this email">${ICONS.link} Copy link</button>
         </div>
       </div>
     `;
@@ -1068,7 +1339,32 @@ body {
 
   function renderCampaigns() {
     const container = document.getElementById('campaignsContainer');
-    const search = document.getElementById('searchInput').value.toLowerCase().trim();
+    const rawSearch = document.getElementById('searchInput').value;
+    const search = rawSearch.toLowerCase().trim();
+    const label = document.getElementById('viewLabel');
+
+    // When one or more tags are selected, flatten to matching email cards
+    // (across campaigns) instead of showing campaign cards.
+    if (selectedTags.size > 0) {
+      const matches = getFilteredEmails(search);
+      label.textContent = matches.length === 1
+        ? '1 email matches the selected tags'
+        : matches.length + ' emails match the selected tags';
+      if (matches.length === 0) {
+        container.innerHTML = '<div class="empty-hint">No emails match the selected tags' + (search ? ' and your search.' : '.') + '</div>';
+        return;
+      }
+      container.innerHTML = '<div class="email-grid">' +
+        matches.map(m => emailCardHTML(m.email, m.campaign.id)).join('') +
+        '</div>';
+      wireEmailCardButtons(container);
+      return;
+    }
+
+    // Default: campaign cards.
+    label.textContent = currentView.type === 'year'
+      ? 'Campaigns with emails from ' + currentView.value
+      : 'All campaigns';
 
     const filtered = CAMPAIGNS.filter(c => {
       if (currentView.type === 'year' && c.year !== currentView.value) return false;
@@ -1085,6 +1381,105 @@ body {
     }
 
     container.innerHTML = filtered.map(campaignCardHTML).join('');
+  }
+
+  // ===== Tag filter UI =====
+  function renderActiveTags() {
+    const wrap = document.getElementById('activeTags');
+    const countBadge = document.getElementById('tagFilterCount');
+    if (selectedTags.size === 0) {
+      wrap.style.display = 'none';
+      wrap.innerHTML = '';
+      countBadge.style.display = 'none';
+      return;
+    }
+    countBadge.style.display = '';
+    countBadge.textContent = selectedTags.size;
+    wrap.style.display = 'flex';
+    wrap.innerHTML = Array.from(selectedTags).sort().map(t =>
+      `<span class="active-tag">${t}<button type="button" data-tag="${t}" aria-label="Remove ${t}">${ICONS.x}</button></span>`
+    ).join('') + `<button class="active-tag-clear" id="activeClearAll" type="button">Clear all</button>`;
+
+    wrap.querySelectorAll('.active-tag button[data-tag]').forEach(btn => {
+      btn.addEventListener('click', () => toggleTag(btn.dataset.tag, false));
+    });
+    const clearAll = document.getElementById('activeClearAll');
+    if (clearAll) clearAll.addEventListener('click', clearAllTags);
+  }
+
+  function renderTagList() {
+    const list = document.getElementById('tagFilterList');
+    const q = document.getElementById('tagSearchInput').value.toLowerCase().trim();
+    const all = getAllTags().filter(t => !q || t.tag.toLowerCase().includes(q));
+    if (all.length === 0) {
+      list.innerHTML = '<div class="tag-filter-empty">No tags match "' + q + '".</div>';
+      return;
+    }
+    list.innerHTML = all.map(({ tag, count }) => `
+      <label class="tag-option">
+        <input type="checkbox" data-tag="${tag}" ${selectedTags.has(tag) ? 'checked' : ''} />
+        <span class="tag-option-label">${tag}</span>
+        <span class="tag-option-count">${count}</span>
+      </label>
+    `).join('');
+    list.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+      cb.addEventListener('change', () => toggleTag(cb.dataset.tag, cb.checked));
+    });
+  }
+
+  function toggleTag(tag, on) {
+    if (on) selectedTags.add(tag); else selectedTags.delete(tag);
+    renderTagList();
+    renderActiveTags();
+    renderCampaigns();
+  }
+
+  function clearAllTags() {
+    selectedTags.clear();
+    renderTagList();
+    renderActiveTags();
+    renderCampaigns();
+  }
+
+  function selectAllVisibleTags() {
+    const q = document.getElementById('tagSearchInput').value.toLowerCase().trim();
+    getAllTags().filter(t => !q || t.tag.toLowerCase().includes(q))
+      .forEach(t => selectedTags.add(t.tag));
+    renderTagList();
+    renderActiveTags();
+    renderCampaigns();
+  }
+
+  function initTagFilter() {
+    const filter = document.getElementById('tagFilter');
+    const btn = document.getElementById('tagFilterBtn');
+
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const open = filter.classList.toggle('open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (open) {
+        renderTagList();
+        const ts = document.getElementById('tagSearchInput');
+        ts.value = '';
+        setTimeout(() => ts.focus(), 0);
+        renderTagList();
+      }
+    });
+    // Keep panel open when interacting inside it.
+    document.getElementById('tagFilterPanel').addEventListener('click', (e) => e.stopPropagation());
+    // Close on outside click.
+    document.addEventListener('click', () => {
+      filter.classList.remove('open');
+      btn.setAttribute('aria-expanded', 'false');
+    });
+
+    document.getElementById('tagSearchInput').addEventListener('input', renderTagList);
+    document.getElementById('tagSelectAll').addEventListener('click', selectAllVisibleTags);
+    document.getElementById('tagClearAll').addEventListener('click', clearAllTags);
+
+    renderTagList();
+    renderActiveTags();
   }
 
   function openPreview(id) {
@@ -1204,6 +1599,7 @@ body {
 
   buildCampaignNav();
   updateCounts();
+  initTagFilter();
   handleRoute();
 </script>
 
