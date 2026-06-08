@@ -215,6 +215,25 @@
             "event-q2-2026"
           ],
           "sendDate": "June 3, 2026"
+        },
+        {
+          "id": "q2-2026-tradeshows-nyslgitda",
+          "kind": "Tradeshow Post-Event",
+          "title": "NYSLGITDA Spring Conference",
+          "subject": "Great to see you at NYSLGITDA!",
+          "icon": "green",
+          "sourceId": "q2-2026-tradeshows-nyslgitda",
+          "tags": [
+            "one-time-send",
+            "content-post-event",
+            "audience-end-user",
+            "campaign-nyslgitda-q2-2026",
+            "cta-pricing",
+            "cta-vmware-alternative",
+            "event-nyslgitda",
+            "event-q2-2026"
+          ],
+          "sendDate": "June 8, 2026"
         }
       ]
     },
