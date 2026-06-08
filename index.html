@@ -1,0 +1,1627 @@
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email Library — Scale Computing Marketing Ops</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600;700&family=Bebas+Neue&family=JetBrains+Mono:wght@400;500;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sc-blue: #2572b9;
+  --sc-dark: #113859;
+  --sc-green: #42b649;
+  --sc-purple: #9c2e91;
+  --sc-orange: #e8780a;
+
+  --bg: #f7f4ec;
+  --panel: #ffffff;
+  --panel-2: #fbf8ef;
+  --line: #e6dfc9;
+  --line-2: #d4ccb1;
+  --ink: #1a1c14;
+  --ink-2: #595744;
+  --ink-3: #8a866d;
+  --accent: #DAA520;
+  --accent-2: #b8861a;
+  --accent-soft: rgba(218,165,32,0.10);
+
+  --r: 10px;
+  --sh: 0 2px 8px rgba(17,56,89,.05);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+.app-shell { display: flex; min-height: 100vh; align-items: stretch; }
+.main-col { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--panel);
+  border-right: 1px solid var(--line);
+  padding: 18px 12px 24px;
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  height: 100vh;
+  overflow-y: auto;
+  z-index: 50;
+}
+.sidebar::-webkit-scrollbar { width: 6px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 3px; }
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 8px 18px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 14px;
+}
+.sidebar-brand img { height: 36px; width: auto; }
+.sidebar-brand .stack { display: flex; flex-direction: column; line-height: 1.1; min-width: 0; }
+.sidebar-brand .name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  letter-spacing: 1.4px;
+  color: var(--ink);
+  font-weight: 400;
+  white-space: nowrap;
+}
+.sidebar-brand .sub {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+
+.nav-group { margin-top: 14px; }
+.nav-group-header {
+  display: flex;
+  align-items: center;
+  padding: 4px 10px;
+  cursor: pointer;
+  user-select: none;
+  border-radius: 4px;
+}
+.nav-group-header:hover { background: var(--panel-2); }
+.nav-group-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  flex: 1;
+}
+.nav-group-chevron {
+  width: 11px; height: 11px;
+  color: var(--ink-3);
+  transition: transform 0.18s;
+}
+.nav-group.open .nav-group-chevron { transform: rotate(90deg); }
+.nav-group-items { display: none; margin-top: 4px; }
+.nav-group.open .nav-group-items { display: block; }
+
+.nav-item {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+  padding: 9px 10px;
+  border-radius: 7px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-2);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+  position: relative;
+  margin-bottom: 2px;
+  text-decoration: none;
+}
+.nav-item:hover { background: var(--panel-2); color: var(--ink); }
+.nav-item.active {
+  background: var(--accent-soft);
+  color: var(--ink);
+  font-weight: 600;
+}
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 8px; bottom: 8px;
+  width: 3px;
+  background: var(--accent);
+  border-radius: 0 2px 2px 0;
+}
+.nav-icon {
+  width: 16px; height: 16px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center; justify-content: center;
+  color: var(--ink-3);
+}
+.nav-icon svg { width: 16px; height: 16px; stroke-width: 1.8; }
+.nav-item:hover .nav-icon, .nav-item.active .nav-icon { color: var(--accent-2); }
+.nav-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nav-badge {
+  margin-left: auto;
+  background: var(--panel-2);
+  color: var(--ink-3);
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+  letter-spacing: 0.04em;
+  border: 1px solid var(--line);
+  flex-shrink: 0;
+}
+.nav-item.active .nav-badge {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+/* ===== HEADER ===== */
+.hdr {
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+  padding: 12px 28px;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+}
+.hdr h1 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: var(--ink-3);
+  font-weight: 500;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.hdr h1 .bc-group {
+  color: var(--ink-3);
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+}
+.hdr h1 a.bc-group:hover { color: var(--accent-2); }
+.hdr h1 .bc-sep { color: var(--ink-3); font-weight: 400; opacity: 0.55; margin: 0 2px; }
+.hdr h1 .bc-leaf { color: var(--ink); font-weight: 700; }
+
+/* ===== HERO ===== */
+.hero {
+  background: var(--panel-2);
+  border-bottom: 1px solid var(--line);
+  padding: 28px 28px 24px;
+}
+.hero-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.hero h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 36px;
+  letter-spacing: 2px;
+  color: var(--ink);
+  font-weight: 400;
+  line-height: 1.1;
+}
+.hero h2 strong { font-weight: 400; color: var(--accent-2); }
+.hero-meta {
+  margin-top: 8px;
+  color: var(--ink-3);
+  font-size: 13px;
+  font-family: 'Manrope', sans-serif;
+}
+.hero-meta span, .hero-meta strong { color: var(--ink-2); }
+.hero-meta strong { color: var(--ink); font-weight: 600; }
+
+/* Back button row (campaign detail only) */
+.back-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid var(--line);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-2);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.15s;
+}
+.back-link:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--ink);
+}
+.back-link svg { width: 12px; height: 12px; }
+
+/* ===== CONTENT ===== */
+.page { padding: 28px 32px; }
+
+.search-row { margin-bottom: 24px; }
+.search-wrap { position: relative; max-width: 360px; }
+.search-wrap input {
+  width: 100%;
+  padding: 9px 14px 9px 38px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--ink);
+}
+.search-wrap input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+.search-wrap svg {
+  position: absolute;
+  left: 13px; top: 50%;
+  transform: translateY(-50%);
+  width: 16px; height: 16px;
+  color: var(--ink-3);
+}
+
+/* ===== TAG FILTER ===== */
+.filter-bar {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.tag-filter { position: relative; }
+.tag-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 9px 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.tag-filter-btn:hover { border-color: var(--accent); color: var(--ink); }
+.tag-filter-btn svg { width: 15px; height: 15px; }
+.tag-filter-btn .tf-chevron { transition: transform 0.18s; }
+.tag-filter.open .tag-filter-btn .tf-chevron { transform: rotate(180deg); }
+.tag-filter-count {
+  background: var(--accent);
+  color: #fff;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 999px;
+  min-width: 20px;
+  text-align: center;
+}
+.tag-filter-panel {
+  display: none;
+  position: absolute;
+  z-index: 60;
+  top: calc(100% + 6px);
+  left: 0;
+  width: 320px;
+  max-width: 90vw;
+  background: var(--panel);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r);
+  box-shadow: 0 8px 28px rgba(17,56,89,.14);
+  overflow: hidden;
+}
+.tag-filter.open .tag-filter-panel { display: block; }
+.tag-filter-search {
+  position: relative;
+  padding: 12px 12px 8px;
+  border-bottom: 1px solid var(--line);
+}
+.tag-filter-search input {
+  width: 100%;
+  padding: 8px 12px 8px 32px;
+  border-radius: 7px;
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--ink);
+}
+.tag-filter-search input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+.tag-filter-search svg {
+  position: absolute;
+  left: 22px; top: 21px;
+  width: 14px; height: 14px;
+  color: var(--ink-3);
+  pointer-events: none;
+}
+.tag-filter-actions {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+}
+.tag-filter-action {
+  flex: 1;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.tag-filter-action:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); }
+.tag-filter-list {
+  max-height: 280px;
+  overflow-y: auto;
+  padding: 6px;
+}
+.tag-filter-list::-webkit-scrollbar { width: 6px; }
+.tag-filter-list::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 3px; }
+.tag-option {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 9px;
+  border-radius: 6px;
+  cursor: pointer;
+  user-select: none;
+}
+.tag-option:hover { background: var(--panel-2); }
+.tag-option input { width: 14px; height: 14px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
+.tag-option-label {
+  flex: 1;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tag-option-count {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ink-3);
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 1px 7px;
+  flex-shrink: 0;
+}
+.tag-filter-empty {
+  padding: 18px 12px;
+  text-align: center;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+.active-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.active-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--accent-2);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  padding: 3px 6px 3px 10px;
+}
+.active-tag button {
+  border: 0;
+  background: transparent;
+  color: var(--accent-2);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  line-height: 0;
+}
+.active-tag button svg { width: 11px; height: 11px; }
+.active-tag-clear {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-3);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 3px 4px;
+}
+.active-tag-clear:hover { color: var(--ink); }
+
+/* In-campaign email search */
+.detail-search { position: relative; max-width: 420px; margin: 0 0 20px 0; }
+.detail-search input {
+  width: 100%;
+  padding: 9px 14px 9px 38px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--ink);
+}
+.detail-search input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+.detail-search-icon {
+  position: absolute;
+  left: 13px; top: 50%;
+  transform: translateY(-50%);
+  width: 16px; height: 16px;
+  color: var(--ink-3);
+  pointer-events: none;
+}
+.detail-search-icon svg { width: 16px; height: 16px; display: block; }
+
+/* Deep-link focus highlight */
+.email-card-focus {
+  animation: cardFocusPulse 2.6s ease-out 1;
+}
+@keyframes cardFocusPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(218,165,32,0.55); border-color: var(--accent); }
+  15%  { box-shadow: 0 0 0 5px rgba(218,165,32,0.30); border-color: var(--accent); }
+  100% { box-shadow: var(--sh); border-color: var(--line); }
+}
+
+.view-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  margin: 0 0 14px 0;
+}
+
+/* Share URL hint */
+/* ===== CAMPAIGN LIST CARDS (no expansion, click to navigate) ===== */
+.campaign {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  margin-bottom: 14px;
+  overflow: hidden;
+  box-shadow: var(--sh);
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.12s;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+.campaign:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+.campaign-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 22px;
+}
+.campaign-icon {
+  width: 48px; height: 48px;
+  border-radius: 10px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.campaign-icon svg { width: 22px; height: 22px; color: var(--ink-2); }
+.campaign-body { flex: 1; min-width: 0; }
+.campaign-kind {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.campaign-title {
+  font-family: 'Manrope', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+.campaign-count {
+  background: var(--panel-2);
+  color: var(--ink-2);
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+.campaign-arrow {
+  width: 22px; height: 22px;
+  color: var(--ink-3);
+  flex-shrink: 0;
+}
+.campaign:hover .campaign-arrow { color: var(--accent-2); }
+
+/* ===== EMAIL CARDS GRID (campaign detail view) ===== */
+.email-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 14px;
+}
+.email-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--sh);
+}
+.email-card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.email-icon {
+  width: 38px; height: 38px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.email-icon svg { width: 18px; height: 18px; }
+.icon-blue { background: rgba(37,114,185,0.10); color: var(--sc-blue); }
+.icon-purple { background: rgba(156,46,145,0.10); color: var(--sc-purple); }
+.icon-green { background: rgba(66,182,73,0.10); color: var(--sc-green); }
+.icon-orange { background: rgba(232,120,10,0.12); color: var(--sc-orange); }
+.email-body { flex: 1; min-width: 0; }
+.email-kind {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 1.4px;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+.email-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.3;
+}
+
+.email-meta { margin-bottom: 14px; }
+.email-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.email-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--ink-2);
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 2px 9px;
+  white-space: nowrap;
+}
+.email-tag.tag-matched {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent-2);
+}
+.email-tag-sep {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: var(--ink-3);
+  align-self: center;
+  margin: 0 1px;
+}
+.email-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--ink-3);
+}
+.email-date svg { width: 11px; height: 11px; stroke-width: 2; }
+
+/* ===== Send status + pre/post phase badges ===== */
+.email-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.status-badge, .phase-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.status-badge svg { width: 11px; height: 11px; stroke-width: 2.4; }
+.status-sent     { background: rgba(66,182,73,0.12);  color: #2e8a34;        border-color: rgba(66,182,73,0.30); }
+.status-today    { background: rgba(232,120,10,0.14); color: var(--sc-orange); border-color: rgba(232,120,10,0.34); }
+.status-upcoming { background: rgba(37,114,185,0.12); color: var(--sc-blue);   border-color: rgba(37,114,185,0.30); }
+.status-nodate   { background: var(--panel-2);        color: var(--ink-3);     border-color: var(--line); }
+
+.phase-badge { background: var(--panel); border-color: var(--line-2); }
+.phase-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.phase-pre  { color: var(--sc-blue);   border-color: rgba(37,114,185,0.35); }
+.phase-post { color: var(--sc-purple); border-color: rgba(156,46,145,0.32); }
+.phase-pre  .phase-dot { background: var(--sc-blue); }
+.phase-post .phase-dot { background: var(--sc-purple); }
+
+/* Status edge accent on the whole card — quick scan of sent vs still-to-send */
+.email-card.edge-sent     { border-left: 3px solid rgba(66,182,73,0.55); }
+.email-card.edge-today    { border-left: 3px solid var(--sc-orange); }
+.email-card.edge-upcoming { border-left: 3px solid var(--sc-blue); }
+.email-card.edge-nodate   { border-left: 3px solid var(--line-2); }
+
+.email-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+.btn {
+  flex: 1;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+.btn:hover { background: var(--accent-soft); border-color: var(--accent); }
+.btn svg { width: 12px; height: 12px; }
+.btn.copied { background: rgba(66,182,73,0.15); border-color: var(--sc-green); color: #2a7e30; }
+
+.empty-hint {
+  background: var(--panel);
+  border: 1px dashed var(--line-2);
+  border-radius: 10px;
+  padding: 32px;
+  text-align: center;
+  color: var(--ink-2);
+  font-size: 14px;
+}
+
+/* ===== MODAL ===== */
+.modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(26, 28, 20, 0.55);
+  display: none;
+  align-items: flex-start; justify-content: center;
+  padding: 40px 20px;
+  z-index: 100;
+  overflow-y: auto;
+}
+.modal-backdrop.open { display: flex; }
+.modal {
+  background: var(--panel);
+  border-radius: 12px;
+  width: 100%; max-width: 800px;
+  max-height: calc(100vh - 80px);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel-2);
+  gap: 12px;
+}
+.modal-title-wrap { flex: 1; min-width: 0; }
+.modal-title {
+  font-family: 'Manrope', sans-serif;
+  font-size: 14px; font-weight: 700;
+  color: var(--ink);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.modal-subject {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px; font-weight: 500;
+  color: var(--ink-2);
+  margin-top: 2px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.modal-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.modal-close {
+  background: transparent; border: none; cursor: pointer;
+  color: var(--ink-2); padding: 4px;
+  display: flex; align-items: center; justify-content: center;
+}
+.modal-close:hover { color: var(--ink); }
+.modal-body {
+  flex: 1; overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  background: #f2f2f2;
+  padding: 24px;
+  min-height: 0;
+}
+.modal-frame-wrap {
+  width: 720px; max-width: 100%;
+  margin: 0 auto;
+  background: #f2f2f2;
+  border-radius: 4px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+.modal-frame-wrap iframe {
+  width: 100%; min-width: 320px;
+  height: 400px;
+  border: none; display: block;
+  background: #f2f2f2;
+}
+
+@media (max-width: 900px) {
+  .app-shell { flex-direction: column; }
+  .sidebar { width: 100%; height: auto; position: relative; border-right: none; border-bottom: 1px solid var(--line); }
+  .page { padding: 24px 20px; }
+  .hdr, .hero { padding-left: 20px; padding-right: 20px; }
+  .hero h2 { font-size: 28px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <img src="data:image/png;base64,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" alt="Scale Computing" />
+      <div class="stack">
+        <div class="name">Scale Computing</div>
+        <div class="sub">Email Library</div>
+      </div>
+    </div>
+
+    <div class="nav-group" id="navGroup-campaign">
+      <div class="nav-group-header">
+        <span class="nav-group-label">By Campaign</span>
+        <svg class="nav-group-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <div class="nav-group-items">
+        <div id="campaignNav"></div>
+      </div>
+    </div>
+
+    <div class="nav-group" id="navGroup-year">
+      <div class="nav-group-header">
+        <span class="nav-group-label">By Year</span>
+        <svg class="nav-group-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <div class="nav-group-items">
+        <div class="nav-item" data-view="year" data-value="2026">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+          <span class="nav-label">2026</span>
+          <span class="nav-badge" id="count-2026">0</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main-col">
+
+    <div class="hdr">
+      <h1 id="breadcrumb">
+        <span class="bc-group">Channels</span>
+        <span class="bc-sep">/</span>
+        <span class="bc-leaf">Email Library</span>
+      </h1>
+    </div>
+
+    <div class="hero">
+      <div class="hero-label" id="heroLabel">Marketing Operations</div>
+      <h2 id="heroTitle"><strong>Email</strong> Library</h2>
+      <div class="hero-meta" id="heroMeta">Click a campaign to view its emails &middot; <strong>Preview</strong> opens the rendered email &middot; <strong>Copy HTML</strong> pulls the code for Pardot</div>
+    </div>
+
+    <div class="page">
+
+      <!-- ===== HOME VIEW: Campaign cards list ===== -->
+      <div id="homeView">
+        <div class="search-row">
+          <div class="filter-bar">
+            <div class="search-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="searchInput" placeholder="Search campaigns or emails..." />
+            </div>
+
+            <div class="tag-filter" id="tagFilter">
+              <button class="tag-filter-btn" id="tagFilterBtn" type="button" aria-expanded="false">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                <span>Filter by tags</span>
+                <span class="tag-filter-count" id="tagFilterCount" style="display:none;">0</span>
+                <svg class="tf-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="tag-filter-panel" id="tagFilterPanel">
+                <div class="tag-filter-search">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <input type="text" id="tagSearchInput" placeholder="Search tags…" autocomplete="off" />
+                </div>
+                <div class="tag-filter-actions">
+                  <button class="tag-filter-action" id="tagSelectAll" type="button">Select all</button>
+                  <button class="tag-filter-action" id="tagClearAll" type="button">Clear all</button>
+                </div>
+                <div class="tag-filter-list" id="tagFilterList"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="active-tags" id="activeTags" style="display:none;"></div>
+        </div>
+
+        <div class="view-label" id="viewLabel">All campaigns</div>
+        <div id="campaignsContainer"></div>
+      </div>
+
+      <!-- ===== DETAIL VIEW: Single campaign emails ===== -->
+      <div id="detailView" style="display:none;">
+        <div class="back-row">
+          <button class="back-link" id="backLink" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+            Back to Email Library
+          </button>
+        </div>
+
+        <div id="emailsContainer"></div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- ===== MODAL ===== -->
+<div class="modal-backdrop" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title-wrap">
+        <div class="modal-title" id="modalTitle">Email title</div>
+        <div class="modal-subject" id="modalSubject">Subject line</div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn" id="modalCopyBtn" style="flex: 0 0 auto;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy HTML
+        </button>
+        <button class="modal-close" id="modalClose" aria-label="Close">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-frame-wrap">
+        <iframe id="modalFrame" title="Email preview"></iframe>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Email HTML now lives as individual files in /emails/<sourceId>.html
+  function emailFileUrl(sourceId) { return "emails/" + sourceId + ".html"; }
+  async function fetchEmailHTML(sourceId) {
+    const res = await fetch(emailFileUrl(sourceId));
+    if (!res.ok) throw new Error("Could not load " + sourceId);
+    return res.text();
+  }
+
+  let CAMPAIGNS = [];   // populated from manifest.json at load
+
+  const ICONS = {
+    email: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>',
+    calendar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+    folder: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>',
+    eye: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',
+    copy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
+    check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>',
+    clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>',
+    arrow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>',
+    search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
+    link: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
+    x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
+  };
+
+  let detailCampaign = null, detailFocusEmailId = null;
+  const selectedTags = new Set();
+
+  let currentView = { type: 'all', value: null };
+
+  function getEmailById(id) {
+    for (const c of CAMPAIGNS) for (const e of c.emails) if (e.id === id) return e;
+    return null;
+  }
+
+  function getCampaignById(id) {
+    return CAMPAIGNS.find(c => c.id === id);
+  }
+
+  function getCampaignByEmailId(id) {
+    return CAMPAIGNS.find(c => c.emails.some(e => e.id === id)) || null;
+  }
+
+  // ===== Send-date helpers: parsing, ordering, sent/scheduled status, pre/post phase =====
+
+  // Parse a free-form send-date string to a local-midnight timestamp, or NaN if not a concrete date.
+  // Handles ISO (2026-06-15, 2026/6/5, 2026-06), US (06/15/2026), and natural language (June 15, 2026).
+  function parseSendDate(raw) {
+    if (!raw) return NaN;
+    const s = String(raw).trim();
+    let m = s.match(/(\d{4})[-/](\d{1,2})(?:[-/](\d{1,2}))?/);
+    if (m) return new Date(+m[1], +m[2] - 1, m[3] ? +m[3] : 1).getTime();
+    m = s.match(/(\d{1,2})[/](\d{1,2})[/](\d{4})/);
+    if (m) return new Date(+m[3], +m[1] - 1, +m[2]).getTime();
+    const t = Date.parse(s);
+    return isNaN(t) ? NaN : t;
+  }
+
+  // Ordering key: concrete dates use their timestamp; year-only/quarter strings fall back to that
+  // year; anything undated sinks to the bottom. Used to sort most-recent / future first.
+  function sendSortKey(email) {
+    const ts = parseSendDate(email.sendDate);
+    if (!isNaN(ts)) return ts;
+    const ym = String(email.sendDate || '').match(/(20\d{2})/);
+    if (ym) return new Date(+ym[1], 0, 1).getTime() - 1;
+    return -Infinity;
+  }
+  function bySendDateDesc(a, b) { return sendSortKey(b) - sendSortKey(a); }
+
+  function todayMidnight() { const d = new Date(); d.setHours(0, 0, 0, 0); return d.getTime(); }
+
+  // 'sent' | 'today' | 'upcoming' | 'nodate' — only concrete dates yield a sent/upcoming verdict.
+  function sendStatus(email) {
+    const ts = parseSendDate(email.sendDate);
+    if (isNaN(ts)) return 'nodate';
+    const today = todayMidnight();
+    if (ts < today) return 'sent';
+    if (ts === today) return 'today';
+    return 'upcoming';
+  }
+
+  // 'pre' | 'post' | null — derived from the email kind (explicit, then common synonyms).
+  function eventPhase(email) {
+    const k = (email.kind || '').toLowerCase();
+    if (/\bpost[\s-]?event\b|\bpost\b/.test(k)) return 'post';
+    if (/\bpre[\s-]?event\b|\bpre\b/.test(k)) return 'pre';
+    if (/\b(replay|recap|round[\s-]?up|on[\s-]?demand|follow[\s-]?up|thank\s?you|highlights|wrap[\s-]?up)\b/.test(k)) return 'post';
+    if (/\b(save the date|invite|invitation|registration|rsvp|countdown|reminder)\b/.test(k)) return 'pre';
+    return null;
+  }
+
+  const STATUS_META = {
+    sent:     { label: 'Sent',          icon: 'check' },
+    today:    { label: 'Sending today', icon: 'clock' },
+    upcoming: { label: 'Scheduled',     icon: 'clock' },
+    nodate:   { label: 'Date TBD',      icon: 'calendar' }
+  };
+
+  function emailBadgesHTML(email) {
+    const st = sendStatus(email);
+    const meta = STATUS_META[st];
+    let html = `<span class="status-badge status-${st}">${ICONS[meta.icon]}${meta.label}</span>`;
+    const phase = eventPhase(email);
+    if (phase) {
+      html += `<span class="phase-badge phase-${phase}"><span class="phase-dot"></span>${phase === 'pre' ? 'Pre-event' : 'Post-event'}</span>`;
+    }
+    return `<div class="email-badges">${html}</div>`;
+  }
+
+  // Unique tags across the library (respecting an active year filter), with email counts.
+  function getAllTags() {
+    const counts = {};
+    CAMPAIGNS.forEach(c => {
+      if (currentView.type === 'year' && c.year !== currentView.value) return;
+      c.emails.forEach(e => (e.tags || []).forEach(t => { counts[t] = (counts[t] || 0) + 1; }));
+    });
+    return Object.keys(counts).sort().map(t => ({ tag: t, count: counts[t] }));
+  }
+
+  function emailMatchesSelectedTags(email) {
+    if (selectedTags.size === 0) return true;
+    const tags = email.tags || [];
+    // OR logic: show emails that carry ANY of the selected tags.
+    for (const t of selectedTags) if (tags.includes(t)) return true;
+    return false;
+  }
+
+  function getFilteredEmails(textSearch) {
+    const q = (textSearch || '').toLowerCase().trim();
+    const out = [];
+    CAMPAIGNS.forEach(c => {
+      if (currentView.type === 'year' && c.year !== currentView.value) return;
+      c.emails.forEach(e => {
+        if (!emailMatchesSelectedTags(e)) return;
+        if (q) {
+          const hay = (e.title + ' ' + e.subject + ' ' + e.kind + ' ' + (e.tags || []).join(' ')).toLowerCase();
+          if (!hay.includes(q)) return;
+        }
+        out.push({ email: e, campaign: c });
+      });
+    });
+    return out;
+  }
+
+  function updateCounts() {
+    let y2026 = 0;
+    CAMPAIGNS.forEach(c => {
+      if (c.year === '2026') y2026 += c.emails.length;
+    });
+    document.getElementById('count-2026').textContent = y2026;
+  }
+
+  function buildCampaignNav() {
+    const container = document.getElementById('campaignNav');
+    container.innerHTML = CAMPAIGNS.map(c => `
+      <div class="nav-item" data-campaign-link="${c.id}" data-campaign="${c.id}" role="button" tabindex="0">
+        <span class="nav-icon">${ICONS.folder}</span>
+        <span class="nav-label">${c.title}</span>
+        <span class="nav-badge">${c.emails.length}</span>
+      </div>
+    `).join('');
+  }
+
+  // ===== ROUTING =====
+  function parseHash() {
+    const hash = window.location.hash.replace(/^#\/?/, '');
+    if (!hash) return { route: 'home' };
+    const parts = hash.split('/');
+    if (parts[0] === 'campaign' && parts[1]) {
+      return { route: 'campaign', id: decodeURIComponent(parts[1]), emailId: parts[2] ? decodeURIComponent(parts[2]) : null };
+    }
+    if (parts[0] === 'year' && parts[1]) {
+      return { route: 'year', year: parts[1] };
+    }
+    return { route: 'home' };
+  }
+
+  function navigate(hash) {
+    if (window.location.hash === hash) {
+      handleRoute();
+    } else {
+      window.location.hash = hash;
+    }
+  }
+
+  function handleRoute() {
+    const r = parseHash();
+    if (r.route === 'campaign') {
+      const c = getCampaignById(r.id);
+      if (!c) { navigate(''); return; }
+      showCampaignDetail(c, r.emailId);
+    } else if (r.route === 'year') {
+      currentView = { type: 'year', value: r.year };
+      showHome();
+    } else {
+      currentView = { type: 'all', value: null };
+      showHome();
+    }
+  }
+
+  function showHome() {
+    document.getElementById('homeView').style.display = '';
+    document.getElementById('detailView').style.display = 'none';
+
+    // Reset header to library view
+    document.getElementById('breadcrumb').innerHTML = `
+      <span class="bc-group">Channels</span>
+      <span class="bc-sep">/</span>
+      <span class="bc-leaf">Email Library</span>
+    `;
+    document.getElementById('heroLabel').textContent = 'Marketing Operations';
+    document.getElementById('heroTitle').innerHTML = '<strong>Email</strong> Library';
+    document.getElementById('heroMeta').innerHTML = 'Click a campaign to view its emails &middot; <strong>Preview</strong> opens the rendered email &middot; <strong>Copy HTML</strong> pulls the code for Pardot';
+
+    // Update sidebar active state
+    document.querySelectorAll('.sidebar .nav-item').forEach(n => n.classList.remove('active'));
+    if (currentView.type === 'year') {
+      const el = document.querySelector(`.sidebar .nav-item[data-view="year"][data-value="${currentView.value}"]`);
+      if (el) el.classList.add('active');
+    }
+
+    // Collapse By Campaign group when returning to home (unless a year filter is active)
+    document.getElementById('navGroup-campaign').classList.remove('open');
+
+    // View label
+    let label = 'All campaigns';
+    if (currentView.type === 'year') label = `Campaigns with emails from ${currentView.value}`;
+    document.getElementById('viewLabel').textContent = label;
+
+    renderCampaigns();
+  }
+
+  function showCampaignDetail(campaign, focusEmailId) {
+    document.getElementById('homeView').style.display = 'none';
+    document.getElementById('detailView').style.display = '';
+    detailFocusEmailId = focusEmailId || null;
+
+    // Breadcrumb (Email Library is now a clickable span)
+    document.getElementById('breadcrumb').innerHTML = `
+      <span class="bc-group">Channels</span>
+      <span class="bc-sep">/</span>
+      <span class="bc-group" id="bcLibrary" role="button" tabindex="0" style="cursor:pointer;">Email Library</span>
+      <span class="bc-sep">/</span>
+      <span class="bc-leaf">${campaign.title}</span>
+    `;
+    document.getElementById('bcLibrary').addEventListener('click', () => navigate(''));
+    document.getElementById('bcLibrary').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(''); }
+    });
+
+    // Hero block
+    document.getElementById('heroLabel').textContent = campaign.kind;
+    document.getElementById('heroTitle').textContent = campaign.title;
+    document.getElementById('heroMeta').innerHTML = `${campaign.emails.length} email${campaign.emails.length !== 1 ? 's' : ''} in this campaign &middot; <strong>Preview</strong> opens the rendered email &middot; <strong>Copy HTML</strong> pulls the code for Pardot`;
+
+    // Update sidebar active state
+    document.querySelectorAll('.sidebar .nav-item').forEach(n => n.classList.remove('active'));
+    const navEl = document.querySelector(`.sidebar .nav-item[data-campaign="${campaign.id}"]`);
+    if (navEl) navEl.classList.add('active');
+    // Auto-open the By Campaign group
+    document.getElementById('navGroup-campaign').classList.add('open');
+
+    // Email cards (with in-campaign search)
+    detailCampaign = campaign;
+    document.getElementById('emailsContainer').innerHTML = `
+      <div class="detail-search">
+        <span class="detail-search-icon">${ICONS.search}</span>
+        <input type="text" id="emailSearchInput" placeholder="Search emails in this campaign by title, subject, or kind…" autocomplete="off" />
+      </div>
+      <div class="email-grid" id="emailGrid"></div>
+    `;
+    const emailSearch = document.getElementById('emailSearchInput');
+    emailSearch.addEventListener('input', () => renderEmailCards(campaign, emailSearch.value));
+    renderEmailCards(campaign, '');
+
+    // Deep-link focus: scroll to + highlight the card, then open its preview
+    if (focusEmailId && getEmailById(focusEmailId)) {
+      const card = document.getElementById('emailCard-' + focusEmailId);
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        card.classList.add('email-card-focus');
+        setTimeout(() => card.classList.remove('email-card-focus'), 2600);
+      }
+      openPreview(focusEmailId);
+    }
+  }
+
+  function renderEmailCards(campaign, search) {
+    const q = (search || '').toLowerCase().trim();
+    const list = campaign.emails.filter(e => {
+      if (!q) return true;
+      return (e.title + ' ' + e.subject + ' ' + e.kind + ' ' + (e.tags || []).join(' ')).toLowerCase().includes(q);
+    });
+    list.sort(bySendDateDesc);
+    const grid = document.getElementById('emailGrid');
+    if (!grid) return;
+    if (list.length === 0) {
+      grid.innerHTML = '<div class="empty-hint">No emails match your search.</div>';
+      return;
+    }
+    grid.innerHTML = list.map(e => emailCardHTML(e, campaign.id)).join('');
+    wireEmailCardButtons(grid);
+  }
+
+  // Shared wiring for email card buttons (used by both the detail view and the
+  // tag-filtered home view). The link button carries its own campaign id.
+  function wireEmailCardButtons(grid) {
+    grid.querySelectorAll('.btn-preview').forEach(btn => {
+      btn.addEventListener('click', () => openPreview(btn.dataset.id));
+    });
+    grid.querySelectorAll('.btn-copy').forEach(btn => {
+      btn.addEventListener('click', () => copyHTML(btn.dataset.id, btn));
+    });
+    grid.querySelectorAll('.btn-link').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const cid = btn.dataset.campaign || (detailCampaign && detailCampaign.id);
+        if (!cid) return;
+        const url = window.location.origin + window.location.pathname + '#/campaign/' + cid + '/' + btn.dataset.id;
+        copyText(url, btn);
+      });
+    });
+  }
+
+  function emailCardHTML(email, campaignId) {
+    return `
+      <div class="email-card edge-${sendStatus(email)}" id="emailCard-${email.id}">
+        ${emailBadgesHTML(email)}
+        <div class="email-card-top">
+          <div class="email-icon icon-${email.icon}">${ICONS.email}</div>
+          <div class="email-body">
+            <div class="email-kind">${email.kind}</div>
+            <div class="email-title">${email.title}</div>
+          </div>
+        </div>
+        ${((email.tags && email.tags.length) || email.sendDate) ? `
+        <div class="email-meta">
+          ${email.sendDate ? `<div class="email-date">${ICONS.calendar} Send Date: ${email.sendDate}</div>` : ''}
+          ${(email.tags && email.tags.length) ? `<div class="email-tags">${email.tags.map(t => `<span class="email-tag${selectedTags.has(t) ? ' tag-matched' : ''}">${t}</span>`).join('<span class="email-tag-sep">, </span>')}</div>` : ''}
+        </div>` : ''}
+        <div class="email-actions">
+          <button class="btn btn-preview" data-id="${email.id}">${ICONS.eye} Preview</button>
+          <button class="btn btn-copy" data-id="${email.id}">${ICONS.copy} Copy HTML</button>
+          <button class="btn btn-link" data-id="${email.id}" data-campaign="${campaignId || ''}" title="Copy a direct review link to this email">${ICONS.link} Copy link</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function campaignCardHTML(c) {
+    return `
+      <div class="campaign" data-campaign-link="${c.id}" role="button" tabindex="0">
+        <div class="campaign-header">
+          <div class="campaign-icon">${ICONS.calendar}</div>
+          <div class="campaign-body">
+            <div class="campaign-kind">${c.kind}</div>
+            <div class="campaign-title">${c.title}</div>
+          </div>
+          <span class="campaign-count">${c.emails.length} EMAIL${c.emails.length !== 1 ? 'S' : ''}</span>
+          <span class="campaign-arrow">${ICONS.arrow}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderCampaigns() {
+    const container = document.getElementById('campaignsContainer');
+    const rawSearch = document.getElementById('searchInput').value;
+    const search = rawSearch.toLowerCase().trim();
+    const label = document.getElementById('viewLabel');
+
+    // When one or more tags are selected, flatten to matching email cards
+    // (across campaigns) instead of showing campaign cards.
+    if (selectedTags.size > 0) {
+      const matches = getFilteredEmails(search);
+      matches.sort((a, b) => bySendDateDesc(a.email, b.email));
+      label.textContent = matches.length === 1
+        ? '1 email matches the selected tags'
+        : matches.length + ' emails match the selected tags';
+      if (matches.length === 0) {
+        container.innerHTML = '<div class="empty-hint">No emails match the selected tags' + (search ? ' and your search.' : '.') + '</div>';
+        return;
+      }
+      container.innerHTML = '<div class="email-grid">' +
+        matches.map(m => emailCardHTML(m.email, m.campaign.id)).join('') +
+        '</div>';
+      wireEmailCardButtons(container);
+      return;
+    }
+
+    // Default: campaign cards.
+    label.textContent = currentView.type === 'year'
+      ? 'Campaigns with emails from ' + currentView.value
+      : 'All campaigns';
+
+    const filtered = CAMPAIGNS.filter(c => {
+      if (currentView.type === 'year' && c.year !== currentView.value) return false;
+      if (search) {
+        const haystack = (c.title + ' ' + c.kind + ' ' + c.emails.map(e => e.title + ' ' + e.subject + ' ' + (e.tags || []).join(' ')).join(' ')).toLowerCase();
+        return haystack.includes(search);
+      }
+      return true;
+    });
+
+    if (filtered.length === 0) {
+      container.innerHTML = '<div class="empty-hint">No campaigns match your filters.</div>';
+      return;
+    }
+
+    container.innerHTML = filtered.map(campaignCardHTML).join('');
+  }
+
+  // ===== Tag filter UI =====
+  function renderActiveTags() {
+    const wrap = document.getElementById('activeTags');
+    const countBadge = document.getElementById('tagFilterCount');
+    if (selectedTags.size === 0) {
+      wrap.style.display = 'none';
+      wrap.innerHTML = '';
+      countBadge.style.display = 'none';
+      return;
+    }
+    countBadge.style.display = '';
+    countBadge.textContent = selectedTags.size;
+    wrap.style.display = 'flex';
+    wrap.innerHTML = Array.from(selectedTags).sort().map(t =>
+      `<span class="active-tag">${t}<button type="button" data-tag="${t}" aria-label="Remove ${t}">${ICONS.x}</button></span>`
+    ).join('') + `<button class="active-tag-clear" id="activeClearAll" type="button">Clear all</button>`;
+
+    wrap.querySelectorAll('.active-tag button[data-tag]').forEach(btn => {
+      btn.addEventListener('click', () => toggleTag(btn.dataset.tag, false));
+    });
+    const clearAll = document.getElementById('activeClearAll');
+    if (clearAll) clearAll.addEventListener('click', clearAllTags);
+  }
+
+  function renderTagList() {
+    const list = document.getElementById('tagFilterList');
+    const q = document.getElementById('tagSearchInput').value.toLowerCase().trim();
+    const all = getAllTags().filter(t => !q || t.tag.toLowerCase().includes(q));
+    if (all.length === 0) {
+      list.innerHTML = '<div class="tag-filter-empty">No tags match "' + q + '".</div>';
+      return;
+    }
+    list.innerHTML = all.map(({ tag, count }) => `
+      <label class="tag-option">
+        <input type="checkbox" data-tag="${tag}" ${selectedTags.has(tag) ? 'checked' : ''} />
+        <span class="tag-option-label">${tag}</span>
+        <span class="tag-option-count">${count}</span>
+      </label>
+    `).join('');
+    list.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+      cb.addEventListener('change', () => toggleTag(cb.dataset.tag, cb.checked));
+    });
+  }
+
+  function toggleTag(tag, on) {
+    if (on) selectedTags.add(tag); else selectedTags.delete(tag);
+    renderTagList();
+    renderActiveTags();
+    renderCampaigns();
+  }
+
+  function clearAllTags() {
+    selectedTags.clear();
+    renderTagList();
+    renderActiveTags();
+    renderCampaigns();
+  }
+
+  function selectAllVisibleTags() {
+    const q = document.getElementById('tagSearchInput').value.toLowerCase().trim();
+    getAllTags().filter(t => !q || t.tag.toLowerCase().includes(q))
+      .forEach(t => selectedTags.add(t.tag));
+    renderTagList();
+    renderActiveTags();
+    renderCampaigns();
+  }
+
+  function initTagFilter() {
+    const filter = document.getElementById('tagFilter');
+    const btn = document.getElementById('tagFilterBtn');
+
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const open = filter.classList.toggle('open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (open) {
+        renderTagList();
+        const ts = document.getElementById('tagSearchInput');
+        ts.value = '';
+        setTimeout(() => ts.focus(), 0);
+        renderTagList();
+      }
+    });
+    // Keep panel open when interacting inside it.
+    document.getElementById('tagFilterPanel').addEventListener('click', (e) => e.stopPropagation());
+    // Close on outside click.
+    document.addEventListener('click', () => {
+      filter.classList.remove('open');
+      btn.setAttribute('aria-expanded', 'false');
+    });
+
+    document.getElementById('tagSearchInput').addEventListener('input', renderTagList);
+    document.getElementById('tagSelectAll').addEventListener('click', selectAllVisibleTags);
+    document.getElementById('tagClearAll').addEventListener('click', clearAllTags);
+
+    renderTagList();
+    renderActiveTags();
+  }
+
+  function openPreview(id) {
+    const email = getEmailById(id);
+    if (!email) return;
+    document.getElementById('modalTitle').textContent = email.title;
+    document.getElementById('modalSubject').textContent = 'Subject: ' + email.subject;
+    const frame = document.getElementById('modalFrame');
+    frame.style.height = '400px';
+    document.getElementById('modalCopyBtn').dataset.id = id;
+    document.getElementById('modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+
+    const resize = () => {
+      try {
+        const doc = frame.contentDocument || frame.contentWindow.document;
+        const h = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight);
+        if (h > 100) frame.style.height = (h + 40) + 'px';
+        const imgs = doc.images;
+        for (let i = 0; i < imgs.length; i++) {
+          if (!imgs[i].complete) imgs[i].addEventListener('load', resize);
+        }
+      } catch (e) {}
+    };
+    frame.onload = () => { [100, 400, 900, 1800].forEach(t => setTimeout(resize, t)); };
+    frame.src = emailFileUrl(email.sourceId);
+  }
+  function closePreview() {
+    document.getElementById('modal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  function copyHTML(id, btn) {
+    const email = getEmailById(id);
+    const sourceId = email ? email.sourceId : id;
+    const finish = () => {
+      const original = btn.innerHTML;
+      btn.innerHTML = ICONS.check + ' Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.innerHTML = original; btn.classList.remove('copied'); }, 1800);
+    };
+    fetchEmailHTML(sourceId).then(emailHtml => {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(emailHtml).then(finish).catch(() => fallbackCopy(emailHtml, finish));
+      } else fallbackCopy(emailHtml, finish);
+    }).catch(() => alert('Could not load the email HTML to copy.'));
+  }
+  function copyText(text, btn) {
+    const finish = () => {
+      const original = btn.innerHTML;
+      btn.innerHTML = ICONS.check + ' Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.innerHTML = original; btn.classList.remove('copied'); }, 1800);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(finish).catch(() => fallbackCopy(text, finish));
+    } else fallbackCopy(text, finish);
+  }
+  function fallbackCopy(text, onSuccess) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); onSuccess(); }
+    catch (e) { alert('Copy failed.'); }
+    document.body.removeChild(ta);
+  }
+
+  document.getElementById('modalClose').addEventListener('click', closePreview);
+  document.getElementById('modal').addEventListener('click', (e) => { if (e.target.id === 'modal') closePreview(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePreview(); });
+  document.getElementById('modalCopyBtn').addEventListener('click', (e) => {
+    const id = e.currentTarget.dataset.id;
+    if (id) copyHTML(id, e.currentTarget);
+  });
+  document.getElementById('searchInput').addEventListener('input', renderCampaigns);
+
+  document.getElementById('backLink').addEventListener('click', (e) => {
+    e.preventDefault();
+    navigate('');
+  });
+
+  document.querySelectorAll('.nav-group-header').forEach(header => {
+    header.addEventListener('click', () => header.parentElement.classList.toggle('open'));
+  });
+
+  // Wire up Year nav items (they update currentView and navigate home)
+  document.querySelectorAll('.sidebar .nav-item[data-view="year"]').forEach(item => {
+    item.addEventListener('click', (e) => {
+      e.stopPropagation();
+      navigate('#/year/' + item.dataset.value);
+    });
+  });
+
+  // Delegated handler for all campaign navigation (cards + sidebar items)
+  // Uses JS navigation instead of <a href> to avoid Claude's external-link dialog
+  document.body.addEventListener('click', (e) => {
+    const trigger = e.target.closest('[data-campaign-link]');
+    if (trigger) {
+      e.preventDefault();
+      navigate('#/campaign/' + trigger.dataset.campaignLink);
+    }
+  });
+  // Keyboard support for the same elements
+  document.body.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const trigger = e.target.closest('[data-campaign-link]');
+    if (trigger) {
+      e.preventDefault();
+      navigate('#/campaign/' + trigger.dataset.campaignLink);
+    }
+  });
+
+  // Hashchange listener for browser back/forward
+  window.addEventListener('hashchange', handleRoute);
+
+  async function init() {
+    try {
+      const res = await fetch('manifest.json', { cache: 'no-store' });
+      if (!res.ok) throw new Error('manifest.json failed to load');
+      const data = await res.json();
+      CAMPAIGNS = data.campaigns || [];
+    } catch (e) {
+      document.getElementById('campaignsContainer').innerHTML =
+        '<div class="empty-hint">Could not load manifest.json. If you are opening this file directly from your computer, view it through GitHub Pages (or a local web server) instead — browsers block file loads otherwise.</div>';
+      return;
+    }
+    buildCampaignNav();
+    updateCounts();
+    initTagFilter();
+    handleRoute();
+  }
+  init();
+</script>
+
+</body>
+</html>
