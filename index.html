@@ -526,16 +526,6 @@ body {
 }
 .detail-search-icon svg { width: 16px; height: 16px; display: block; }
 
-/* Deep-link focus highlight */
-.email-card-focus {
-  animation: cardFocusPulse 2.6s ease-out 1;
-}
-@keyframes cardFocusPulse {
-  0%   { box-shadow: 0 0 0 0 rgba(37,114,185,0.55); border-color: var(--accent); }
-  15%  { box-shadow: 0 0 0 5px rgba(37,114,185,0.30); border-color: var(--accent); }
-  100% { box-shadow: var(--sh); border-color: var(--line); }
-}
-
 .view-label {
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
@@ -617,13 +607,6 @@ body {
 }
 .campaign:hover .campaign-arrow { color: var(--accent-2); }
 
-/* ===== EMAIL CARDS GRID (campaign detail view) ===== */
-.email-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 14px;
-}
-
 /* ===== Email table (campaign + tag-filtered views) ===== */
 .email-table-wrap {
   background: var(--panel);
@@ -691,21 +674,7 @@ body {
   0%  { background: rgba(37,114,185,0.18); }
   100% { background: transparent; }
 }
-.email-card {
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 16px 18px;
-  display: flex;
-  flex-direction: column;
-  box-shadow: var(--sh);
-}
-.email-card-top {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  margin-bottom: 14px;
-}
+/* Email-icon swatch (shared by the table rows) */
 .email-icon {
   width: 38px; height: 38px;
   border-radius: 8px;
@@ -717,74 +686,8 @@ body {
 .icon-purple { background: rgba(156,46,145,0.10); color: var(--sc-purple); }
 .icon-green { background: rgba(66,182,73,0.10); color: var(--sc-green); }
 .icon-orange { background: rgba(232,120,10,0.12); color: var(--sc-orange); }
-.email-body { flex: 1; min-width: 0; }
-.email-kind {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  font-weight: 500;
-  letter-spacing: 1.4px;
-  color: var(--ink-3);
-  text-transform: uppercase;
-  margin-bottom: 3px;
-}
-.email-title {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--ink);
-  line-height: 1.3;
-}
-
-.email-meta { margin-bottom: 14px; }
-.email-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 10px;
-}
-.email-tag {
-  font-family: 'DM Mono', monospace;
-  font-size: 9px;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  color: var(--ink-2);
-  background: var(--panel-2);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 2px 9px;
-  white-space: nowrap;
-}
-.email-tag.tag-matched {
-  background: var(--accent-soft);
-  border-color: var(--accent);
-  color: var(--accent-2);
-}
-.email-tag-sep {
-  font-family: 'DM Mono', monospace;
-  font-size: 9px;
-  color: var(--ink-3);
-  align-self: center;
-  margin: 0 1px;
-}
-.email-date {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  color: var(--ink-3);
-}
-.email-date svg { width: 11px; height: 11px; stroke-width: 2; }
 
 /* ===== Send status + pre/post phase badges ===== */
-.email-badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 12px;
-}
 .status-badge, .phase-badge {
   display: inline-flex;
   align-items: center;
@@ -812,20 +715,7 @@ body {
 .phase-pre  .phase-dot { background: var(--sc-blue); }
 .phase-post .phase-dot { background: var(--sc-purple); }
 
-/* Status edge accent on the whole card — quick scan of sent vs still-to-send */
-.email-card.edge-sent     { border-left: 3px solid rgba(66,182,73,0.55); }
-.email-card.edge-today    { border-left: 3px solid var(--sc-orange); }
-.email-card.edge-upcoming { border-left: 3px solid var(--sc-blue); }
-.email-card.edge-nodate   { border-left: 3px solid var(--line-2); }
-
-.email-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: auto;
-  border-top: 1px solid var(--line);
-  padding-top: 12px;
-}
+/* Action buttons (shared by the preview modal's Copy HTML button) */
 .btn {
   flex: 1 1 calc(50% - 4px);
   white-space: nowrap;
@@ -1210,17 +1100,6 @@ body {
     upcoming: { label: 'Scheduled',     icon: 'clock' },
     nodate:   { label: 'Date TBD',      icon: 'calendar' }
   };
-
-  function emailBadgesHTML(email) {
-    const st = sendStatus(email);
-    const meta = STATUS_META[st];
-    let html = `<span class="status-badge status-${st}">${ICONS[meta.icon]}${meta.label}</span>`;
-    const phase = eventPhase(email);
-    if (phase) {
-      html += `<span class="phase-badge phase-${phase}"><span class="phase-dot"></span>${phase === 'pre' ? 'Pre-event' : 'Post-event'}</span>`;
-    }
-    return `<div class="email-badges">${html}</div>`;
-  }
 
   // Unique tags across the library (respecting an active year filter), with email counts.
   function getAllTags() {
