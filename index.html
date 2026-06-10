@@ -542,7 +542,7 @@ body {
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 12px;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
   overflow: hidden;
   box-shadow: var(--sh);
   cursor: pointer;
@@ -562,14 +562,14 @@ body {
   padding: 18px 22px;
 }
 .campaign-icon {
-  width: 48px; height: 48px;
+  width: 44px; height: 44px;
   border-radius: 10px;
-  background: var(--panel-2);
-  border: 1px solid var(--line);
+  background: rgba(37,114,185,0.09);
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
+  color: var(--accent);
 }
-.campaign-icon svg { width: 22px; height: 22px; color: var(--ink-2); }
+.campaign-icon svg { width: 20px; height: 20px; color: var(--accent); }
 .campaign-body { flex: 1; min-width: 0; }
 .campaign-kind {
   font-family: 'JetBrains Mono', monospace;
@@ -581,13 +581,23 @@ body {
   margin-bottom: 4px;
 }
 .campaign-title {
-  font-family: 'Manrope', sans-serif;
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--ink);
-  line-height: 1.2;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--sc-dark);
+  line-height: 1.25;
   letter-spacing: -0.01em;
 }
+.campaign-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 7px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-2);
+}
+.campaign-meta svg { width: 12px; height: 12px; color: var(--ink-3); flex-shrink: 0; }
 .campaign-count {
   background: var(--panel-2);
   color: var(--ink-2);
@@ -913,7 +923,7 @@ body {
     <div class="hero">
       <div class="hero-label" id="heroLabel">Marketing Operations</div>
       <h2 id="heroTitle">Email Library <em>&mdash; campaigns &amp; emails</em></h2>
-      <div class="hero-meta" id="heroMeta">Click a campaign to view its emails &middot; <strong>Preview</strong> opens the rendered email &middot; <strong>Copy HTML</strong> pulls the code for Pardot</div>
+      <div class="hero-meta" id="heroMeta"></div>
     </div>
 
     <div class="page">
@@ -1204,7 +1214,7 @@ body {
     `;
     document.getElementById('heroLabel').textContent = 'Marketing Operations';
     document.getElementById('heroTitle').innerHTML = 'Email Library <em>\u2014 campaigns &amp; emails</em>';
-    document.getElementById('heroMeta').innerHTML = 'Click a campaign to view its emails &middot; <strong>Preview</strong> opens the rendered email &middot; <strong>Copy HTML</strong> pulls the code for Pardot';
+    document.getElementById('heroMeta').innerHTML = '';
 
     // Update sidebar active state
     document.querySelectorAll('.sidebar .nav-item').forEach(n => n.classList.remove('active'));
@@ -1384,14 +1394,32 @@ body {
     `;
   }
 
+  // Campaign send window from its emails' concrete dates — "Jun 16, 2026",
+  // "May 29 – Jun 8, 2026", or '' when no email carries a concrete date.
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function fmtShortDate(ts, withYear) {
+    const d = new Date(ts);
+    return MONTHS[d.getMonth()] + ' ' + d.getDate() + (withYear ? ', ' + d.getFullYear() : '');
+  }
+  function campaignWindow(c) {
+    const ts = c.emails.map(e => parseSendDate(e.sendDate)).filter(t => !isNaN(t)).sort((a, b) => a - b);
+    if (!ts.length) return '';
+    const min = ts[0], max = ts[ts.length - 1];
+    if (min === max) return fmtShortDate(min, true);
+    const sameYear = new Date(min).getFullYear() === new Date(max).getFullYear();
+    return fmtShortDate(min, !sameYear) + ' – ' + fmtShortDate(max, true);
+  }
+
   function campaignCardHTML(c) {
+    const win = campaignWindow(c);
     return `
       <div class="campaign" data-campaign-link="${c.id}" role="button" tabindex="0">
         <div class="campaign-header">
-          <div class="campaign-icon">${ICONS.calendar}</div>
+          <div class="campaign-icon">${ICONS.folder}</div>
           <div class="campaign-body">
             <div class="campaign-kind">${c.kind}</div>
             <div class="campaign-title">${c.title}</div>
+            ${win ? `<div class="campaign-meta">${ICONS.calendar} ${win}</div>` : ''}
           </div>
           <span class="campaign-count">${c.emails.length} EMAIL${c.emails.length !== 1 ? 'S' : ''}</span>
           <span class="campaign-arrow">${ICONS.arrow}</span>
