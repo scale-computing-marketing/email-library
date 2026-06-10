@@ -646,10 +646,10 @@ body {
 .email-table tbody tr { cursor: pointer; transition: background 0.12s; }
 .email-table tbody tr:hover { background: var(--panel-2); }
 .col-email { width: 34%; }
-.col-aud { width: 19%; }
-.col-status { width: 15%; }
+.col-phase { width: 16%; }
+.col-status { width: 17%; }
 .col-date { width: 16%; white-space: nowrap; }
-.col-actions { width: 16%; }
+.col-actions { width: 17%; }
 .row-email { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .row-email .email-icon {
   width: 34px; height: 34px; border-radius: 8px;
@@ -668,7 +668,6 @@ body {
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .t-mono { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-2); }
-.cell-badges { display: flex; flex-wrap: wrap; gap: 6px; }
 .row-actions { display: flex; gap: 6px; }
 .ib {
   width: 30px; height: 28px; padding: 0;
@@ -696,34 +695,24 @@ body {
 .icon-purple { background: rgba(156,46,145,0.10); color: var(--sc-purple); }
 .icon-green { background: rgba(66,182,73,0.10); color: var(--sc-green); }
 .icon-orange { background: rgba(232,120,10,0.12); color: var(--sc-orange); }
+.icon-neutral { background: #eef2f7; color: var(--ink-3); }
 
-/* ===== Send status + pre/post phase badges ===== */
-.status-badge, .phase-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  padding: 3px 9px;
-  border-radius: 999px;
-  border: 1px solid transparent;
-  white-space: nowrap;
-}
-.status-badge svg { width: 11px; height: 11px; stroke-width: 2.4; }
-.status-sent     { background: rgba(66,182,73,0.12);  color: #2e8a34;        border-color: rgba(66,182,73,0.30); }
-.status-today    { background: rgba(232,120,10,0.14); color: var(--sc-orange); border-color: rgba(232,120,10,0.34); }
-.status-upcoming { background: rgba(37,114,185,0.12); color: var(--sc-blue);   border-color: rgba(37,114,185,0.30); }
-.status-nodate   { background: var(--panel-2);        color: var(--ink-3);     border-color: var(--line); }
+/* ===== Send status + pre/post phase (quiet: grayscale, one accent for upcoming) ===== */
+/* Status reads as plain text. Sent/TBD recede into gray; only an unsent (scheduled /
+   sending-today) email earns the blue accent — that's the thing still needing attention. */
+.stat { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; white-space: nowrap; }
+.stat svg { width: 14px; height: 14px; flex-shrink: 0; }
+.stat-sent, .stat-nodate    { color: var(--ink-3); }
+.stat-upcoming, .stat-today { color: var(--sc-blue); font-weight: 600; }
 
-.phase-badge { background: var(--panel); border-color: var(--line-2); }
-.phase-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-.phase-pre  { color: var(--sc-blue);   border-color: rgba(37,114,185,0.35); }
-.phase-post { color: var(--sc-purple); border-color: rgba(156,46,145,0.32); }
-.phase-pre  .phase-dot { background: var(--sc-blue); }
-.phase-post .phase-dot { background: var(--sc-purple); }
+/* Phase: shape (diagonal arrow) + label, no color — distinguishable at a glance, adds no hue. */
+.phase-label { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--ink-2); white-space: nowrap; }
+.phase-label svg { width: 14px; height: 14px; color: var(--ink-3); flex-shrink: 0; }
+.phase-none { color: var(--ink-3); }
+
+/* Send date echoes status: muted once sent, solid ink while still upcoming. */
+.email-table td.date-muted    { color: var(--ink-3); }
+.email-table td.date-upcoming { color: var(--ink); font-weight: 600; }
 
 /* Action buttons (shared by the preview modal's Copy HTML button) */
 .btn {
@@ -1033,6 +1022,8 @@ body {
     check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>',
     clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>',
     arrow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>',
+    arrowUpRight: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="8 7 17 7 17 16"/></svg>',
+    arrowDownRight: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="7" x2="17" y2="17"/><polyline points="17 8 17 17 8 17"/></svg>',
     search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
     link: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
     x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
@@ -1335,34 +1326,38 @@ body {
     });
   }
 
-  // Status badge(s) for the table's Status column — status, plus pre/post phase when present.
+  // Status as quiet text for the Status column — sent/TBD recede to gray, upcoming gets the accent.
   function statusCellHTML(email) {
     const st = sendStatus(email);
     const meta = STATUS_META[st];
-    let html = `<span class="status-badge status-${st}">${ICONS[meta.icon]}${meta.label}</span>`;
+    return `<span class="stat stat-${st}">${ICONS[meta.icon]}${meta.label}</span>`;
+  }
+
+  // Pre/post phase for the Phase column — diagonal arrow (no color) + label, or an em dash when unknown.
+  function phaseCellHTML(email) {
     const phase = eventPhase(email);
-    if (phase) {
-      html += `<span class="phase-badge phase-${phase}"><span class="phase-dot"></span>${phase === 'pre' ? 'Pre-event' : 'Post-event'}</span>`;
-    }
-    return `<div class="cell-badges">${html}</div>`;
+    if (!phase) return '<span class="phase-none">—</span>';
+    const icon = phase === 'pre' ? ICONS.arrowUpRight : ICONS.arrowDownRight;
+    return `<span class="phase-label">${icon}${phase === 'pre' ? 'Pre-event' : 'Post-event'}</span>`;
   }
 
   function emailRowHTML(email, campaignId) {
-    const aud = deriveAudience(email.tags);
+    const st = sendStatus(email);
+    const dateClass = (st === 'upcoming' || st === 'today') ? 'date-upcoming' : 'date-muted';
     return `
       <tr class="email-row" id="emailCard-${email.id}" data-id="${email.id}">
         <td class="col-email">
           <div class="row-email">
-            <span class="email-icon icon-${email.icon}">${ICONS.email}</span>
+            <span class="email-icon icon-neutral">${ICONS.email}</span>
             <div class="row-email-text">
               <div class="row-kind">${esc(email.kind)}</div>
               <div class="row-title">${esc(email.title)}</div>
             </div>
           </div>
         </td>
-        <td class="col-aud t-mono">${aud ? esc(aud) : '—'}</td>
+        <td class="col-phase">${phaseCellHTML(email)}</td>
         <td class="col-status">${statusCellHTML(email)}</td>
-        <td class="col-date t-mono">${email.sendDate ? esc(email.sendDate) : '—'}</td>
+        <td class="col-date t-mono ${dateClass}">${email.sendDate ? esc(email.sendDate) : '—'}</td>
         <td class="col-actions">
           <div class="row-actions">
             <button class="ib btn-preview" data-id="${email.id}" title="Preview" aria-label="Preview">${ICONS.eye}</button>
@@ -1382,7 +1377,7 @@ body {
           <thead>
             <tr>
               <th class="col-email">Email</th>
-              <th class="col-aud">Audience</th>
+              <th class="col-phase">Phase</th>
               <th class="col-status">Status</th>
               <th class="col-date">Send date</th>
               <th class="col-actions">Actions</th>
