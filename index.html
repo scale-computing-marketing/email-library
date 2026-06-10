@@ -21,17 +21,17 @@
   --sc-purple: #9c2e91;
   --sc-orange: #e8780a;
 
-  --bg: #f7f4ec;
+  --bg: #f4f6f9;
   --panel: #ffffff;
-  --panel-2: #fbf8ef;
-  --line: #e6dfc9;
-  --line-2: #d4ccb1;
-  --ink: #1a1c14;
-  --ink-2: #595744;
-  --ink-3: #8a866d;
-  --accent: #DAA520;
-  --accent-2: #b8861a;
-  --accent-soft: rgba(218,165,32,0.10);
+  --panel-2: #f8fafc;
+  --line: #e2e8f0;
+  --line-2: #cbd5e1;
+  --ink: #1a2433;
+  --ink-2: #64748b;
+  --ink-3: #94a3b8;
+  --accent: #2572b9;
+  --accent-2: #1d5a91;
+  --accent-soft: rgba(37,114,185,0.10);
 
   --r: 10px;
   --sh: 0 2px 8px rgba(17,56,89,.05);
@@ -530,8 +530,8 @@ body {
   animation: cardFocusPulse 2.6s ease-out 1;
 }
 @keyframes cardFocusPulse {
-  0%   { box-shadow: 0 0 0 0 rgba(218,165,32,0.55); border-color: var(--accent); }
-  15%  { box-shadow: 0 0 0 5px rgba(218,165,32,0.30); border-color: var(--accent); }
+  0%   { box-shadow: 0 0 0 0 rgba(37,114,185,0.55); border-color: var(--accent); }
+  15%  { box-shadow: 0 0 0 5px rgba(37,114,185,0.30); border-color: var(--accent); }
   100% { box-shadow: var(--sh); border-color: var(--line); }
 }
 
@@ -823,11 +823,12 @@ body {
   color: var(--ink);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-.modal-subject {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 11px; font-weight: 500;
-  color: var(--ink-2);
-  margin-top: 2px;
+.modal-kicker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; font-weight: 500;
+  letter-spacing: 1.4px; text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 4px;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .modal-actions { display: flex; gap: 8px; flex-shrink: 0; }
@@ -858,6 +859,37 @@ body {
   border: none; display: block;
   background: #f2f2f2;
 }
+.modal-meta {
+  width: 720px; max-width: 100%;
+  margin: 0 auto 20px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  box-shadow: var(--sh);
+  padding: 18px 20px;
+}
+.meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 28px;
+}
+.meta-row { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.meta-row.full { grid-column: 1 / -1; }
+.meta-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; font-weight: 500;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--ink-3);
+}
+.meta-value {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 500;
+  color: var(--ink); line-height: 1.45;
+  word-break: break-word;
+}
+.meta-value.preview { color: var(--ink-2); font-style: italic; font-weight: 400; }
+.meta-value.muted { color: var(--ink-3); font-style: italic; font-weight: 400; }
+.meta-tags { display: flex; flex-wrap: wrap; gap: 6px; }
 
 @media (max-width: 900px) {
   .app-shell { flex-direction: column; }
@@ -985,8 +1017,8 @@ body {
   <div class="modal">
     <div class="modal-header">
       <div class="modal-title-wrap">
+        <div class="modal-kicker" id="modalKicker">Kind</div>
         <div class="modal-title" id="modalTitle">Email title</div>
-        <div class="modal-subject" id="modalSubject">Subject line</div>
       </div>
       <div class="modal-actions">
         <button class="btn" id="modalCopyBtn" style="flex: 0 0 auto;">
@@ -999,6 +1031,7 @@ body {
       </div>
     </div>
     <div class="modal-body">
+      <div class="modal-meta" id="modalMeta"></div>
       <div class="modal-frame-wrap">
         <iframe id="modalFrame" title="Email preview"></iframe>
       </div>
@@ -1008,6 +1041,10 @@ body {
 
 <script>
   // Email HTML now lives as individual files in /emails/<sourceId>.html
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
   function emailFileUrl(sourceId) { return "emails/" + sourceId + ".html"; }
   async function fetchEmailHTML(sourceId) {
     const res = await fetch(emailFileUrl(sourceId));
@@ -1343,10 +1380,9 @@ body {
             <div class="email-title">${email.title}</div>
           </div>
         </div>
-        ${((email.tags && email.tags.length) || email.sendDate) ? `
+        ${email.sendDate ? `
         <div class="email-meta">
-          ${email.sendDate ? `<div class="email-date">${ICONS.calendar} Send Date: ${email.sendDate}</div>` : ''}
-          ${(email.tags && email.tags.length) ? `<div class="email-tags">${email.tags.map(t => `<span class="email-tag${selectedTags.has(t) ? ' tag-matched' : ''}">${t}</span>`).join('<span class="email-tag-sep">, </span>')}</div>` : ''}
+          <div class="email-date">${ICONS.calendar} Send Date: ${email.sendDate}</div>
         </div>` : ''}
         <div class="email-actions">
           <button class="btn btn-preview" data-id="${email.id}">${ICONS.eye} Preview</button>
@@ -1520,11 +1556,65 @@ body {
     renderActiveTags();
   }
 
+  // Turn an audience-* tag into a friendly label, e.g.
+  // "audience-end-user-prospect" -> "End User Prospect".
+  function deriveAudience(tags) {
+    if (!tags || !tags.length) return '';
+    const labels = tags
+      .filter(t => t.indexOf('audience-') === 0)
+      .map(t => t.slice('audience-'.length).split('-')
+        .map(w => w ? w.charAt(0).toUpperCase() + w.slice(1) : w).join(' '));
+    return labels.join(', ');
+  }
+
+  // Pull the inbox preview text from an email's hidden preheader block.
+  const preheaderCache = {};
+  function extractPreheader(html) {
+    try {
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      const hidden = Array.from(doc.querySelectorAll('[style]')).find(el => {
+        const s = (el.getAttribute('style') || '').replace(/\s/g, '');
+        return s.indexOf('display:none') !== -1 && s.indexOf('max-height:0') !== -1;
+      });
+      return hidden ? hidden.textContent.replace(/\s+/g, ' ').trim() : '';
+    } catch (e) { return ''; }
+  }
+  function setPreviewTextCell(sourceId, expectedId) {
+    const fill = (text) => {
+      const cell = document.getElementById('metaPreviewText');
+      // Guard against a slow fetch resolving after the user opened another email.
+      if (!cell || cell.dataset.for !== expectedId) return;
+      if (text) { cell.textContent = text; cell.className = 'meta-value preview'; }
+      else { cell.textContent = 'No preview text in this email.'; cell.className = 'meta-value muted'; }
+    };
+    if (preheaderCache[sourceId] !== undefined) { fill(preheaderCache[sourceId]); return; }
+    fetchEmailHTML(sourceId)
+      .then(html => { const t = extractPreheader(html); preheaderCache[sourceId] = t; fill(t); })
+      .catch(() => fill(''));
+  }
+
+  function renderModalMeta(email) {
+    const audience = deriveAudience(email.tags);
+    const rows = [];
+    rows.push(`<div class="meta-row full"><div class="meta-label">Subject</div><div class="meta-value">${esc(email.subject || '')}</div></div>`);
+    rows.push(`<div class="meta-row"><div class="meta-label">Send Date</div><div class="meta-value${email.sendDate ? '' : ' muted'}">${esc(email.sendDate || 'Not scheduled')}</div></div>`);
+    rows.push(`<div class="meta-row"><div class="meta-label">Audience</div><div class="meta-value${audience ? '' : ' muted'}">${esc(audience || '—')}</div></div>`);
+    rows.push(`<div class="meta-row full"><div class="meta-label">Preview Text</div><div class="meta-value muted" id="metaPreviewText" data-for="${esc(email.id)}">Loading…</div></div>`);
+    if (email.tags && email.tags.length) {
+      rows.push(`<div class="meta-row full"><div class="meta-label">Tags</div><div class="meta-tags">${
+        email.tags.map(t => `<span class="email-tag${selectedTags.has(t) ? ' tag-matched' : ''}">${esc(t)}</span>`).join('')
+      }</div></div>`);
+    }
+    document.getElementById('modalMeta').innerHTML = `<div class="meta-grid">${rows.join('')}</div>`;
+    setPreviewTextCell(email.sourceId, email.id);
+  }
+
   function openPreview(id) {
     const email = getEmailById(id);
     if (!email) return;
+    document.getElementById('modalKicker').textContent = email.kind || 'Email';
     document.getElementById('modalTitle').textContent = email.title;
-    document.getElementById('modalSubject').textContent = 'Subject: ' + email.subject;
+    renderModalMeta(email);
     const frame = document.getElementById('modalFrame');
     frame.style.height = '400px';
     document.getElementById('modalCopyBtn').dataset.id = id;
