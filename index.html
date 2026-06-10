@@ -723,41 +723,26 @@ body {
   font-size: 14px;
 }
 
-/* ===== MODAL ===== */
-.modal-backdrop {
-  position: fixed; inset: 0;
-  background: rgba(26, 28, 20, 0.55);
-  display: none;
-  align-items: flex-start; justify-content: center;
-  padding: 40px 20px;
-  z-index: 100;
-  overflow-y: auto;
-}
-.modal-backdrop.open { display: flex; }
-.modal {
-  background: var(--panel);
-  border-radius: 12px;
-  width: 100%; max-width: 800px;
-  max-height: calc(100vh - 80px);
+/* ===== EMAIL VIEW — routed full-page preview (replaces the page content) ===== */
+.email-view { display: none; }
+body.is-email-route .email-view {
   display: flex; flex-direction: column;
-  overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  flex: 1 1 auto; min-height: 0;
 }
-.modal-header {
+/* On the email route the hero band and the list page step aside. */
+body.is-email-route .hero,
+body.is-email-route .page { display: none; }
+
+.ev-bar {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--line);
-  background: var(--panel-2);
   gap: 12px;
+  padding: 14px 28px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+  flex-shrink: 0;
 }
-.modal-title-wrap { flex: 1; min-width: 0; }
-.modal-title {
-  font-family: 'Manrope', sans-serif;
-  font-size: 14px; font-weight: 700;
-  color: var(--ink);
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-.modal-kicker {
+.ev-bar-titles { min-width: 0; }
+.ev-kicker {
   font-family: 'JetBrains Mono', monospace;
   font-size: 9px; font-weight: 500;
   letter-spacing: 1.4px; text-transform: uppercase;
@@ -765,65 +750,135 @@ body {
   margin-bottom: 4px;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-.modal-actions { display: flex; gap: 8px; flex-shrink: 0; }
-.modal-close {
-  background: transparent; border: none; cursor: pointer;
-  color: var(--ink-2); padding: 4px;
-  display: flex; align-items: center; justify-content: center;
+.ev-title {
+  font-family: 'Manrope', sans-serif;
+  font-size: 15px; font-weight: 700;
+  color: var(--ink);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-.modal-close:hover { color: var(--ink); }
-.modal-body {
-  flex: 1; overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  background: #f2f2f2;
-  padding: 24px;
-  min-height: 0;
-}
-.modal-frame-wrap {
-  width: 720px; max-width: 100%;
-  margin: 0 auto;
-  background: #f2f2f2;
-  border-radius: 4px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+.ev-bar-actions { display: flex; gap: 8px; flex-shrink: 0; align-items: center; }
+.ev-bar-actions .btn { flex: 0 0 auto; }
+
+/* One unified panel — build details (left) + rendered email (right) */
+.ev-panel {
+  flex: 1 1 auto; min-height: 0;
+  display: flex;
   overflow: hidden;
-}
-.modal-frame-wrap iframe {
-  width: 100%; min-width: 320px;
-  height: 400px;
-  border: none; display: block;
-  background: #f2f2f2;
-}
-.modal-meta {
-  width: 720px; max-width: 100%;
-  margin: 0 auto 20px;
   background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: var(--r);
-  box-shadow: var(--sh);
-  padding: 18px 20px;
 }
-.meta-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px 28px;
+/* shared independent scroll for both sections */
+.pv-rail, .pv-render { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.pv-rail::-webkit-scrollbar, .pv-render::-webkit-scrollbar { width: 8px; }
+.pv-rail::-webkit-scrollbar-thumb, .pv-render::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 4px; }
+
+/* Left section: build details (fixed; scrolls only if tall) */
+.pv-rail {
+  flex: 0 0 38%;
+  padding: 22px 24px;
+  border-right: 1px solid var(--line);
 }
-.meta-row { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
-.meta-row.full { grid-column: 1 / -1; }
-.meta-label {
+.pv-render {
+  flex: 1 1 auto; min-width: 0;
+  padding: 22px 24px;
+  background: var(--panel-2);
+}
+
+.pv-rail-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 6px; cursor: pointer; user-select: none; border-radius: 6px;
+}
+.pv-rail-head:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.pv-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--ink-3); font-weight: 500;
+}
+.pv-toggle {
+  border: none; background: transparent; cursor: pointer;
+  color: var(--ink-3); padding: 4px; border-radius: 6px; display: inline-flex;
+}
+.pv-toggle:hover { color: var(--accent); }
+.pv-toggle svg { width: 16px; height: 16px; transition: transform .15s; }
+
+.pv-label {
   font-family: 'DM Mono', monospace;
   font-size: 10px; font-weight: 500;
   letter-spacing: 0.08em; text-transform: uppercase;
-  color: var(--ink-3);
+  color: var(--ink-3); margin-bottom: 4px;
 }
-.meta-value {
+.pv-value {
   font-family: 'DM Sans', sans-serif;
   font-size: 13px; font-weight: 500;
   color: var(--ink); line-height: 1.45;
   word-break: break-word;
 }
-.meta-value.preview { color: var(--ink-2); font-style: italic; font-weight: 400; }
-.meta-value.muted { color: var(--ink-3); font-style: italic; font-weight: 400; }
-.meta-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.pv-value.muted { color: var(--ink-3); font-style: italic; font-weight: 400; }
+.pv-value.mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 400; color: var(--ink-2); }
+.pv-field { margin-bottom: 16px; }
+.pv-divider { border-top: 1px solid var(--line); margin: 16px 0; }
+.pv-name-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 4px; }
+.pv-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; font-weight: 500;
+  padding: 3px 9px; border-radius: var(--r);
+  background: var(--accent-soft); color: var(--accent-2);
+}
+.pv-grid-2, .pv-grid-3 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px; }
+.pv-grid-2 .pv-field, .pv-grid-3 .pv-field { margin-bottom: 0; }
+.pv-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.pv-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; padding: 3px 8px;
+  border-radius: var(--r);
+  background: var(--panel); border: 1px solid var(--line); color: var(--ink-2);
+}
+.pv-tag.is-matched { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-2); }
+
+/* Collapsed: left section becomes a slim strip inside the same panel */
+.ev-panel.is-collapsed .pv-rail { flex: 0 0 50px; padding: 18px 0; }
+.ev-panel.is-collapsed .pv-full { display: none; }
+.ev-panel.is-collapsed .pv-eyebrow { display: none; }
+.ev-panel.is-collapsed .pv-rail-head { justify-content: center; margin-bottom: 0; }
+.ev-panel.is-collapsed .pv-toggle svg { transform: rotate(180deg); }
+
+/* Right section: rendered email */
+.pv-render-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--ink-3); font-weight: 500; margin-bottom: 14px;
+}
+.pv-email {
+  width: 680px; max-width: 100%;
+  margin: 0 auto;
+  background: #f2f2f2;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+.pv-email iframe {
+  width: 100%; min-width: 320px;
+  height: 400px;
+  border: none; display: block;
+  background: #f2f2f2;
+}
+
+/* Desktop (sidebar beside content): lock the view to the viewport so the two
+   panes scroll independently — build details stays put while the email scrolls. */
+@media (min-width: 901px) {
+  body.is-email-route .main-col { height: 100vh; overflow: hidden; }
+}
+/* Stack to a single column with normal page scroll below 700px. */
+@media (max-width: 700px) {
+  .ev-panel { flex-direction: column; }
+  .pv-rail, .pv-render { overflow: visible; }
+  .pv-rail { flex: 1 1 auto; border-right: none; border-bottom: 1px solid var(--line); }
+  .ev-panel.is-collapsed .pv-rail { flex: 1 1 auto; padding: 22px 24px; }
+  .ev-panel.is-collapsed .pv-full { display: block; }
+  .ev-panel.is-collapsed .pv-eyebrow { display: inline; }
+  .ev-panel.is-collapsed .pv-rail-head { justify-content: space-between; }
+  .ev-panel.is-collapsed .pv-toggle svg { transform: rotate(180deg); }
+}
 
 @media (max-width: 900px) {
   .app-shell { flex-direction: column; }
@@ -945,34 +1000,49 @@ body {
       </div>
 
     </div>
-  </main>
-</div>
 
-<!-- ===== MODAL ===== -->
-<div class="modal-backdrop" id="modal">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title-wrap">
-        <div class="modal-kicker" id="modalKicker">Kind</div>
-        <div class="modal-title" id="modalTitle">Email title</div>
+    <!-- ===== EMAIL VIEW: routed full-page build preview ===== -->
+    <section class="email-view" id="emailView">
+      <div class="ev-bar">
+        <div class="ev-bar-titles">
+          <div class="ev-kicker" id="evKicker">Kind</div>
+          <div class="ev-title" id="evTitle">Email title</div>
+        </div>
+        <div class="ev-bar-actions">
+          <button class="btn" id="evCopyBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy HTML
+          </button>
+          <button class="back-link" id="evBack" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+            Back
+          </button>
+        </div>
       </div>
-      <div class="modal-actions">
-        <button class="btn" id="modalCopyBtn" style="flex: 0 0 auto;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-          Copy HTML
-        </button>
-        <button class="modal-close" id="modalClose" aria-label="Close">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
+
+      <!-- One unified panel: build details (left) + rendered email (right) -->
+      <div class="ev-panel" id="evPanel">
+        <!-- LEFT: build details (collapsible, scrolls independently) -->
+        <aside class="pv-rail" id="pvRail">
+          <div class="pv-rail-head" id="pvRailHead" role="button" tabindex="0" aria-expanded="true" aria-label="Toggle build details">
+            <span class="pv-eyebrow">Build details</span>
+            <button class="pv-toggle" tabindex="-1" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+          </div>
+          <div class="pv-full" id="pvRailBody"></div>
+        </aside>
+
+        <!-- RIGHT: rendered email (scrolls independently) -->
+        <section class="pv-render">
+          <div class="pv-render-eyebrow">Rendered email</div>
+          <div class="pv-email">
+            <iframe id="evFrame" title="Email preview"></iframe>
+          </div>
+        </section>
       </div>
-    </div>
-    <div class="modal-body">
-      <div class="modal-meta" id="modalMeta"></div>
-      <div class="modal-frame-wrap">
-        <iframe id="modalFrame" title="Email preview"></iframe>
-      </div>
-    </div>
-  </div>
+    </section>
+  </main>
 </div>
 
 <script>
@@ -1007,7 +1077,7 @@ body {
     x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
   };
 
-  let detailCampaign = null, detailFocusEmailId = null;
+  let detailCampaign = null;
   const selectedTags = new Set();
 
   let currentView = { type: 'all', value: null };
@@ -1163,7 +1233,14 @@ body {
     if (r.route === 'campaign') {
       const c = getCampaignById(r.id);
       if (!c) { navigate(''); return; }
-      showCampaignDetail(c, r.emailId);
+      if (r.emailId) {
+        const e = getEmailById(r.emailId);
+        // Unknown email, or one that isn't in this campaign → fall back to the campaign.
+        if (!e || !c.emails.some(x => x.id === r.emailId)) { navigate('#/campaign/' + c.id); return; }
+        showEmailView(c, e);
+      } else {
+        showCampaignDetail(c);
+      }
     } else if (r.route === 'year') {
       currentView = { type: 'year', value: r.year };
       showHome();
@@ -1174,6 +1251,7 @@ body {
   }
 
   function showHome() {
+    document.body.classList.remove('is-email-route');
     document.getElementById('homeView').style.display = '';
     document.getElementById('detailView').style.display = 'none';
 
@@ -1205,10 +1283,10 @@ body {
     renderCampaigns();
   }
 
-  function showCampaignDetail(campaign, focusEmailId) {
+  function showCampaignDetail(campaign) {
+    document.body.classList.remove('is-email-route');
     document.getElementById('homeView').style.display = 'none';
     document.getElementById('detailView').style.display = '';
-    detailFocusEmailId = focusEmailId || null;
 
     // Breadcrumb (Email Library is now a clickable span)
     document.getElementById('breadcrumb').innerHTML = `
@@ -1239,17 +1317,6 @@ body {
     detailCampaign = campaign;
     document.getElementById('emailsContainer').innerHTML = `<div id="emailGrid"></div>`;
     renderEmailCards(campaign, '');
-
-    // Deep-link focus: scroll to + highlight the card, then open its preview
-    if (focusEmailId && getEmailById(focusEmailId)) {
-      const card = document.getElementById('emailCard-' + focusEmailId);
-      if (card) {
-        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        card.classList.add('email-card-focus');
-        setTimeout(() => card.classList.remove('email-card-focus'), 2600);
-      }
-      openPreview(focusEmailId);
-    }
   }
 
   function renderEmailCards(campaign, search) {
@@ -1272,15 +1339,15 @@ body {
   // Shared wiring for email card buttons (used by both the detail view and the
   // tag-filtered home view). The link button carries its own campaign id.
   function wireEmailCardButtons(grid) {
-    // Whole row opens the preview; clicks on the action buttons are handled below.
+    // Whole row opens the email's build view; clicks on the action buttons are handled below.
     grid.querySelectorAll('.email-row').forEach(row => {
       row.addEventListener('click', (e) => {
         if (e.target.closest('button')) return;
-        openPreview(row.dataset.id);
+        gotoEmail(row.dataset.id);
       });
     });
     grid.querySelectorAll('.btn-preview').forEach(btn => {
-      btn.addEventListener('click', () => openPreview(btn.dataset.id));
+      btn.addEventListener('click', () => gotoEmail(btn.dataset.id));
     });
     grid.querySelectorAll('.btn-copy').forEach(btn => {
       btn.addEventListener('click', () => copyHTML(btn.dataset.id, btn));
@@ -1547,9 +1614,32 @@ body {
     if (!tags || !tags.length) return '';
     const labels = tags
       .filter(t => t.indexOf('audience-') === 0)
-      .map(t => t.slice('audience-'.length).split('-')
-        .map(w => w ? w.charAt(0).toUpperCase() + w.slice(1) : w).join(' '));
+      .map(t => prettifyTagValue(t.slice('audience-'.length)));
     return labels.join(', ');
+  }
+
+  // Title-case a tag slug fragment: "report-syndication" -> "Report Syndication".
+  function prettifyTagValue(slug) {
+    return String(slug).split('-')
+      .map(w => w ? w.charAt(0).toUpperCase() + w.slice(1) : w).join(' ');
+  }
+  // Build-detail fields derived from the same tag vocabulary used across the library.
+  const EMAIL_TYPE_LABELS = {
+    'one-time-send': 'One-time send',
+    'recurring-send': 'Recurring send',
+    'automated-send': 'Automated send'
+  };
+  function deriveEmailType(tags) {
+    const t = (tags || []).find(x => EMAIL_TYPE_LABELS[x] || x.endsWith('-send'));
+    return t ? (EMAIL_TYPE_LABELS[t] || prettifyTagValue(t)) : '';
+  }
+  function deriveCTAs(tags) {
+    return (tags || []).filter(t => t.indexOf('cta-') === 0)
+      .map(t => prettifyTagValue(t.slice('cta-'.length))).join(' · ');
+  }
+  function deriveTheme(tags) {
+    const t = (tags || []).find(x => x.indexOf('theme-') === 0);
+    return t ? prettifyTagValue(t.slice('theme-'.length)) : '';
   }
 
   // Pull the inbox preview text from an email's hidden preheader block.
@@ -1569,8 +1659,8 @@ body {
       const cell = document.getElementById('metaPreviewText');
       // Guard against a slow fetch resolving after the user opened another email.
       if (!cell || cell.dataset.for !== expectedId) return;
-      if (text) { cell.textContent = text; cell.className = 'meta-value preview'; }
-      else { cell.textContent = 'No preview text in this email.'; cell.className = 'meta-value muted'; }
+      if (text) { cell.textContent = text; cell.className = 'pv-value'; }
+      else { cell.textContent = 'No preview text in this email.'; cell.className = 'pv-value muted'; }
     };
     if (preheaderCache[sourceId] !== undefined) { fill(preheaderCache[sourceId]); return; }
     fetchEmailHTML(sourceId)
@@ -1578,34 +1668,126 @@ body {
       .catch(() => fill(''));
   }
 
-  function renderModalMeta(email) {
-    const audience = deriveAudience(email.tags);
-    const rows = [];
-    rows.push(`<div class="meta-row full"><div class="meta-label">Subject</div><div class="meta-value">${esc(email.subject || '')}</div></div>`);
-    rows.push(`<div class="meta-row"><div class="meta-label">Send Date</div><div class="meta-value${email.sendDate ? '' : ' muted'}">${esc(email.sendDate || 'Not scheduled')}</div></div>`);
-    rows.push(`<div class="meta-row"><div class="meta-label">Audience</div><div class="meta-value${audience ? '' : ' muted'}">${esc(audience || '—')}</div></div>`);
-    rows.push(`<div class="meta-row full"><div class="meta-label">Preview Text</div><div class="meta-value muted" id="metaPreviewText" data-for="${esc(email.id)}">Loading…</div></div>`);
-    if (email.tags && email.tags.length) {
-      rows.push(`<div class="meta-row full"><div class="meta-label">Tags</div><div class="meta-tags">${
-        email.tags.map(t => `<span class="email-tag${selectedTags.has(t) ? ' tag-matched' : ''}">${esc(t)}</span>`).join('')
-      }</div></div>`);
-    }
-    document.getElementById('modalMeta').innerHTML = `<div class="meta-grid">${rows.join('')}</div>`;
+  // A value cell, or a muted placeholder when the model doesn't carry that field.
+  function pvVal(value, placeholder) {
+    return value
+      ? `<div class="pv-value">${esc(value)}</div>`
+      : `<div class="pv-value muted">${esc(placeholder || '— not set —')}</div>`;
+  }
+
+  // Populate the left build-details rail from the email + its campaign. Fields the manifest
+  // model doesn't carry are shown muted rather than invented (mirrors the locked layout).
+  function renderBuildDetails(email, campaign) {
+    const idx = campaign ? campaign.emails.findIndex(e => e.id === email.id) + 1 : 0;
+    const total = campaign ? campaign.emails.length : 0;
+    const pardotName = campaign ? `${campaign.title} │ ${email.title}` : email.title;
+    const html = `
+      <div class="pv-name-row">
+        <span class="pv-label" style="margin:0;">Pardot Email Name</span>
+        ${total ? `<span class="pv-badge">Email ${idx} of ${total}</span>` : ''}
+      </div>
+      <div class="pv-value mono">${esc(pardotName)}</div>
+
+      <div class="pv-divider"></div>
+
+      <div class="pv-field"><div class="pv-label">Subject line A</div><div class="pv-value">${esc(email.subject || '')}</div></div>
+      <div class="pv-field"><div class="pv-label">Subject line B · A/B test off</div><div class="pv-value muted">— not set —</div></div>
+      <div class="pv-field"><div class="pv-label">Preview text</div><div class="pv-value muted" id="metaPreviewText" data-for="${esc(email.id)}">Loading…</div></div>
+
+      <div class="pv-divider"></div>
+
+      <div class="pv-grid-2">
+        <div class="pv-field"><div class="pv-label">Send date</div>${pvVal(email.sendDate)}</div>
+        <div class="pv-field"><div class="pv-label">Send time</div><div class="pv-value muted">— not set —</div></div>
+      </div>
+
+      <div class="pv-divider"></div>
+
+      <div class="pv-grid-3">
+        <div class="pv-field"><div class="pv-label">Email type</div>${pvVal(deriveEmailType(email.tags))}</div>
+        <div class="pv-field"><div class="pv-label">Content type</div>${pvVal(campaign ? campaign.kind : '')}</div>
+        <div class="pv-field"><div class="pv-label">Audience</div>${pvVal(deriveAudience(email.tags))}</div>
+        <div class="pv-field"><div class="pv-label">Theme</div>${pvVal(deriveTheme(email.tags))}</div>
+        <div class="pv-field"><div class="pv-label">A/B test</div><div class="pv-value">No</div></div>
+        <div class="pv-field"><div class="pv-label">CTA</div>${pvVal(deriveCTAs(email.tags))}</div>
+      </div>
+
+      <div class="pv-divider"></div>
+
+      <div class="pv-field"><div class="pv-label">Sender name</div><div class="pv-value">Scale Computing</div></div>
+      <div class="pv-field"><div class="pv-label">From / reply-to</div><div class="pv-value muted">— not set —</div></div>
+
+      <div class="pv-divider"></div>
+
+      <div class="pv-grid-2">
+        <div class="pv-field"><div class="pv-label">Send to (lists)</div><div class="pv-value muted">— select list —</div></div>
+        <div class="pv-field"><div class="pv-label">Suppression</div><div class="pv-value muted">— not set —</div></div>
+      </div>
+      ${email.tags && email.tags.length ? `
+      <div class="pv-divider"></div>
+      <div class="pv-field"><div class="pv-label">Tags</div><div class="pv-tags">${
+        email.tags.map(t => `<span class="pv-tag${selectedTags.has(t) ? ' is-matched' : ''}">${esc(t)}</span>`).join('')
+      }</div></div>` : ''}
+    `;
+    document.getElementById('pvRailBody').innerHTML = html;
     setPreviewTextCell(email.sourceId, email.id);
   }
 
-  function openPreview(id) {
-    const email = getEmailById(id);
-    if (!email) return;
-    document.getElementById('modalKicker').textContent = email.kind || 'Email';
-    document.getElementById('modalTitle').textContent = email.title;
-    renderModalMeta(email);
-    const frame = document.getElementById('modalFrame');
-    frame.style.height = '400px';
-    document.getElementById('modalCopyBtn').dataset.id = id;
-    document.getElementById('modal').classList.add('open');
-    document.body.style.overflow = 'hidden';
+  // A table row / preview button routes to the email's own full-page build view.
+  function gotoEmail(id) {
+    const c = getCampaignByEmailId(id);
+    if (c) navigate('#/campaign/' + c.id + '/' + id);
+  }
 
+  function showEmailView(campaign, email) {
+    document.body.classList.add('is-email-route');
+    document.getElementById('homeView').style.display = 'none';
+    document.getElementById('detailView').style.display = 'none';
+
+    // Breadcrumb: Channels / Email Library / <campaign> / <email>
+    document.getElementById('breadcrumb').innerHTML = `
+      <span class="bc-group">Channels</span>
+      <span class="bc-sep">/</span>
+      <span class="bc-group" id="bcLibrary" role="button" tabindex="0" style="cursor:pointer;">Email Library</span>
+      <span class="bc-sep">/</span>
+      <span class="bc-group" id="bcCampaign" role="button" tabindex="0" style="cursor:pointer;">${esc(campaign.title)}</span>
+      <span class="bc-sep">/</span>
+      <span class="bc-leaf">${esc(email.title)}</span>
+    `;
+    document.getElementById('bcLibrary').addEventListener('click', () => navigate(''));
+    document.getElementById('bcLibrary').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(''); }
+    });
+    document.getElementById('bcCampaign').addEventListener('click', () => navigate('#/campaign/' + campaign.id));
+    document.getElementById('bcCampaign').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('#/campaign/' + campaign.id); }
+    });
+
+    // Sidebar active state = this email's campaign
+    document.querySelectorAll('.sidebar .nav-item').forEach(n => n.classList.remove('active'));
+    const navEl = document.querySelector(`.sidebar .nav-item[data-campaign="${campaign.id}"]`);
+    if (navEl) navEl.classList.add('active');
+    document.getElementById('navGroup-campaign').classList.add('open');
+
+    // Bar titles + build details
+    document.getElementById('evKicker').textContent = email.kind || 'Email';
+    document.getElementById('evTitle').textContent = email.title;
+    renderBuildDetails(email, campaign);
+    // Enter with the build-details rail expanded and panes at the top.
+    document.getElementById('evPanel').classList.remove('is-collapsed');
+    document.getElementById('pvRailHead').setAttribute('aria-expanded', 'true');
+    document.getElementById('pvRail').scrollTop = 0;
+    document.querySelector('.pv-render').scrollTop = 0;
+    document.getElementById('evCopyBtn').dataset.id = email.id;
+    document.getElementById('evBack').dataset.campaign = campaign.id;
+
+    loadEmailFrame(email.sourceId);
+  }
+
+  // Render the real email into the right pane, growing the iframe to its content height.
+  function loadEmailFrame(sourceId) {
+    const frame = document.getElementById('evFrame');
+    frame.style.height = '400px';
     const resize = () => {
       try {
         const doc = frame.contentDocument || frame.contentWindow.document;
@@ -1618,11 +1800,7 @@ body {
       } catch (e) {}
     };
     frame.onload = () => { [100, 400, 900, 1800].forEach(t => setTimeout(resize, t)); };
-    frame.src = emailFileUrl(email.sourceId);
-  }
-  function closePreview() {
-    document.getElementById('modal').classList.remove('open');
-    document.body.style.overflow = '';
+    frame.src = emailFileUrl(sourceId);
   }
   function copyHTML(id, btn) {
     const email = getEmailById(id);
@@ -1671,12 +1849,35 @@ body {
     document.body.removeChild(ta);
   }
 
-  document.getElementById('modalClose').addEventListener('click', closePreview);
-  document.getElementById('modal').addEventListener('click', (e) => { if (e.target.id === 'modal') closePreview(); });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePreview(); });
-  document.getElementById('modalCopyBtn').addEventListener('click', (e) => {
+  // Collapse / expand the build-details rail (click or keyboard on its header).
+  (function wirePvRailToggle() {
+    const head = document.getElementById('pvRailHead');
+    const panel = document.getElementById('evPanel');
+    function toggle() {
+      const collapsed = panel.classList.toggle('is-collapsed');
+      head.setAttribute('aria-expanded', String(!collapsed));
+    }
+    head.addEventListener('click', toggle);
+    head.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+    });
+  })();
+
+  // Email-view bar: Copy HTML, Back to the campaign, and Esc to leave the view.
+  document.getElementById('evCopyBtn').addEventListener('click', (e) => {
     const id = e.currentTarget.dataset.id;
     if (id) copyHTML(id, e.currentTarget);
+  });
+  document.getElementById('evBack').addEventListener('click', (e) => {
+    e.preventDefault();
+    const cid = e.currentTarget.dataset.campaign;
+    navigate(cid ? '#/campaign/' + cid : '');
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (!document.body.classList.contains('is-email-route')) return;
+    const cid = document.getElementById('evBack').dataset.campaign;
+    navigate(cid ? '#/campaign/' + cid : '');
   });
   document.getElementById('searchInput').addEventListener('input', renderCampaigns);
 
