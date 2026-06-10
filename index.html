@@ -214,13 +214,14 @@ body {
 .hdr h1 .bc-sep { color: var(--ink-3); font-weight: 400; opacity: 0.55; margin: 0 2px; }
 .hdr h1 .bc-leaf { color: var(--ink); font-weight: 700; }
 
-/* ===== HERO — editorial masthead (duplicated from dashboard governance pages) ===== */
+/* ===== HERO — compact page-title band. On home it's just the title; on a campaign
+   page the eyebrow carries "year · kind" (the one place that context appears). ===== */
 .hero {
   position: relative;
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 38px 28px 36px;
+  padding: 18px 28px 16px;
   background: transparent;
 }
 .hero::after {
@@ -234,21 +235,22 @@ body {
 .hero-label {
   font-family: 'DM Mono', monospace;
   font-weight: 500;
-  font-size: 11px;
+  font-size: 10px;
   letter-spacing: 1.3px;
   text-transform: uppercase;
   color: var(--accent);
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
+.hero-label:empty { display: none; }
 .hero h2 {
   font-family: 'DM Sans', sans-serif;
-  font-size: 26px;
-  line-height: 1.15;
-  font-weight: 300;
+  font-size: 20px;
+  line-height: 1.2;
+  font-weight: 400;
   font-style: normal;
   letter-spacing: -0.01em;
   color: var(--ink);
-  margin-bottom: 6px;
+  margin-bottom: 2px;
 }
 .hero h2 em,
 .hero h2 strong { font-style: italic; font-weight: 400; color: var(--sc-dark); }
@@ -502,29 +504,6 @@ body {
   padding: 3px 4px;
 }
 .active-tag-clear:hover { color: var(--ink); }
-
-/* In-campaign email search */
-.detail-search { position: relative; max-width: 420px; margin: 0 0 20px 0; }
-.detail-search input {
-  width: 100%;
-  padding: 9px 14px 9px 38px;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-  background: var(--panel);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
-  color: var(--ink);
-}
-.detail-search input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
-.detail-search-icon {
-  position: absolute;
-  left: 13px; top: 50%;
-  transform: translateY(-50%);
-  width: 16px; height: 16px;
-  color: var(--ink-3);
-  pointer-events: none;
-}
-.detail-search-icon svg { width: 16px; height: 16px; display: block; }
 
 .view-label {
   font-family: 'JetBrains Mono', monospace;
@@ -910,8 +889,8 @@ body {
     </div>
 
     <div class="hero">
-      <div class="hero-label" id="heroLabel">Marketing Operations</div>
-      <h2 id="heroTitle">Email Library <em>&mdash; campaigns &amp; emails</em></h2>
+      <div class="hero-label" id="heroLabel"></div>
+      <h2 id="heroTitle">Email Library</h2>
       <div class="hero-meta" id="heroMeta"></div>
     </div>
 
@@ -1203,8 +1182,8 @@ body {
       <span class="bc-sep">/</span>
       <span class="bc-leaf">Email Library</span>
     `;
-    document.getElementById('heroLabel').textContent = 'Marketing Operations';
-    document.getElementById('heroTitle').innerHTML = 'Email Library <em>\u2014 campaigns &amp; emails</em>';
+    document.getElementById('heroLabel').textContent = '';
+    document.getElementById('heroTitle').textContent = 'Email Library';
     document.getElementById('heroMeta').innerHTML = '';
 
     // Update sidebar active state
@@ -1255,17 +1234,9 @@ body {
     // Auto-open the By Campaign group
     document.getElementById('navGroup-campaign').classList.add('open');
 
-    // Email cards (with in-campaign search)
+    // Email table (no in-campaign search — the list is short and already grouped by campaign)
     detailCampaign = campaign;
-    document.getElementById('emailsContainer').innerHTML = `
-      <div class="detail-search">
-        <span class="detail-search-icon">${ICONS.search}</span>
-        <input type="text" id="emailSearchInput" placeholder="Search emails in this campaign by title, subject, or kind…" autocomplete="off" />
-      </div>
-      <div id="emailGrid"></div>
-    `;
-    const emailSearch = document.getElementById('emailSearchInput');
-    emailSearch.addEventListener('input', () => renderEmailCards(campaign, emailSearch.value));
+    document.getElementById('emailsContainer').innerHTML = `<div id="emailGrid"></div>`;
     renderEmailCards(campaign, '');
 
     // Deep-link focus: scroll to + highlight the card, then open its preview
