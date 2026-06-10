@@ -1317,6 +1317,9 @@ body {
     grid.querySelectorAll('.btn-copy').forEach(btn => {
       btn.addEventListener('click', () => copyHTML(btn.dataset.id, btn));
     });
+    grid.querySelectorAll('.btn-code').forEach(btn => {
+      btn.addEventListener('click', () => copyCodeRef(btn.dataset.id, btn));
+    });
     grid.querySelectorAll('.btn-link').forEach(btn => {
       btn.addEventListener('click', () => {
         const cid = btn.dataset.campaign || (detailCampaign && detailCampaign.id);
@@ -1346,6 +1349,7 @@ body {
         <div class="email-actions">
           <button class="btn btn-preview" data-id="${email.id}">${ICONS.eye} Preview</button>
           <button class="btn btn-copy" data-id="${email.id}">${ICONS.copy} Copy HTML</button>
+          <button class="btn btn-code" data-id="${email.id}" title="Copy a Claude Code reference for this email">${ICONS.copy} Copy for Code</button>
           <button class="btn btn-link" data-id="${email.id}" data-campaign="${campaignId || ''}" title="Copy a direct review link to this email">${ICONS.link} Copy link</button>
         </div>
       </div>
@@ -1568,6 +1572,17 @@ body {
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(finish).catch(() => fallbackCopy(text, finish));
     } else fallbackCopy(text, finish);
+  }
+  function copyCodeRef(id, btn) {
+    const email = getEmailById(id);
+    const camp = getCampaignByEmailId(id);
+    const path = 'emails/' + (email ? email.sourceId : id) + '.html';
+    const title = email ? email.title : id;
+    const campTitle = camp ? camp.title : '';
+    const ref = campTitle
+      ? `In ${path} (${campTitle}: "${title}"), `
+      : `In ${path} ("${title}"), `;
+    copyText(ref, btn);
   }
   function fallbackCopy(text, onSuccess) {
     const ta = document.createElement('textarea');
