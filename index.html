@@ -232,37 +232,38 @@ body {
   border-bottom: 1px solid #e3ddd0;
 }
 .hero-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 700;
+  font-family: 'DM Mono', monospace;
+  font-weight: 500;
   font-size: 11px;
-  letter-spacing: 3.5px;
+  letter-spacing: 1.3px;
   text-transform: uppercase;
-  color: #1e88e5;
-  margin-bottom: 18px;
+  color: var(--accent);
+  margin-bottom: 8px;
 }
 .hero h2 {
-  font-family: 'Manrope', sans-serif;
-  font-size: clamp(32px, 5vw, 52px);
-  line-height: 1.04;
-  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 26px;
+  line-height: 1.15;
+  font-weight: 300;
   font-style: normal;
-  letter-spacing: -1.5px;
-  color: #19202b;
-  margin-bottom: 20px;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin-bottom: 6px;
 }
 .hero h2 em,
-.hero h2 strong { font-style: italic; font-weight: 400; color: #0a2540; }
+.hero h2 strong { font-style: italic; font-weight: 400; color: var(--sc-dark); }
 .hero-meta {
-  font-family: 'Fraunces', Georgia, serif;
-  font-size: 18px;
-  line-height: 1.55;
-  max-width: 66ch;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  max-width: 70ch;
   margin: 0;
-  color: #3a4351;
+  color: var(--ink-2);
   font-weight: 400;
 }
-.hero-meta span { color: #3a4351; }
-.hero-meta strong { color: #19202b; font-weight: 600; }
+.hero-meta:empty { display: none; }
+.hero-meta span { color: var(--ink-2); }
+.hero-meta strong { color: var(--ink); font-weight: 600; }
 
 /* Back button row (campaign detail only) */
 .back-row {
@@ -622,6 +623,74 @@ body {
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 14px;
 }
+
+/* ===== Email table (campaign + tag-filtered views) ===== */
+.email-table-wrap {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--sh);
+  overflow-x: auto;
+}
+.email-table { width: 100%; min-width: 660px; border-collapse: collapse; table-layout: fixed; }
+.email-table th {
+  text-align: left;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--ink-2);
+  padding: 12px 16px;
+  border-bottom: 2px solid var(--line);
+  background: var(--panel-2);
+}
+.email-table td {
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+  vertical-align: middle;
+}
+.email-table tbody tr:last-child td { border-bottom: 0; }
+.email-table tbody tr { cursor: pointer; transition: background 0.12s; }
+.email-table tbody tr:hover { background: var(--panel-2); }
+.col-email { width: 34%; }
+.col-aud { width: 19%; }
+.col-status { width: 15%; }
+.col-date { width: 16%; white-space: nowrap; }
+.col-actions { width: 16%; }
+.row-email { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.row-email .email-icon {
+  width: 34px; height: 34px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.row-email .email-icon svg { width: 17px; height: 17px; }
+.row-email-text { min-width: 0; }
+.row-kind {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; font-weight: 500;
+  letter-spacing: 1.3px; text-transform: uppercase;
+  color: var(--ink-3); margin-bottom: 2px;
+}
+.row-title {
+  font-size: 14px; font-weight: 600; color: var(--sc-dark);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.t-mono { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-2); }
+.cell-badges { display: flex; flex-wrap: wrap; gap: 6px; }
+.row-actions { display: flex; gap: 6px; }
+.ib {
+  width: 30px; height: 28px; padding: 0;
+  border: 1px solid var(--line); border-radius: 7px;
+  background: var(--panel); color: var(--ink-2);
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  transition: all 0.12s;
+}
+.ib svg { width: 15px; height: 15px; }
+.ib:hover { border-color: var(--accent); color: var(--accent); }
+.email-row.email-card-focus { animation: rowFocusPulse 2.6s ease-out 1; }
+@keyframes rowFocusPulse {
+  0%  { background: rgba(37,114,185,0.18); }
+  100% { background: transparent; }
+}
 .email-card {
   background: var(--panel);
   border: 1px solid var(--line);
@@ -897,7 +966,7 @@ body {
   .page { padding: 24px 20px; }
   .hdr, .hero { padding-left: 20px; padding-right: 20px; }
   .hero::after { left: 20px; right: 20px; }
-  .hero h2 { font-size: 28px; }
+  .hero h2 { font-size: 23px; }
 }
 </style>
 </head>
@@ -1060,6 +1129,7 @@ body {
     folder: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>',
     eye: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',
     copy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
+    code: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>',
     check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>',
     clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>',
     arrow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>',
@@ -1294,9 +1364,9 @@ body {
     });
 
     // Hero block
-    document.getElementById('heroLabel').textContent = campaign.kind;
+    document.getElementById('heroLabel').textContent = (campaign.year ? campaign.year + ' · ' : '') + campaign.kind;
     document.getElementById('heroTitle').textContent = campaign.title;
-    document.getElementById('heroMeta').innerHTML = `${campaign.emails.length} email${campaign.emails.length !== 1 ? 's' : ''} in this campaign &middot; <strong>Preview</strong> opens the rendered email &middot; <strong>Copy HTML</strong> pulls the code for Pardot`;
+    document.getElementById('heroMeta').innerHTML = '';
 
     // Update sidebar active state
     document.querySelectorAll('.sidebar .nav-item').forEach(n => n.classList.remove('active'));
@@ -1312,7 +1382,7 @@ body {
         <span class="detail-search-icon">${ICONS.search}</span>
         <input type="text" id="emailSearchInput" placeholder="Search emails in this campaign by title, subject, or kind…" autocomplete="off" />
       </div>
-      <div class="email-grid" id="emailGrid"></div>
+      <div id="emailGrid"></div>
     `;
     const emailSearch = document.getElementById('emailSearchInput');
     emailSearch.addEventListener('input', () => renderEmailCards(campaign, emailSearch.value));
@@ -1343,13 +1413,20 @@ body {
       grid.innerHTML = '<div class="empty-hint">No emails match your search.</div>';
       return;
     }
-    grid.innerHTML = list.map(e => emailCardHTML(e, campaign.id)).join('');
+    grid.innerHTML = emailTableHTML(list.map(e => emailRowHTML(e, campaign.id)).join(''));
     wireEmailCardButtons(grid);
   }
 
   // Shared wiring for email card buttons (used by both the detail view and the
   // tag-filtered home view). The link button carries its own campaign id.
   function wireEmailCardButtons(grid) {
+    // Whole row opens the preview; clicks on the action buttons are handled below.
+    grid.querySelectorAll('.email-row').forEach(row => {
+      row.addEventListener('click', (e) => {
+        if (e.target.closest('button')) return;
+        openPreview(row.dataset.id);
+      });
+    });
     grid.querySelectorAll('.btn-preview').forEach(btn => {
       btn.addEventListener('click', () => openPreview(btn.dataset.id));
     });
@@ -1369,27 +1446,61 @@ body {
     });
   }
 
-  function emailCardHTML(email, campaignId) {
+  // Status badge(s) for the table's Status column — status, plus pre/post phase when present.
+  function statusCellHTML(email) {
+    const st = sendStatus(email);
+    const meta = STATUS_META[st];
+    let html = `<span class="status-badge status-${st}">${ICONS[meta.icon]}${meta.label}</span>`;
+    const phase = eventPhase(email);
+    if (phase) {
+      html += `<span class="phase-badge phase-${phase}"><span class="phase-dot"></span>${phase === 'pre' ? 'Pre-event' : 'Post-event'}</span>`;
+    }
+    return `<div class="cell-badges">${html}</div>`;
+  }
+
+  function emailRowHTML(email, campaignId) {
+    const aud = deriveAudience(email.tags);
     return `
-      <div class="email-card edge-${sendStatus(email)}" id="emailCard-${email.id}">
-        ${emailBadgesHTML(email)}
-        <div class="email-card-top">
-          <div class="email-icon icon-${email.icon}">${ICONS.email}</div>
-          <div class="email-body">
-            <div class="email-kind">${email.kind}</div>
-            <div class="email-title">${email.title}</div>
+      <tr class="email-row" id="emailCard-${email.id}" data-id="${email.id}">
+        <td class="col-email">
+          <div class="row-email">
+            <span class="email-icon icon-${email.icon}">${ICONS.email}</span>
+            <div class="row-email-text">
+              <div class="row-kind">${esc(email.kind)}</div>
+              <div class="row-title">${esc(email.title)}</div>
+            </div>
           </div>
-        </div>
-        ${email.sendDate ? `
-        <div class="email-meta">
-          <div class="email-date">${ICONS.calendar} Send Date: ${email.sendDate}</div>
-        </div>` : ''}
-        <div class="email-actions">
-          <button class="btn btn-preview" data-id="${email.id}">${ICONS.eye} Preview</button>
-          <button class="btn btn-copy" data-id="${email.id}">${ICONS.copy} Copy HTML</button>
-          <button class="btn btn-code" data-id="${email.id}" title="Copy a Claude Code reference for this email">${ICONS.copy} Copy for Code</button>
-          <button class="btn btn-link" data-id="${email.id}" data-campaign="${campaignId || ''}" title="Copy a direct review link to this email">${ICONS.link} Copy link</button>
-        </div>
+        </td>
+        <td class="col-aud t-mono">${aud ? esc(aud) : '—'}</td>
+        <td class="col-status">${statusCellHTML(email)}</td>
+        <td class="col-date t-mono">${email.sendDate ? esc(email.sendDate) : '—'}</td>
+        <td class="col-actions">
+          <div class="row-actions">
+            <button class="ib btn-preview" data-id="${email.id}" title="Preview" aria-label="Preview">${ICONS.eye}</button>
+            <button class="ib btn-copy" data-id="${email.id}" title="Copy HTML" aria-label="Copy HTML">${ICONS.copy}</button>
+            <button class="ib btn-code" data-id="${email.id}" title="Copy a Claude Code reference for this email" aria-label="Copy for Code">${ICONS.code}</button>
+            <button class="ib btn-link" data-id="${email.id}" data-campaign="${campaignId || ''}" title="Copy a direct review link to this email" aria-label="Copy link">${ICONS.link}</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }
+
+  function emailTableHTML(rowsHTML) {
+    return `
+      <div class="email-table-wrap">
+        <table class="email-table">
+          <thead>
+            <tr>
+              <th class="col-email">Email</th>
+              <th class="col-aud">Audience</th>
+              <th class="col-status">Status</th>
+              <th class="col-date">Send date</th>
+              <th class="col-actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody>${rowsHTML}</tbody>
+        </table>
       </div>
     `;
   }
@@ -1428,9 +1539,9 @@ body {
         container.innerHTML = '<div class="empty-hint">No emails match the selected tags' + (search ? ' and your search.' : '.') + '</div>';
         return;
       }
-      container.innerHTML = '<div class="email-grid">' +
-        matches.map(m => emailCardHTML(m.email, m.campaign.id)).join('') +
-        '</div>';
+      container.innerHTML = emailTableHTML(
+        matches.map(m => emailRowHTML(m.email, m.campaign.id)).join('')
+      );
       wireEmailCardButtons(container);
       return;
     }
