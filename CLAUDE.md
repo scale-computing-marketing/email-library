@@ -143,3 +143,14 @@ archive; don't follow its publishing steps.
 | Accent blue | `#1e88e5` |
 | Navy box / hero | `#0a2540` |
 | Opt-in link (magenta, per-send) | `#9c2e91` |
+
+## Resolving & creating
+
+- When I refer to an email loosely ("the GigaOm leads email"), resolve it against
+  `manifest.json` by `id`, `title`, or `campaign`. If exactly one matches, proceed.
+  If more than one could match, list the candidates (id + campaign + title) and ask
+  which — never guess.
+- Emails are flat files at `emails/<sourceId>.html`. Never create subfolders.
+- If a new email belongs to a campaign not yet in `manifest.json`, create the
+  campaign object (`id`, `title`, `kind`, `year`, `emails: []`) and add the email to
+  it — just do it and report what you created.
