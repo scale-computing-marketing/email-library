@@ -941,7 +941,7 @@ body.is-email-route .page { display: none; }
   word-break: break-word;
 }
 .pv-value.muted { color: var(--ink-3); font-style: italic; font-weight: 400; }
-.pv-value.mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 400; color: var(--ink-2); }
+.pv-value.mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 400; color: var(--ink); }
 .pv-field { margin-bottom: 16px; }
 .pv-divider { border-top: 1px solid var(--line); margin: 16px 0; }
 .pv-name-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 4px; }
@@ -986,7 +986,8 @@ body.is-email-route .page { display: none; }
   color: var(--accent); font-weight: 700; margin-bottom: 14px;
 }
 .pv-email {
-  width: 680px; max-width: 100%;
+  /* 680px card + the 16px gutter each side the emails' outer cell carries + 1px borders */
+  width: 714px; max-width: 100%;
   margin: 0 auto;
   background: #f2f2f2;
   border: 1px solid var(--line);
