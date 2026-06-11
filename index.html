@@ -1665,7 +1665,7 @@ body.is-email-route .page { display: none; }
   function renderBuildDetails(email, campaign) {
     const idx = campaign ? campaign.emails.findIndex(e => e.id === email.id) + 1 : 0;
     const total = campaign ? campaign.emails.length : 0;
-    const pardotName = campaign ? `${campaign.title} │ ${email.title}` : email.title;
+    const pardotName = email.pardotName || (campaign ? `${campaign.title} │ ${email.title}` : email.title);
     const html = `
       <div class="pv-name-row">
         <span class="pv-label" style="margin:0;">Pardot Email Name</span>
@@ -1700,13 +1700,13 @@ body.is-email-route .page { display: none; }
       <div class="pv-divider"></div>
 
       <div class="pv-field"><div class="pv-label">Sender name</div><div class="pv-value">Scale Computing</div></div>
-      <div class="pv-field"><div class="pv-label">From / reply-to</div><div class="pv-value muted">— not set —</div></div>
+      <div class="pv-field"><div class="pv-label">From / reply-to</div>${pvVal(email.fromReplyTo)}</div>
 
       <div class="pv-divider"></div>
 
       <div class="pv-grid-2">
         <div class="pv-field"><div class="pv-label">Send to (lists)</div><div class="pv-value muted">— select list —</div></div>
-        <div class="pv-field"><div class="pv-label">Suppression</div><div class="pv-value muted">— not set —</div></div>
+        <div class="pv-field"><div class="pv-label">Suppression</div>${pvVal(Array.isArray(email.suppression) ? email.suppression.join(', ') : email.suppression)}</div>
       </div>
       ${email.tags && email.tags.length ? `
       <div class="pv-divider"></div>

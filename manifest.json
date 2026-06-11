@@ -219,7 +219,10 @@
             "event-nyslgitda",
             "event-q2-2026"
           ],
-          "sendDate": "June 8, 2026"
+          "sendDate": "June 8, 2026",
+          "pardotName": "Q2-2026 │ NYSLGITDA Spring Conference",
+          "fromReplyTo": "noreply@scalecomputing.com",
+          "suppression": ["Suppression | Global", "SC Employees"]
         },
         {
           "id": "q2-2026-tradeshows-itag",
