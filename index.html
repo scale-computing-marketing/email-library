@@ -678,7 +678,16 @@ body {
 .stat { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; white-space: nowrap; }
 .stat svg { width: 14px; height: 14px; flex-shrink: 0; }
 .stat-sent, .stat-nodate    { color: var(--ink-3); }
-.stat-upcoming, .stat-today { color: var(--sc-blue); font-weight: 600; }
+.stat-upcoming, .stat-today {
+  background: var(--accent); color: #ffffff; font-weight: 600;
+  font-size: 11.5px; padding: 3px 10px; border-radius: 999px;
+}
+.stat-upcoming svg, .stat-today svg { width: 12px; height: 12px; }
+
+/* Unsent rows carry a soft blue wash + left accent bar so they read as flagged at a glance. */
+.email-table tbody tr.row-upcoming { background: rgba(37,114,185,0.07); }
+.email-table tbody tr.row-upcoming:hover { background: rgba(37,114,185,0.12); }
+.email-table tbody tr.row-upcoming td:first-child { box-shadow: inset 3px 0 0 var(--accent); }
 
 /* Phase: shape (diagonal arrow) + label, no color — distinguishable at a glance, adds no hue. */
 .phase-label { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--ink-2); white-space: nowrap; }
@@ -1369,9 +1378,10 @@ body.is-email-route .page { display: none; }
 
   function emailRowHTML(email, campaignId) {
     const st = sendStatus(email);
-    const dateClass = (st === 'upcoming' || st === 'today') ? 'date-upcoming' : 'date-muted';
+    const flagged = st === 'upcoming' || st === 'today';
+    const dateClass = flagged ? 'date-upcoming' : 'date-muted';
     return `
-      <tr class="email-row" id="emailCard-${email.id}" data-id="${email.id}">
+      <tr class="email-row${flagged ? ' row-upcoming' : ''}" id="emailCard-${email.id}" data-id="${email.id}">
         <td class="col-email">
           <div class="row-email">
             <span class="email-icon icon-neutral">${ICONS.email}</span>
