@@ -908,7 +908,6 @@ body.is-email-route .page { display: none; }
     <div class="nav-group" id="navGroup-campaign">
       <div class="nav-group-header">
         <span class="nav-group-label">By Campaign</span>
-        <span class="nav-group-count" id="campaignGroupCount"></span>
         <svg class="nav-group-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"/></svg>
       </div>
       <div class="nav-group-items">
@@ -916,20 +915,6 @@ body.is-email-route .page { display: none; }
       </div>
     </div>
 
-    <div class="nav-group" id="navGroup-year">
-      <div class="nav-group-header">
-        <span class="nav-group-label">By Year</span>
-        <span class="nav-group-count" id="yearGroupCount"></span>
-        <svg class="nav-group-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"/></svg>
-      </div>
-      <div class="nav-group-items">
-        <div class="nav-item" data-view="year" data-value="2026">
-          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
-          <span class="nav-label">2026</span>
-          <span class="nav-badge" id="count-2026">0</span>
-        </div>
-      </div>
-    </div>
   </aside>
 
   <!-- ===== MAIN ===== -->
@@ -1188,23 +1173,13 @@ body.is-email-route .page { display: none; }
     return out;
   }
 
-  function updateCounts() {
-    let y2026 = 0;
-    CAMPAIGNS.forEach(c => {
-      if (c.year === '2026') y2026 += c.emails.length;
-    });
-    document.getElementById('count-2026').textContent = y2026;
-    document.getElementById('campaignGroupCount').textContent = CAMPAIGNS.length;
-    document.getElementById('yearGroupCount').textContent = new Set(CAMPAIGNS.map(c => c.year)).size;
-  }
-
   function buildCampaignNav() {
     const container = document.getElementById('campaignNav');
-    container.innerHTML = CAMPAIGNS.map(c => `
+    const sorted = [...CAMPAIGNS].sort((a, b) => a.title.localeCompare(b.title));
+    container.innerHTML = sorted.map(c => `
       <div class="nav-item" data-campaign-link="${c.id}" data-campaign="${c.id}" role="button" tabindex="0">
         <span class="nav-icon">${ICONS.folder}</span>
         <span class="nav-label">${c.title}</span>
-        <span class="nav-badge">${c.emails.length}</span>
       </div>
     `).join('');
   }
@@ -1921,7 +1896,6 @@ body.is-email-route .page { display: none; }
       return;
     }
     buildCampaignNav();
-    updateCounts();
     initTagFilter();
     handleRoute();
   }
