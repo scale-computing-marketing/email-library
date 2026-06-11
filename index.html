@@ -738,7 +738,10 @@ body.is-email-route .page { display: none; }
   background: var(--panel);
   flex-shrink: 0;
 }
-.ev-bar-titles { min-width: 0; }
+.ev-bar-titles { min-width: 0; flex: 1 1 auto; }
+/* Back leads the bar (matches the campaign page) and names its destination. */
+.ev-back { flex-shrink: 0; }
+.ev-back-label { max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ev-kicker {
   font-family: 'JetBrains Mono', monospace;
   font-size: 9px; font-weight: 500;
@@ -1001,6 +1004,10 @@ body.is-email-route .page { display: none; }
     <!-- ===== EMAIL VIEW: routed full-page build preview ===== -->
     <section class="email-view" id="emailView">
       <div class="ev-bar">
+        <button class="back-link ev-back" id="evBack" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+          <span class="ev-back-label" id="evBackLabel">Back</span>
+        </button>
         <div class="ev-bar-titles">
           <div class="ev-kicker" id="evKicker">Kind</div>
           <div class="ev-title" id="evTitle">Email title</div>
@@ -1009,10 +1016,6 @@ body.is-email-route .page { display: none; }
           <button class="btn" id="evCopyBtn">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             Copy HTML
-          </button>
-          <button class="back-link" id="evBack" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-            Back
           </button>
         </div>
       </div>
@@ -1144,7 +1147,7 @@ body.is-email-route .page { display: none; }
     sent:     { label: 'Sent',          icon: 'check' },
     today:    { label: 'Sending today', icon: 'clock' },
     upcoming: { label: 'Scheduled',     icon: 'clock' },
-    nodate:   { label: 'Date TBD',      icon: 'calendar' }
+    nodate:   { label: 'Not scheduled', icon: 'calendar' }
   };
 
   // Unique tags across the library (respecting an active year filter), with email counts.
@@ -1393,7 +1396,7 @@ body.is-email-route .page { display: none; }
         </td>
         <td class="col-phase">${phaseCellHTML(email)}</td>
         <td class="col-status">${statusCellHTML(email)}</td>
-        <td class="col-date t-mono ${dateClass}">${email.sendDate ? esc(email.sendDate) : '—'}</td>
+        <td class="col-date t-mono ${dateClass}">${email.sendDate ? esc(email.sendDate) : 'TBD'}</td>
         <td class="col-actions">
           <div class="row-actions">
             <button class="ib btn-preview" data-id="${email.id}" title="Preview" aria-label="Preview">${ICONS.eye}</button>
@@ -1748,9 +1751,10 @@ body.is-email-route .page { display: none; }
     if (navEl) navEl.classList.add('active');
     document.getElementById('navGroup-campaign').classList.add('open');
 
-    // Bar titles + build details
-    document.getElementById('evKicker').textContent = email.kind || 'Email';
+    // Bar titles + build details (kicker keeps the campaign visible at the deepest level)
+    document.getElementById('evKicker').textContent = campaign.title + ' · ' + (email.kind || 'Email');
     document.getElementById('evTitle').textContent = email.title;
+    document.getElementById('evBackLabel').textContent = 'Back to ' + campaign.title;
     renderBuildDetails(email, campaign);
     // Enter with the build-details rail expanded and panes at the top.
     document.getElementById('evPanel').classList.remove('is-collapsed');

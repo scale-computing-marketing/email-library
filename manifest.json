@@ -11,7 +11,6 @@
           "kind": "Marketing Asset",
           "title": "Marketing Center HTML",
           "subject": "Ditch Edge Complexity: GigaOm® Names Scale Computing™ a Leader and Outperformer (3 Years Running)",
-          "icon": "purple",
           "sourceId": "q2-2026-gigaom-marketing-center"
         },
         {
@@ -19,7 +18,6 @@
           "kind": "End User Prospect",
           "title": "Email to Leads",
           "subject": "Tired of Edge Complexity? See Why GigaOm® Names Scale Computing™ a Leader and Outperformer",
-          "icon": "purple",
           "sourceId": "q2-2026-gigaom-leads",
           "sendDate": "June 16, 2026",
           "tags": [
@@ -38,7 +36,6 @@
           "kind": "Customer",
           "title": "Email to Customers",
           "subject": "Your Edge Strategy is a Winner: GigaOm® Names Scale Computing™ a Leader (Again)",
-          "icon": "purple",
           "sourceId": "q2-2026-gigaom-customers",
           "tags": [
             "one-time-send",
@@ -58,7 +55,6 @@
           "kind": "Partner Enablement",
           "title": "Email to Active Partners",
           "subject": "Generate leads with GigaOm® and Scale Computing™!",
-          "icon": "purple",
           "sourceId": "q2-2026-gigaom-active-partners",
           "tags": [
             "one-time-send",
@@ -76,7 +72,6 @@
           "kind": "Partner Prospect",
           "title": "Email to Partner Leads",
           "subject": "Secure More Edge Deals: GigaOm® Names Scale Computing™ a Leader (Again)",
-          "icon": "purple",
           "sourceId": "q2-2026-gigaom-partner-leads",
           "tags": [
             "one-time-send",
@@ -102,7 +97,6 @@
           "kind": "Keynote Replay",
           "title": "Bill Morrow Keynote",
           "subject": "Future-Proof Your IT: Insights from Scale Computing CEO, Bill Morrow",
-          "icon": "blue",
           "sourceId": "platform-2026-bill-morrow",
           "tags": [
             "one-time-send",
@@ -118,7 +112,6 @@
           "kind": "Keynote Replay",
           "title": "Product Roadmap",
           "subject": "Simplify & Secure Your Edge: The Scale Computing Product Roadmap Revealed",
-          "icon": "blue",
           "sourceId": "platform-2026-roadmap"
         },
         {
@@ -126,7 +119,6 @@
           "kind": "Customer Story",
           "title": "Taco Bell Sessions",
           "subject": "How Taco Bell® Scaled Innovation Without Complexity",
-          "icon": "blue",
           "sourceId": "platform-2026-taco-bell"
         },
         {
@@ -134,7 +126,6 @@
           "kind": "Security",
           "title": "Security Sessions",
           "subject": "The New Security Perimeter: Insights and Blueprint from Platform//2026",
-          "icon": "blue",
           "sourceId": "platform-2026-security"
         }
       ]
@@ -150,7 +141,6 @@
           "kind": "Tradeshow Pre-Event",
           "title": "Southwest Fuel & Convenience Expo",
           "subject": "Looking forward to seeing you at the 2026 Southwest Fuel & Convenience Expo!",
-          "icon": "orange",
           "sourceId": "q2-2026-sw-fuel-expo",
           "tags": [
             "one-time-send",
@@ -167,7 +157,6 @@
           "kind": "Tradeshow Post-Event",
           "title": "NCLGISA Spring Symposium",
           "subject": "Great to see you at the NCLGISA Spring Symposium!",
-          "icon": "green",
           "sourceId": "q2-2026-tradeshows-nclgisa",
           "tags": [
             "content-post-event",
@@ -183,7 +172,6 @@
           "kind": "Tradeshow Post-Event",
           "title": "ePlus Transform Summit",
           "subject": "Great meeting you at ePlus Transform",
-          "icon": "green",
           "sourceId": "q2-2026-tradeshows-eplus-transform",
           "tags": [
             "content-post-event",
@@ -202,7 +190,6 @@
           "kind": "Tradeshow Post-Event",
           "title": "GIPAW Spring Conference",
           "subject": "Great to see you at GIPAW 2026!",
-          "icon": "green",
           "sourceId": "q2-2026-tradeshows-gipaw",
           "tags": [
             "one-time-send",
@@ -221,7 +208,6 @@
           "kind": "Tradeshow Post-Event",
           "title": "NYSLGITDA Spring Conference",
           "subject": "Great to see you at NYSLGITDA!",
-          "icon": "green",
           "sourceId": "q2-2026-tradeshows-nyslgitda",
           "tags": [
             "one-time-send",
@@ -240,7 +226,6 @@
           "kind": "Tradeshow Post-Event",
           "title": "ITAG",
           "subject": "Great to see you at ITAG!",
-          "icon": "green",
           "sourceId": "q2-2026-tradeshows-itag",
           "tags": [
             "one-time-send",
@@ -266,7 +251,6 @@
           "kind": "End User Prospect",
           "title": "VMware Alternative",
           "subject": "VMware Getting Too Expensive? 💵 Meet Scale Computing + Get $200",
-          "icon": "blue",
           "sourceId": "vmware-alternative-2026-june",
           "tags": [
             "one-time-send",

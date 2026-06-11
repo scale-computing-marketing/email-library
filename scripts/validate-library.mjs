@@ -7,7 +7,7 @@
  *   2. A manifest entry's sourceId has no emails/<sourceId>.html file
  *      (Preview throws "Could not load ..." — this is the live nyslgitda bug).
  *   3. An emails/*.html file no email entry points at (orphan, never shown).
- *   4. Duplicate ids/sourceIds, missing required fields, bad icon colors.
+ *   4. Duplicate ids/sourceIds, missing required fields, retired "icon" field.
  *
  * Run locally before you push:   node scripts/validate-library.mjs
  * Runs automatically in CI via .github/workflows/validate-library.yml
@@ -23,7 +23,6 @@ import { fileURLToPath } from 'node:url';
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const MANIFEST = join(REPO_ROOT, 'manifest.json');
 const EMAILS_DIR = join(REPO_ROOT, 'emails');
-const ALLOWED_ICONS = ['blue', 'green', 'purple', 'orange'];
 
 const errors = [];
 const warnings = [];
@@ -68,11 +67,11 @@ for (const [ci, c] of manifest.campaigns.entries()) {
   }
   for (const [ei, e] of c.emails.entries()) {
     const ew = `${where} > email[${ei}]${e && e.id ? ` "${e.id}"` : ''}`;
-    for (const f of ['id', 'title', 'subject', 'icon', 'sourceId']) {
+    for (const f of ['id', 'title', 'subject', 'sourceId']) {
       if (!e?.[f]) errors.push(`${ew}: missing required field "${f}".`);
     }
-    if (e?.icon && !ALLOWED_ICONS.includes(e.icon)) {
-      errors.push(`${ew}: icon "${e.icon}" is not one of ${ALLOWED_ICONS.join(', ')}.`);
+    if (e?.icon) {
+      warnings.push(`${ew}: "icon" is retired (rows render neutral gray) — remove it.`);
     }
     if (e?.tags && !Array.isArray(e.tags)) errors.push(`${ew}: "tags" must be an array.`);
     if (!e?.sendDate) warnings.push(`${ew}: no "sendDate".`);

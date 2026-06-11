@@ -41,7 +41,6 @@ that email's Preview; a file with no entry never appears.
           "kind": "Tradeshow Post-Event",
           "title": "NYSLGITDA Spring Conference",
           "subject": "Great to see you at NYSLGITDA!",
-          "icon": "green",
           "sourceId": "q2-2026-tradeshows-nyslgitda",
           "tags": ["one-time-send", "content-post-event", "audience-end-user"],
           "sendDate": "June 8, 2026"
@@ -53,8 +52,10 @@ that email's Preview; a file with no entry never appears.
 ```
 
 - `year` is a **string**. `sourceId` must equal `id` and the filename.
-- `icon` is one of: `blue`, `green`, `purple`, `orange`.
 - `tags` and `sendDate` are optional; everything else is required.
+- `icon` is **retired** (June 2026): the library renders every email icon neutral
+  gray, so the field is no longer carried in the manifest. Don't add it to new
+  entries — the validator warns if it reappears.
 
 ## Which spec to build from
 
@@ -88,7 +89,7 @@ Then:
    and merge fields `{{Recipient.FirstName}}` / `{{unsubscribe}}`).
 2. Save as `emails/<short-id>.html`.
 3. Add the manifest entry under the correct campaign (`id` + `sourceId` =
-   `<short-id>`; set `kind`, `title`, `subject`, `icon`, `tags`, `sendDate`).
+   `<short-id>`; set `kind`, `title`, `subject`, `tags`, `sendDate`).
 4. Run `node scripts/validate-library.mjs` — it must print `✓` before you commit.
 5. Commit the file and the manifest change together.
 
@@ -109,12 +110,6 @@ Anyone with the link can review the rendered emails; no login required.
 - On a visual complaint, a screenshot gets to the fix in one round.
 - If the same fix doesn't land twice, switch layouts (e.g. stack a grid) rather
   than re-tweaking — the renderer disagrees with the CSS.
-
-## Icon colors
-
-`blue` (default — executive/keynote, primary campaigns), `purple` (product
-launches, roadmap, AI/innovation), `green` (customer stories, success), `orange`
-(in use for pre-event / event reminders). All four are valid per the validator.
 
 ## Don'ts
 
