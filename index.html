@@ -1041,7 +1041,7 @@ body.is-email-route .page { display: none; }
   }
   function emailFileUrl(sourceId) { return "emails/" + sourceId + ".html"; }
   async function fetchEmailHTML(sourceId) {
-    const res = await fetch(emailFileUrl(sourceId));
+    const res = await fetch(emailFileUrl(sourceId), { cache: 'no-store' });
     if (!res.ok) throw new Error("Could not load " + sourceId);
     return res.text();
   }
