@@ -1420,6 +1420,11 @@ body.is-email-route .page { display: none; }
     return `<span class="stat stat-${st}">${ICONS[meta.icon]}${meta.label}</span>`;
   }
 
+  // Marketing Center assets are hosted HTML, not sends — they carry no phase, status, or send date.
+  function isMarketingCenter(email) {
+    return /marketing\s*center/i.test((email.kind || '') + ' ' + (email.title || ''));
+  }
+
   // Pre/post phase for the Phase column — diagonal arrow (no color) + label, or an em dash when unknown.
   function phaseCellHTML(email) {
     const phase = eventPhase(email);
@@ -1429,8 +1434,9 @@ body.is-email-route .page { display: none; }
   }
 
   function emailRowHTML(email, campaignId) {
+    const mc = isMarketingCenter(email);
     const st = sendStatus(email);
-    const flagged = st === 'upcoming' || st === 'today';
+    const flagged = !mc && (st === 'upcoming' || st === 'today');
     const dateClass = flagged ? 'date-upcoming' : 'date-muted';
     return `
       <tr class="email-row${flagged ? ' row-upcoming' : ''}" id="emailCard-${email.id}" data-id="${email.id}">
@@ -1443,9 +1449,9 @@ body.is-email-route .page { display: none; }
             </div>
           </div>
         </td>
-        <td class="col-phase">${phaseCellHTML(email)}</td>
-        <td class="col-status">${statusCellHTML(email)}</td>
-        <td class="col-date t-mono ${dateClass}">${email.sendDate ? esc(email.sendDate) : 'TBD'}</td>
+        <td class="col-phase">${mc ? '' : phaseCellHTML(email)}</td>
+        <td class="col-status">${mc ? '' : statusCellHTML(email)}</td>
+        <td class="col-date t-mono ${dateClass}">${mc ? '' : (email.sendDate ? esc(email.sendDate) : 'TBD')}</td>
         <td class="col-actions">
           <div class="row-actions">
             <button class="ib btn-preview" data-id="${email.id}" title="Preview" aria-label="Preview">${ICONS.eye}</button>
