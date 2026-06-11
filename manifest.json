@@ -100,34 +100,284 @@
           "subject": "Future-Proof Your IT: Insights from Scale Computing CEO, Bill Morrow",
           "sourceId": "platform-2026-bill-morrow",
           "tags": [
-            "one-time-send",
+            "manual-sequence",
             "content-post-event",
             "theme-platform-event",
             "cta-watch",
             "event-platform-2026"
           ],
-          "sendDate": "June 2, 2026"
+          "sendDate": "June 2, 2026",
+          "pardotName": "Platform | 2026 | Post Event | Email 1 | Bill Morrow Keynote",
+          "sendTime": "10:00 AM EST",
+          "sendTo": [
+            "All Prospect"
+          ],
+          "suppression": [
+            "Suppression | Global",
+            "SC Employees"
+          ],
+          "from": "noreply@scalecomputing.com",
+          "replyTo": "noreply@scalecomputing.com"
         },
         {
           "id": "platform-2026-roadmap",
           "kind": "Keynote Replay",
           "title": "Product Roadmap",
           "subject": "Simplify & Secure Your Edge: The Scale Computing Product Roadmap Revealed",
-          "sourceId": "platform-2026-roadmap"
+          "sourceId": "platform-2026-roadmap",
+          "pardotName": "Platform | 2026 | Post Event | Email 2 | Product Roadmap",
+          "sendDate": "June 16, 2026",
+          "sendTime": "10:00 AM EST",
+          "sendTo": [
+            "All Prospect"
+          ],
+          "suppression": [
+            "Suppression | Global",
+            "SC Employees"
+          ],
+          "from": "noreply@scalecomputing.com",
+          "replyTo": "noreply@scalecomputing.com",
+          "tags": [
+            "manual-sequence",
+            "content-post-event",
+            "theme-platform-event",
+            "cta-watch",
+            "event-platform-2026"
+          ]
         },
         {
           "id": "platform-2026-taco-bell",
           "kind": "Customer Story",
           "title": "Taco Bell Sessions",
           "subject": "How Taco Bell® Scaled Innovation Without Complexity",
-          "sourceId": "platform-2026-taco-bell"
+          "sourceId": "platform-2026-taco-bell",
+          "pardotName": "Platform | 2026 | Post Event | Email 3 | Taco Bell Sessions",
+          "sendDate": "June 30, 2026",
+          "sendTime": "10:00 AM EST",
+          "sendTo": [
+            "All Prospect"
+          ],
+          "suppression": [
+            "Suppression | Global",
+            "SC Employees"
+          ],
+          "from": "noreply@scalecomputing.com",
+          "replyTo": "noreply@scalecomputing.com",
+          "tags": [
+            "manual-sequence",
+            "content-post-event",
+            "theme-platform-event",
+            "cta-watch",
+            "event-platform-2026"
+          ]
         },
         {
           "id": "platform-2026-security",
           "kind": "Security",
           "title": "Security Sessions",
           "subject": "The New Security Perimeter: Insights and Blueprint from Platform//2026",
-          "sourceId": "platform-2026-security"
+          "sourceId": "platform-2026-security",
+          "pardotName": "Platform | 2026 | Post Event | Email 4 | Security Sessions",
+          "sendDate": "July 14, 2026",
+          "sendTime": "10:00 AM EST",
+          "sendTo": [
+            "All Prospect"
+          ],
+          "suppression": [
+            "Suppression | Global",
+            "SC Employees"
+          ],
+          "from": "noreply@scalecomputing.com",
+          "replyTo": "noreply@scalecomputing.com",
+          "tags": [
+            "manual-sequence",
+            "content-post-event",
+            "theme-platform-event",
+            "cta-watch",
+            "event-platform-2026"
+          ]
+        },
+        {
+          "id": "platform-2026-edge-ai",
+          "kind": "AI Sessions",
+          "title": "Edge AI Sessions",
+          "subject": "Beyond the Hype: Building Operationally Resilient AI at the Edge",
+          "sourceId": "platform-2026-edge-ai",
+          "pardotName": "Platform | 2026 | Post Event | Email 5 | Edge AI Sessions",
+          "sendDate": "July 28, 2026",
+          "sendTime": "10:00 AM EST",
+          "sendTo": [
+            "All Prospect"
+          ],
+          "suppression": [
+            "Suppression | Global",
+            "SC Employees"
+          ],
+          "from": "noreply@scalecomputing.com",
+          "replyTo": "noreply@scalecomputing.com",
+          "tags": [
+            "manual-sequence",
+            "content-post-event",
+            "theme-platform-event",
+            "cta-watch",
+            "event-platform-2026"
+          ]
+        },
+        {
+          "id": "platform-2026-k12",
+          "kind": "Customer Story",
+          "title": "K12 Customer Story",
+          "subject": "K-12 is an Example of Enterprise IT: Resilience, Security, and Efficiency on a Lean Budget",
+          "sourceId": "platform-2026-k12",
+          "pardotName": "Platform | 2026 | Post Event | Email 6 | K12 Customer Story",
+          "sendDate": "August 11, 2026",
+          "sendTime": "10:00 AM EST",
+          "sendTo": [
+            "All Prospect"
+          ],
+          "suppression": [
+            "Suppression | Global",
+            "SC Employees"
+          ],
+          "from": "noreply@scalecomputing.com",
+          "replyTo": "noreply@scalecomputing.com",
+          "tags": [
+            "manual-sequence",
+            "content-post-event",
+            "theme-platform-event",
+            "cta-watch",
+            "event-platform-2026"
+          ]
+        },
+        {
+          "id": "platform-2026-networking",
+          "kind": "Networking",
+          "title": "Networking Sessions",
+          "subject": "Is Your Network Holding Back Your Edge?",
+          "sourceId": "platform-2026-networking",
+          "pardotName": "Platform | 2026 | Post Event | Email 7 | Networking Sessions",
+          "sendDate": "August 25, 2026",
+          "sendTime": "10:00 AM EST",
+          "sendTo": [
+            "All Prospect"
+          ],
+          "suppression": [
+            "Suppression | Global",
+            "SC Employees"
+          ],
+          "from": "noreply@scalecomputing.com",
+          "replyTo": "noreply@scalecomputing.com",
+          "tags": [
+            "manual-sequence",
+            "content-post-event",
+            "theme-platform-event",
+            "cta-watch",
+            "event-platform-2026"
+          ]
+        },
+        {
+          "id": "platform-2026-business-continuity",
+          "kind": "Business Continuity",
+          "title": "Business Continuity Sessions",
+          "subject": "Defeat Site Failure & Ensure Compliance: Your Business Continuity Strategy",
+          "sourceId": "platform-2026-business-continuity",
+          "pardotName": "Platform | 2026 | Post Event | Email 8 | Business Continuity Sessions",
+          "sendDate": "September 8, 2026",
+          "sendTime": "10:00 AM EST",
+          "sendTo": [
+            "All Prospect"
+          ],
+          "suppression": [
+            "Suppression | Global",
+            "SC Employees"
+          ],
+          "from": "noreply@scalecomputing.com",
+          "replyTo": "noreply@scalecomputing.com",
+          "tags": [
+            "manual-sequence",
+            "content-post-event",
+            "theme-platform-event",
+            "cta-watch",
+            "event-platform-2026"
+          ]
+        },
+        {
+          "id": "platform-2026-lenovo",
+          "kind": "VMware Alternative",
+          "title": "Lenovo VMware Alternative",
+          "subject": "Future-Proof Your Data Center: The Premier VMware® Alternative from Lenovo® and Scale Computing™",
+          "sourceId": "platform-2026-lenovo",
+          "pardotName": "Platform | 2026 | Post Event | Email 9 | Lenovo VMware Alternative",
+          "sendDate": "September 22, 2026",
+          "sendTime": "10:00 AM EST",
+          "sendTo": [
+            "All Prospect"
+          ],
+          "suppression": [
+            "Suppression | Global",
+            "SC Employees"
+          ],
+          "from": "noreply@scalecomputing.com",
+          "replyTo": "noreply@scalecomputing.com",
+          "tags": [
+            "manual-sequence",
+            "content-post-event",
+            "theme-platform-event",
+            "cta-watch",
+            "event-platform-2026"
+          ]
+        },
+        {
+          "id": "platform-2026-gigaom-keynote",
+          "kind": "Keynote Replay",
+          "title": "GigaOm Keynote",
+          "subject": "Is Your Edge Autonomous? GigaOm’s New Standard for Distributed IT",
+          "sourceId": "platform-2026-gigaom-keynote",
+          "pardotName": "Platform | 2026 | Post Event | Email 10 | GigaOm Keynote",
+          "sendDate": "October 6, 2026",
+          "sendTime": "10:00 AM EST",
+          "sendTo": [
+            "All Prospect"
+          ],
+          "suppression": [
+            "Suppression | Global",
+            "SC Employees"
+          ],
+          "from": "noreply@scalecomputing.com",
+          "replyTo": "noreply@scalecomputing.com",
+          "tags": [
+            "manual-sequence",
+            "content-post-event",
+            "theme-platform-event",
+            "cta-watch",
+            "event-platform-2026"
+          ]
+        },
+        {
+          "id": "platform-2026-closing",
+          "kind": "Keynote Replay",
+          "title": "Closing Sessions",
+          "subject": "From Platform//2026: AI Vision to Reality",
+          "sourceId": "platform-2026-closing",
+          "pardotName": "Platform | 2026 | Post Event | Email 11 | Closing Sessions",
+          "sendDate": "October 20, 2026",
+          "sendTime": "10:00 AM EST",
+          "sendTo": [
+            "All Prospect"
+          ],
+          "suppression": [
+            "Suppression | Global",
+            "SC Employees"
+          ],
+          "from": "noreply@scalecomputing.com",
+          "replyTo": "noreply@scalecomputing.com",
+          "tags": [
+            "manual-sequence",
+            "content-post-event",
+            "theme-platform-event",
+            "cta-watch",
+            "event-platform-2026"
+          ]
         }
       ]
     },
@@ -226,7 +476,10 @@
           "pardotName": "Q2-2026 │ NYSLGITDA Spring Conference",
           "from": "noreply@scalecomputing.com",
           "replyTo": "noreply@scalecomputing.com",
-          "suppression": ["Suppression | Global", "SC Employees"]
+          "suppression": [
+            "Suppression | Global",
+            "SC Employees"
+          ]
         },
         {
           "id": "q2-2026-tradeshows-itag",
@@ -250,8 +503,13 @@
           "contentType": "Post Event",
           "from": "noreply@scalecomputing.com",
           "replyTo": "noreply@scalecomputing.com",
-          "sendTo": ["Q2-2026 │ ITAG"],
-          "suppression": ["Suppression | Global", "SC Employees"]
+          "sendTo": [
+            "Q2-2026 │ ITAG"
+          ],
+          "suppression": [
+            "Suppression | Global",
+            "SC Employees"
+          ]
         }
       ]
     },
@@ -281,7 +539,10 @@
           "pardotName": "VMware Alternative │ June 2026",
           "from": "noreply@scalecomputing.com",
           "replyTo": "noreply@scalecomputing.com",
-          "suppression": ["Suppression | Global", "SC Employees"]
+          "suppression": [
+            "Suppression | Global",
+            "SC Employees"
+          ]
         }
       ]
     }

@@ -2831,10 +2831,18 @@ body.is-email-route .page { display: none; }
       .map(w => w ? w.charAt(0).toUpperCase() + w.slice(1) : w).join(' ');
   }
   // Build-detail fields derived from the same tag vocabulary used across the library.
+  // Send Type tags from the Tag Library registry, plus legacy -send variants.
   const EMAIL_TYPE_LABELS = {
     'one-time-send': 'One-time send',
     'recurring-send': 'Recurring send',
-    'automated-send': 'Automated send'
+    'automated-send': 'Automated send',
+    'manual-sequence': 'Manual sequence',
+    'drip-sequence': 'Drip sequence',
+    'a-b-test': 'A/B test',
+    'newsletter': 'Newsletter',
+    'transactional': 'Transactional',
+    're-engagement': 'Re-engagement',
+    'announcement': 'Announcement'
   };
   function deriveEmailType(tags) {
     const t = (tags || []).find(x => EMAIL_TYPE_LABELS[x] || x.endsWith('-send'));
