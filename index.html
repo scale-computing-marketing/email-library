@@ -731,17 +731,18 @@ body.is-email-route .hero,
 body.is-email-route .page { display: none; }
 
 .ev-bar {
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 12px;
+  display: flex; flex-direction: column; align-items: flex-start;
+  gap: 10px;
   padding: 14px 28px;
   border-bottom: 1px solid var(--line);
   background: var(--panel);
   flex-shrink: 0;
 }
-.ev-bar-titles { min-width: 0; flex: 1 1 auto; }
-/* Back leads the bar (matches the campaign page) and names its destination. */
+/* Back sits on its own row above the titles (matches the campaign page) and names its destination. */
 .ev-back { flex-shrink: 0; }
 .ev-back-label { max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ev-bar-main { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; }
+.ev-bar-titles { min-width: 0; flex: 1 1 auto; }
 .ev-kicker {
   font-family: 'JetBrains Mono', monospace;
   font-size: 9px; font-weight: 500;
@@ -1008,15 +1009,17 @@ body.is-email-route .page { display: none; }
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
           <span class="ev-back-label" id="evBackLabel">Back</span>
         </button>
-        <div class="ev-bar-titles">
-          <div class="ev-kicker" id="evKicker">Kind</div>
-          <div class="ev-title" id="evTitle">Email title</div>
-        </div>
-        <div class="ev-bar-actions">
-          <button class="btn" id="evCopyBtn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-            Copy HTML
-          </button>
+        <div class="ev-bar-main">
+          <div class="ev-bar-titles">
+            <div class="ev-kicker" id="evKicker">Kind</div>
+            <div class="ev-title" id="evTitle">Email title</div>
+          </div>
+          <div class="ev-bar-actions">
+            <button class="btn" id="evCopyBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy HTML
+            </button>
+          </div>
         </div>
       </div>
 
