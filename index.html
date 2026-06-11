@@ -834,6 +834,16 @@ body.is-email-route .page { display: none; }
   background: var(--panel); border: 1px solid var(--line); color: var(--ink-2);
 }
 .pv-tag.is-matched { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-2); }
+.pv-tag-sep { color: var(--ink-3); font-size: 11px; align-self: center; }
+.pv-tag-copy {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.04em;
+  border: 1px solid var(--line); background: transparent; color: var(--accent);
+  border-radius: 999px; padding: 3px 9px; cursor: pointer;
+}
+.pv-tag-copy:hover { border-color: var(--accent); background: var(--accent-soft); }
+.pv-tag-copy svg { width: 11px; height: 11px; }
+.pv-tag-copy.copied { border-color: var(--sc-green); color: #2a7e30; background: rgba(66,182,73,0.12); }
 
 /* Collapsed: left section becomes a slim strip inside the same panel */
 .ev-panel.is-collapsed .pv-rail { flex: 0 0 50px; padding: 18px 0; }
@@ -1685,11 +1695,18 @@ body.is-email-route .page { display: none; }
       </div>
       ${email.tags && email.tags.length ? `
       <div class="pv-divider"></div>
-      <div class="pv-field"><div class="pv-label">Tags</div><div class="pv-tags">${
-        email.tags.map(t => `<span class="pv-tag${selectedTags.has(t) ? ' is-matched' : ''}">${esc(t)}</span>`).join('')
+      <div class="pv-field">
+        <div class="pv-name-row">
+          <span class="pv-label" style="margin:0;">Tags</span>
+          <button class="pv-tag-copy" id="pvTagsCopy" type="button" title="Copy tags">${ICONS.copy} Copy</button>
+        </div>
+        <div class="pv-tags">${
+        email.tags.map(t => `<span class="pv-tag${selectedTags.has(t) ? ' is-matched' : ''}">${esc(t)}</span>`).join('<span class="pv-tag-sep">,</span>')
       }</div></div>` : ''}
     `;
     document.getElementById('pvRailBody').innerHTML = html;
+    const tagCopyBtn = document.getElementById('pvTagsCopy');
+    if (tagCopyBtn) tagCopyBtn.addEventListener('click', () => copyText(email.tags.join(', '), tagCopyBtn));
     setPreviewTextCell(email.sourceId, email.id);
   }
 
