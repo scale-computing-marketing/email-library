@@ -1059,6 +1059,11 @@ body.is-email-route .page { display: none; }
   .email-table tbody tr.row-upcoming { box-shadow: inset 3px 0 0 var(--accent); }
   .row-title { white-space: normal; }
   .ib { width: 38px; height: 34px; }
+
+  /* Ops Tools reference views: stack brand cards; let the fixed-width email
+     blocks scroll sideways inside their own container. */
+  #brandingView .brand-grid { grid-template-columns: 1fr; }
+  #blocksView #cb-library { overflow-x: auto; }
 }
 </style>
 </head>
@@ -1100,6 +1105,14 @@ body.is-email-route .page { display: none; }
         <a class="nav-item ops-callout" href="#/builder" data-ops="builder">
           <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 12h6"/><path d="M9 16h6"/></svg></span>
           <span class="nav-label">Campaign Builder</span>
+        </a>
+        <a class="nav-item ops-callout" href="#/blocks" data-ops="blocks">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg></span>
+          <span class="nav-label">Content Blocks</span>
+        </a>
+        <a class="nav-item ops-callout" href="#/branding" data-ops="branding">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2.5"/><path d="M21 15.3c0 3.7-3.6 6.7-9 6.7-5.5 0-10-4.5-10-10S6.5 2 12 2c1.2 0 2.4.2 3.5.6"/><circle cx="7" cy="10" r="1.2"/><circle cx="9.5" cy="15.5" r="1.2"/><circle cx="15" cy="16" r="1.2"/><circle cx="18.5" cy="11.5" r="1.2"/></svg></span>
+          <span class="nav-label">Branding</span>
         </a>
       </div>
     </div>
@@ -1235,6 +1248,774 @@ body.is-email-route .page { display: none; }
           <input type="file" id="cb-draftfile" accept=".json,application/json" hidden>
           <datalist id="cb-timeopts"></datalist>
 
+        </div>
+      </div>
+
+
+      <!-- ===== OPS TOOLS: BRANDING (routed view, #/branding) =====
+           Markup verbatim from the mar-ops-dashboard's Branding section minus its
+           editorial masthead — the app hero carries the title. Swatch copy wiring
+           lives with the other app wiring below. -->
+      <div id="brandingView" style="display:none;">
+        <style>
+/* Ported verbatim from the mar-ops-dashboard's gov-ed Branding section,
+   rescoped .gov-ed -> #brandingView; the --ed-* palette is restated below. */
+#brandingView{
+  --ed-ink:#19202b; --ed-navy:#0a2540; --ed-blue:#1e88e5;
+  --ed-link:#0a5db5; --ed-line:#e3ddd0; --ed-mono:#5b6675;
+  --ed-soft:#f7f9fc; --ed-chipbg:#faf8f3;
+  font-family:'Fraunces',Georgia,serif; -webkit-font-smoothing:antialiased;
+}
+#brandingView .ed-section{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:12px;
+  letter-spacing:3px;text-transform:uppercase;color:var(--ed-navy);
+  margin:44px 0 22px;padding-bottom:12px;border-bottom:2px solid var(--ed-ink);
+  display:flex;align-items:baseline;justify-content:space-between;gap:12px;}
+#brandingView .brand-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+#brandingView .brand-card{background:#fff;border:1px solid var(--ed-line);border-radius:14px;overflow:hidden;
+  box-shadow:0 1px 0 rgba(0,0,0,.02),0 22px 44px -30px rgba(25,32,43,.45);transition:transform .18s,box-shadow .18s;}
+#brandingView .brand-card:hover{transform:translateY(-3px);border-color:#cfe3f6;box-shadow:0 1px 0 rgba(0,0,0,.02),0 30px 54px -28px rgba(25,32,43,.5);}
+#brandingView .brand-logo-link{display:block;text-decoration:none;}
+#brandingView .brand-logo-wrap{background:var(--ed-soft);border-bottom:1px solid var(--ed-line);padding:36px 28px;
+  display:flex;align-items:center;justify-content:center;min-height:122px;}
+#brandingView .brand-logo-wrap--dark{background:var(--ed-navy);border-bottom-color:var(--ed-navy);}
+#brandingView .brand-logo-img{max-width:100%;max-height:56px;width:auto;height:auto;}
+#brandingView .brand-card-body{padding:20px 22px 22px;}
+#brandingView .brand-card-name{font-family:'Fraunces',serif;font-size:19px;font-weight:600;letter-spacing:-.3px;color:var(--ed-ink);
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 6px;}
+#brandingView .brand-card-flag{font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;letter-spacing:1.5px;
+  text-transform:uppercase;color:#0a5db5;background:#eaf3fb;border:1px solid #cfe3f6;padding:3px 8px;border-radius:999px;}
+#brandingView .brand-card-sub{font-family:'Fraunces',serif;font-size:14px;line-height:1.5;color:#54606f;margin:0 0 16px;}
+#brandingView .brand-swatch-row{display:flex;flex-wrap:wrap;gap:8px;}
+#brandingView .brand-swatch{display:inline-flex;align-items:center;gap:7px;font-family:'JetBrains Mono',monospace;font-size:11px;
+  font-weight:500;padding:5px 11px 5px 8px;border-radius:999px;border:1px solid var(--ed-line);background:var(--ed-chipbg);
+  color:var(--ed-mono);cursor:pointer;transition:border-color .15s,background .15s,color .15s;}
+#brandingView .brand-swatch:hover{border-color:var(--ed-blue);}
+#brandingView .brand-swatch.copied{background:#eaf3fb;border-color:#cfe3f6;color:#0a5db5;}
+#brandingView .brand-swatch-chip{width:13px;height:13px;border-radius:3px;display:inline-block;}
+#brandingView .brand-foot{margin-top:32px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ed-mono);
+  display:flex;align-items:center;gap:10px;border-top:1px solid var(--ed-line);padding-top:18px;}
+#brandingView .brand-foot-label{font-weight:700;letter-spacing:2px;text-transform:uppercase;font-size:10.5px;color:var(--ed-blue);}
+        </style>
+        <div style="max-width:1320px;margin:0 auto;">
+  <p class="ed-section">Logo lockups <span>6 variants</span></p>
+
+  <div class="brand-grid">
+
+    <div class="brand-card">
+      <a class="brand-logo-link" href="https://info.scalecomputing.com/l/46782/2026-05-22/9ncf6z/46782/1779485235Zbzzbthu/PRIMARY_horizontal_scale_logo_blue_grey_tm.png" target="_blank" rel="noopener">
+        <div class="brand-logo-wrap">
+          <img class="brand-logo-img" src="https://info.scalecomputing.com/l/46782/2026-05-22/9ncf6z/46782/1779485235Zbzzbthu/PRIMARY_horizontal_scale_logo_blue_grey_tm.png" alt="Scale Computing horizontal logo — blue &amp; grey">
+        </div>
+      </a>
+      <div class="brand-card-body">
+        <div class="brand-card-name">Horizontal · Blue &amp; Grey <span class="brand-card-flag">Primary</span></div>
+        <div class="brand-card-sub">Current primary horizontal lockup. Use as the default for most surfaces.</div>
+        <div class="brand-swatch-row">
+          <div class="brand-swatch" data-swatch="#2572B9" title="Click to copy">
+            <span class="brand-swatch-chip" style="background:#2572B9;"></span>
+            <span class="brand-swatch-hex">#2572B9</span>
+          </div>
+          <div class="brand-swatch" data-swatch="#5A5A5A" title="Click to copy">
+            <span class="brand-swatch-chip" style="background:#5A5A5A;"></span>
+            <span class="brand-swatch-hex">#5A5A5A</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="brand-card">
+      <a class="brand-logo-link" href="https://info.scalecomputing.com/l/46782/2026-05-22/9ncf6p/46782/1779485234M9mjiAi9/horizontal_scale_logo_green_grey_tm.png" target="_blank" rel="noopener">
+        <div class="brand-logo-wrap">
+          <img class="brand-logo-img" src="https://info.scalecomputing.com/l/46782/2026-05-22/9ncf6p/46782/1779485234M9mjiAi9/horizontal_scale_logo_green_grey_tm.png" alt="Scale Computing horizontal logo — green &amp; grey">
+        </div>
+      </a>
+      <div class="brand-card-body">
+        <div class="brand-card-name">Horizontal · Green &amp; Grey</div>
+        <div class="brand-card-sub">Heritage horizontal lockup using the legacy green mark.</div>
+        <div class="brand-swatch-row">
+          <div class="brand-swatch" data-swatch="#42B649" title="Click to copy">
+            <span class="brand-swatch-chip" style="background:#42B649;"></span>
+            <span class="brand-swatch-hex">#42B649</span>
+          </div>
+          <div class="brand-swatch" data-swatch="#5A5A5A" title="Click to copy">
+            <span class="brand-swatch-chip" style="background:#5A5A5A;"></span>
+            <span class="brand-swatch-hex">#5A5A5A</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="brand-card">
+      <a class="brand-logo-link" href="https://info.scalecomputing.com/l/46782/2026-05-22/9ncf6h/46782/1779485234OUSzlDFd/horizontal_scale_logo_black_tm.png" target="_blank" rel="noopener">
+        <div class="brand-logo-wrap">
+          <img class="brand-logo-img" src="https://info.scalecomputing.com/l/46782/2026-05-22/9ncf6h/46782/1779485234OUSzlDFd/horizontal_scale_logo_black_tm.png" alt="Scale Computing horizontal logo — black">
+        </div>
+      </a>
+      <div class="brand-card-body">
+        <div class="brand-card-name">Horizontal · Black</div>
+        <div class="brand-card-sub">Single-color black lockup. Use for print, faxable docs, or when color is unavailable.</div>
+        <div class="brand-swatch-row">
+          <div class="brand-swatch" data-swatch="#000000" title="Click to copy">
+            <span class="brand-swatch-chip" style="background:#000000;"></span>
+            <span class="brand-swatch-hex">#000000</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="brand-card">
+      <a class="brand-logo-link" href="https://info.scalecomputing.com/l/46782/2026-05-22/9ncf6l/46782/1779485234J0IrETMc/horizontal_scale_logo_blue_white_tm.png" target="_blank" rel="noopener">
+        <div class="brand-logo-wrap brand-logo-wrap--dark">
+          <img class="brand-logo-img" src="https://info.scalecomputing.com/l/46782/2026-05-22/9ncf6l/46782/1779485234J0IrETMc/horizontal_scale_logo_blue_white_tm.png" alt="Scale Computing horizontal logo — blue &amp; white">
+        </div>
+      </a>
+      <div class="brand-card-body">
+        <div class="brand-card-name">Horizontal · Blue &amp; White</div>
+        <div class="brand-card-sub">Reversed lockup for dark backgrounds. Pairs with the primary blue.</div>
+        <div class="brand-swatch-row">
+          <div class="brand-swatch" data-swatch="#2572B9" title="Click to copy">
+            <span class="brand-swatch-chip" style="background:#2572B9;"></span>
+            <span class="brand-swatch-hex">#2572B9</span>
+          </div>
+          <div class="brand-swatch" data-swatch="#FFFFFF" title="Click to copy">
+            <span class="brand-swatch-chip" style="background:#FFFFFF;border:1px solid var(--line);"></span>
+            <span class="brand-swatch-hex">#FFFFFF</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="brand-card">
+      <a class="brand-logo-link" href="https://info.scalecomputing.com/l/46782/2026-05-22/9ncf6s/46782/1779485234m51YrO2z/horizontal_scale_logo_green_white_tm.png" target="_blank" rel="noopener">
+        <div class="brand-logo-wrap brand-logo-wrap--dark">
+          <img class="brand-logo-img" src="https://info.scalecomputing.com/l/46782/2026-05-22/9ncf6s/46782/1779485234m51YrO2z/horizontal_scale_logo_green_white_tm.png" alt="Scale Computing horizontal logo — green &amp; white">
+        </div>
+      </a>
+      <div class="brand-card-body">
+        <div class="brand-card-name">Horizontal · Green &amp; White</div>
+        <div class="brand-card-sub">Heritage reversed lockup. Use on dark backgrounds when green is appropriate.</div>
+        <div class="brand-swatch-row">
+          <div class="brand-swatch" data-swatch="#42B649" title="Click to copy">
+            <span class="brand-swatch-chip" style="background:#42B649;"></span>
+            <span class="brand-swatch-hex">#42B649</span>
+          </div>
+          <div class="brand-swatch" data-swatch="#FFFFFF" title="Click to copy">
+            <span class="brand-swatch-chip" style="background:#FFFFFF;border:1px solid var(--line);"></span>
+            <span class="brand-swatch-hex">#FFFFFF</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="brand-card">
+      <a class="brand-logo-link" href="https://info.scalecomputing.com/l/46782/2026-05-22/9ncf6w/46782/1779485235Z9CRzONU/horizontal_scale_logo_white_tm.png" target="_blank" rel="noopener">
+        <div class="brand-logo-wrap brand-logo-wrap--dark">
+          <img class="brand-logo-img" src="https://info.scalecomputing.com/l/46782/2026-05-22/9ncf6w/46782/1779485235Z9CRzONU/horizontal_scale_logo_white_tm.png" alt="Scale Computing horizontal logo — white">
+        </div>
+      </a>
+      <div class="brand-card-body">
+        <div class="brand-card-name">Horizontal · White</div>
+        <div class="brand-card-sub">All-white lockup for dark or photographic backgrounds where a single-color mark is needed.</div>
+        <div class="brand-swatch-row">
+          <div class="brand-swatch" data-swatch="#FFFFFF" title="Click to copy">
+            <span class="brand-swatch-chip" style="background:#FFFFFF;border:1px solid var(--line);"></span>
+            <span class="brand-swatch-hex">#FFFFFF</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="brand-foot">
+    <span class="brand-foot-label">Tip</span>
+    Click a hex code to copy it to your clipboard. Click the logo to open the source file in a new tab.
+  </div>
+        </div>
+      </div>
+
+      <!-- ===== OPS TOOLS: CONTENT BLOCKS (routed view, #/blocks) =====
+           Markup + scoped styles verbatim from the mar-ops-dashboard's Content
+           Blocks section (the dashboard-wide "dash-type-unify" style layer is
+           intentionally NOT ported). Masthead dropped; legend kept. -->
+      <div id="blocksView" style="display:none;">
+<style>
+#cb-library{
+    --paper:#f4f6f9;
+    --ink:#19202b;
+    --navy:#0a2540;
+    --blue:#1e88e5;
+    --link:#0a5db5;
+    --magenta:#9c2e91;
+    --line:#e3ddd0;
+    --mono-ink:#5b6675;
+    --email-bg:#f2f2f2;
+  }
+#cb-library *{box-sizing:border-box;}
+#cb-library{margin:0;padding:0;}
+#p-contentblocks{
+    background-image:none;
+  }
+#cb-library{
+    background:transparent;
+    color:var(--ink);
+    font-family:'Fraunces',Georgia,serif;
+    -webkit-font-smoothing:antialiased;
+  }
+#cb-library .wrap{max-width:none;margin:0;padding:0 0 72px;}
+#cb-library header.masthead{padding:14px 0 36px;border-bottom:1px solid var(--line);}
+#cb-library .kicker{
+    font-family:'JetBrains Mono',monospace;font-weight:700;
+    font-size:11px;letter-spacing:3.5px;text-transform:uppercase;
+    color:var(--blue);margin:0 0 18px;
+  }
+#cb-library header.masthead h1{
+    font-size:clamp(34px,6vw,60px);line-height:1.02;font-weight:600;
+    letter-spacing:-1.5px;margin:0 0 22px;color:var(--ink);
+  }
+#cb-library header.masthead h1 em{font-style:italic;font-weight:400;color:var(--navy);}
+#cb-library .lede{font-size:18px;line-height:1.55;max-width:62ch;margin:0 0 28px;color:#3a4351;font-weight:400;}
+#cb-library .legend{display:flex;flex-wrap:wrap;gap:10px 14px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--mono-ink);}
+#cb-library .legend span{display:inline-flex;align-items:center;gap:7px;}
+#cb-library .dot{width:10px;height:10px;border-radius:50%;display:inline-block;}
+#cb-library .dot.blue{background:var(--link);}
+#cb-library .dot.mag{background:var(--magenta);}
+#cb-library .swatch{width:11px;height:11px;border-radius:2px;display:inline-block;border:1px solid rgba(0,0,0,.12);}
+#cb-library .swatch.navy{background:var(--navy);}
+#cb-library .swatch.soft{background:#f7f9fc;}
+#cb-library .swatch.cream{background:#faf6ec;border-color:#ece3cd;}
+#cb-library .section-label{
+    font-family:'JetBrains Mono',monospace;font-weight:700;font-size:12px;
+    letter-spacing:3px;text-transform:uppercase;color:var(--navy);
+    margin:44px 0 22px;padding-bottom:12px;border-bottom:2px solid var(--ink);
+  }
+#cb-library .block{
+    background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;
+    box-shadow:0 1px 0 rgba(0,0,0,.02),0 22px 44px -30px rgba(25,32,43,.45);
+    margin:0 0 40px;
+  }
+#cb-library .block-head{padding:26px 30px 24px;border-bottom:1px solid var(--line);}
+#cb-library .block-head .type{
+    font-family:'JetBrains Mono',monospace;font-weight:700;font-size:10.5px;
+    letter-spacing:2.5px;text-transform:uppercase;color:var(--blue);margin:0 0 9px;
+  }
+#cb-library .block-head h2{font-size:26px;line-height:1.1;font-weight:600;letter-spacing:-.5px;margin:0 0 14px;}
+#cb-library .chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 0;}
+#cb-library .chip{
+    font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;
+    padding:5px 11px;border-radius:999px;border:1px solid var(--line);
+    background:#faf8f3;color:var(--mono-ink);display:inline-flex;align-items:center;gap:6px;
+  }
+#cb-library .chip b{color:var(--ink);font-weight:700;}
+#cb-library .chip .dot, #cb-library .chip .swatch{margin:0;}
+#cb-library .note{
+    margin:16px 0 0;font-size:14.5px;line-height:1.5;color:#54606f;font-weight:400;
+    font-style:italic;border-left:3px solid var(--line);padding-left:14px;
+  }
+#cb-library .opt-badge{
+    display:inline-flex;align-items:center;gap:9px;
+    font-family:'JetBrains Mono',monospace;font-weight:700;
+    font-size:11px;letter-spacing:2.5px;text-transform:uppercase;
+    padding:7px 14px 7px 9px;border-radius:999px;margin:0 0 14px;
+  }
+#cb-library .opt-badge .num{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:22px;height:22px;border-radius:50%;font-size:12px;letter-spacing:0;
+  }
+#cb-library .opt-badge.one{background:#eaf3fb;color:#0a5db5;border:1px solid #cfe3f6;}
+#cb-library .opt-badge.one .num{background:#0a5db5;color:#fff;}
+#cb-library .opt-badge.two{background:var(--navy);color:#fff;border:1px solid var(--navy);}
+#cb-library .opt-badge.two .num{background:#1e88e5;color:#fff;}
+#cb-library .pair-intro{font-size:16px;line-height:1.55;color:#3a4351;max-width:64ch;margin:0 0 26px;font-weight:400;}
+#cb-library .pair-intro b{color:var(--ink);font-weight:600;}
+#cb-library .stage{background:var(--email-bg);padding:28px 16px;}
+#cb-library .stage-inner{max-width:680px;margin:0 auto;}
+#cb-library .email-card{
+    width:100%;max-width:680px;background:#ffffff;border-radius:8px;overflow:hidden;
+    border:1px solid #e7e7e7;
+  }
+#cb-library .email-card table{border-collapse:collapse;}
+#cb-library .email-card img{ -ms-interpolation-mode:bicubic;border:0; }
+@media only screen and (max-width:700px){
+#cb-library .fluid{width:100% !important;height:auto !important;}
+#cb-library .mobile-padding{padding-left:24px !important;padding-right:24px !important;}
+#cb-library .mobile-h2{font-size:22px !important;line-height:28px !important;}
+#cb-library .mobile-body{font-size:16px !important;line-height:25px !important;}
+#cb-library .col-stack{display:block !important;width:100% !important;}
+#cb-library .split-img{padding:0 0 18px 0 !important;}
+#cb-library .split-text{padding:0 !important;}
+#cb-library .card-outer{padding-left:16px !important;padding-right:16px !important;}
+#cb-library .card-padding{padding:24px 22px !important;}
+}
+@media (max-width:560px){
+#cb-library .wrap{padding:0 16px 72px;}
+#cb-library .block-head{padding:22px 20px;}
+}
+</style>
+        <div style="max-width:1320px;margin:0 auto;">
+<div id="cb-library">
+<div class="wrap">
+<header class="masthead">
+    <div class="legend">
+      <span><i class="dot blue"></i> Blue link <code>#0a5db5</code> (default)</span>
+      <span><i class="dot mag"></i> Magenta link <code>#9c2e91</code> (opt-in)</span>
+      <span><i class="swatch navy"></i> Navy box <code>#0a2540</code></span>
+      <span><i class="swatch soft"></i> Soft card <code>#f7f9fc</code></span>
+      <span><i class="swatch cream"></i> Cream card <code>#faf6ec</code></span>
+    </div>
+  </header>
+
+  <!-- ===================== PROMO / OFFER ===================== -->
+  <p class="section-label">Promo / Offer blocks</p>
+
+  <div class="block">
+    <div class="block-head">
+      <p class="type">Promo / Offer · Secondary</p>
+      <h2>VMware Alternative Offer</h2>
+      <div class="chips">
+        <span class="chip"><i class="swatch navy"></i> Dark navy box</span>
+        <span class="chip">Placement: <b>after primary CTA</b></span>
+        <span class="chip">Leads with: <b>linked image</b></span>
+        <span class="chip">Button: <b>bright blue #1e88e5</b></span>
+      </div>
+      <p class="note">Current defaults — NCLGISA 2026 send. Always sits after the primary CTA (secondary by definition); never paired with a Featured Keynote Callout (two navy boxes compete).</p>
+    </div>
+    <div class="stage">
+      <div class="stage-inner">
+        <div class="email-card">
+          <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%;">
+            <tr><td style="height:20px;line-height:20px;font-size:0;">&nbsp;</td></tr>
+            <!-- SECONDARY: VMware Alternative Offer (navy box) with linked incentive image -->
+            <tr>
+              <td class="mobile-padding" style="padding:0 35px 35px;">
+                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%; background:#0a2540; border-radius:8px;">
+                  <tr>
+                    <td style="padding:28px 32px 0;" align="center">
+                      <a href="https://www.scalecomputing.com/landing-pages/vmware-alternative-break-free-of-complexity" target="_blank" style="text-decoration:none;">
+                        <img src="https://info.scalecomputing.com/l/46782/2025-03-31/9g9kgb/46782/17434308349ZLLs5em/Amazon_gift_card.png" alt="Offer" width="240" class="fluid" style="width:240px; max-width:100%; height:auto; display:block; margin:0 auto; border-radius:6px;" />
+                      </a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:24px 32px 0; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif;" align="center">
+                      <p class="mobile-h2" style="margin:0; font-size:26px; line-height:32px; letter-spacing:-0.3px; color:#ffffff; font-weight:bold;">Looking for a new way to virtualize?</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:16px 32px 0; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif;" align="center">
+                      <p style="margin:0; font-size:15px; line-height:24px; color:#dbe4f0;">Upgrade your infrastructure with a cost-effective, hassle-free VMware alternative. Scale Computing offers a future-proof alternative with a seamless, stress-free migration.</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:24px 32px 36px;" align="center">
+                      <!--[if mso]>
+                      <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="https://www.scalecomputing.com/landing-pages/vmware-alternative-break-free-of-complexity" style="height:44px;v-text-anchor:middle;width:260px;" arcsize="9%" strokecolor="#1e88e5" fillcolor="#1e88e5">
+                        <w:anchorlock/>
+                        <center style="color:#ffffff;font-family:'Trebuchet MS',Arial,sans-serif;font-size:12px;font-weight:bold;letter-spacing:1.4px;text-transform:uppercase;">BOOK YOUR MEETING NOW &rArr;</center>
+                      </v:roundrect>
+                      <![endif]-->
+                      <!--[if !mso]><!-- -->
+                      <a href="https://www.scalecomputing.com/landing-pages/vmware-alternative-break-free-of-complexity" target="_blank" style="display:inline-block; width:260px; max-width:260px; background:#1e88e5; color:#ffffff; font-family:'Trebuchet MS',Arial,sans-serif; font-size:12px; line-height:44px; font-weight:bold; letter-spacing:1.4px; text-transform:uppercase; text-align:center; text-decoration:none; border-radius:4px;">BOOK YOUR MEETING NOW &rArr;</a>
+                      <!--<![endif]-->
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== CTA ===================== -->
+  <p class="section-label">CTA blocks</p>
+
+  <div class="block">
+    <div class="block-head">
+      <p class="type">CTA · Review request · Emphasis surface</p>
+      <h2>Gartner Review Block — navy reward card</h2>
+      <div class="chips">
+        <span class="chip"><i class="swatch navy"></i> surface <b>#0a2540</b></span>
+        <span class="chip">Reward <b>badge</b></span>
+        <span class="chip">Tiles: <b>1 per category</b></span>
+        <span class="chip">Audience: <b>customers</b></span>
+      </div>
+      <p class="note">A peer-review ask presented as a single reward card with one tappable tile per category. Reward badge is optional; tiles repeat 1&ndash;3&times;. Sky-blue eyebrow <code>#5aa9ff</code>, body <code>#c7d2dd</code>, tiles on <code>#102f52</code> with a <code>#1e88e5</code> left accent. It&rsquo;s a navy box, so don&rsquo;t pair it with another navy block in the same email.</p>
+    </div>
+    <div class="stage">
+      <div class="stage-inner">
+        <div class="email-card">
+          <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%;">
+            <tr>
+              <td class="mobile-padding" style="padding:35px;">
+                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%; background:#0a2540; border-radius:8px; overflow:hidden;">
+                  <!-- top accent bar -->
+                  <tr>
+                    <td style="height:3px; line-height:3px; font-size:0; background:#1e88e5;">&nbsp;</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:36px 30px 36px; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif; text-align:center;">
+
+                      <!-- reward badge -->
+                      <table role="presentation" border="0" cellpadding="0" cellspacing="0" align="center" style="margin:0 auto 18px;">
+                        <tr>
+                          <td style="background:#1e88e5; border-radius:999px; padding:8px 20px; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif; font-size:13px; line-height:16px; letter-spacing:1px; font-weight:bold; color:#ffffff; text-transform:uppercase;">Earn up to $75</td>
+                        </tr>
+                      </table>
+
+                      <p class="mobile-eyebrow" style="margin:0 0 10px; font-size:11px; line-height:14px; letter-spacing:2.5px; text-transform:uppercase; color:#5aa9ff; font-weight:bold;">Share Your Experience</p>
+                      <h2 class="mobile-h2" style="margin:0 0 12px; font-size:24px; line-height:30px; letter-spacing:-0.3px; color:#ffffff; font-weight:bold;">Review Scale Computing on Gartner<sup style="font-size:60%; line-height:0;">&reg;</sup>!</h2>
+                      <p class="mobile-body" style="margin:0 0 26px; font-size:15px; line-height:24px; color:#c7d2dd;">Technology review sites like Gartner<sup style="font-size:60%; line-height:0;">&reg;</sup> are paramount sources of information for IT decision-makers. Share your anonymous review of Scale Computing&trade; in one, two, or all three categories:</p>
+
+                      <!-- Review 1 -->
+                      <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%;">
+                        <tr>
+                          <td style="background:#102f52; border-left:3px solid #1e88e5; border-radius:4px;">
+                            <a href="#" target="_blank" class="mobile-h3" style="display:block; padding:15px 18px; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif; font-size:17px; line-height:22px; font-weight:bold; color:#ffffff; text-decoration:none; text-align:left;">Hyper Converged Infrastructure <span style="color:#5aa9ff;">&rarr;</span></a>
+                          </td>
+                        </tr>
+                      </table>
+                      <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%"><tr><td style="height:12px; line-height:12px; font-size:0;">&nbsp;</td></tr></table>
+
+                      <!-- Review 2 -->
+                      <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%;">
+                        <tr>
+                          <td style="background:#102f52; border-left:3px solid #1e88e5; border-radius:4px;">
+                            <a href="#" target="_blank" class="mobile-h3" style="display:block; padding:15px 18px; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif; font-size:17px; line-height:22px; font-weight:bold; color:#ffffff; text-decoration:none; text-align:left;">Integrated Systems <span style="color:#5aa9ff;">&rarr;</span></a>
+                          </td>
+                        </tr>
+                      </table>
+                      <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%"><tr><td style="height:12px; line-height:12px; font-size:0;">&nbsp;</td></tr></table>
+
+                      <!-- Review 3 -->
+                      <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%;">
+                        <tr>
+                          <td style="background:#102f52; border-left:3px solid #1e88e5; border-radius:4px;">
+                            <a href="#" target="_blank" class="mobile-h3" style="display:block; padding:15px 18px; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif; font-size:17px; line-height:22px; font-weight:bold; color:#ffffff; text-decoration:none; text-align:left;">Server Virtualization <span style="color:#5aa9ff;">&rarr;</span></a>
+                          </td>
+                        </tr>
+                      </table>
+
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== CONTENT ===================== -->
+  <p class="section-label">Content blocks · Media + Text Row</p>
+
+  <!-- Instance 2: Awards Nomination -->
+  <div class="block">
+    <div class="block-head">
+      <p class="type">Content · Two-up row</p>
+      <h2>Media + Text Row — Awards Nomination</h2>
+      <div class="chips">
+        <span class="chip">Image: <b>right</b></span>
+        <span class="chip">Shape: <b>circle</b></span>
+        <span class="chip"><i class="dot mag"></i> link <b>#9c2e91</b></span>
+      </div>
+      <p class="note">Circle-photo asset pending. Dated copy (April 25) is a per-campaign variable, not locked text.</p>
+    </div>
+    <div class="stage">
+      <div class="stage-inner">
+        <div class="email-card">
+          <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%;">
+            <tr>
+              <td class="mobile-padding" style="padding:35px;">
+                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%;">
+                  <tr>
+                    <td class="col-stack split-text" width="60%" valign="middle" style="width:60%; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif;">
+                      <p class="mobile-h2" style="margin:0 0 12px; font-size:22px; line-height:28px; letter-spacing:-0.3px; color:#1a1a1a; font-weight:bold;">Nominate Someone Today!</p>
+                      <p class="mobile-body dark-text" style="margin:0 0 16px; font-size:15px; line-height:24px; color:#1a1a1a;">Don&rsquo;t forget&mdash;our Call for Awards Nominations is still open! Help us celebrate excellence in the community by submitting your nomination before the deadline on <strong>April 25</strong>.</p>
+                      <p style="margin:0; font-size:15px; line-height:24px;"><a href="#" target="_blank" style="color:#9c2e91; font-weight:bold; text-decoration:none;">Submit a Nomination &nbsp;&rArr;</a></p>
+                    </td>
+                    <td class="col-stack split-img" width="40%" valign="middle" style="width:40%; padding:0 0 0 24px;" align="center">
+                      <a href="#" target="_blank" style="text-decoration:none;">
+                        <img src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='220'%20height='220'%3E%3Ccircle%20cx='110'%20cy='110'%20r='110'%20fill='%23e6ebf2'/%3E%3Ctext%20x='110'%20y='104'%20font-family='Arial'%20font-size='12'%20fill='%238a97a8'%20text-anchor='middle'%20font-weight='bold'%3EPHOTO%3C/text%3E%3Ctext%20x='110'%20y='124'%20font-family='Arial'%20font-size='12'%20fill='%238a97a8'%20text-anchor='middle'%20font-weight='bold'%3EPENDING%3C/text%3E%3C/svg%3E" alt="" width="220" class="fluid" style="width:220px; max-width:100%; height:auto; display:block; margin:0 auto; border-radius:50%;" />
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Instance 3: Boss Letter Template -->
+  <div class="block">
+    <div class="block-head">
+      <p class="type">Content · Two-up row</p>
+      <h2>Media + Text Row — Boss Letter Template</h2>
+      <div class="chips">
+        <span class="chip">Image: <b>right</b></span>
+        <span class="chip">Shape: <b>circle</b></span>
+        <span class="chip"><i class="dot mag"></i> link <b>#9c2e91</b></span>
+      </div>
+      <p class="note">Circle-photo asset pending.</p>
+    </div>
+    <div class="stage">
+      <div class="stage-inner">
+        <div class="email-card">
+          <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%;">
+            <tr>
+              <td class="mobile-padding" style="padding:35px;">
+                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%;">
+                  <tr>
+                    <td class="col-stack split-text" width="60%" valign="middle" style="width:60%; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif;">
+                      <p class="mobile-h2" style="margin:0 0 12px; font-size:22px; line-height:28px; letter-spacing:-0.3px; color:#1a1a1a; font-weight:bold;">Need help getting your boss on board?</p>
+                      <p class="mobile-body dark-text" style="margin:0 0 16px; font-size:15px; line-height:24px; color:#1a1a1a;">Look no further - we&rsquo;ve got you covered! Download our letter template to help you pitch your case.</p>
+                      <p style="margin:0; font-size:15px; line-height:24px;"><a href="#" target="_blank" style="color:#9c2e91; font-weight:bold; text-decoration:none;">Download Letter Template &nbsp;&rArr;</a></p>
+                    </td>
+                    <td class="col-stack split-img" width="40%" valign="middle" style="width:40%; padding:0 0 0 24px;" align="center">
+                      <a href="#" target="_blank" style="text-decoration:none;">
+                        <img src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='220'%20height='220'%3E%3Ccircle%20cx='110'%20cy='110'%20r='110'%20fill='%23e6ebf2'/%3E%3Ctext%20x='110'%20y='104'%20font-family='Arial'%20font-size='12'%20fill='%238a97a8'%20text-anchor='middle'%20font-weight='bold'%3EPHOTO%3C/text%3E%3Ctext%20x='110'%20y='124'%20font-family='Arial'%20font-size='12'%20fill='%238a97a8'%20text-anchor='middle'%20font-weight='bold'%3EPENDING%3C/text%3E%3C/svg%3E" alt="" width="220" class="fluid" style="width:220px; max-width:100%; height:auto; display:block; margin:0 auto; border-radius:50%;" />
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Instance 4: Pricing Transparency -->
+  <div class="block">
+    <div class="block-head">
+      <p class="type">Content · Two-up row</p>
+      <h2>Media + Text Row — Pricing Transparency</h2>
+      <div class="chips">
+        <span class="chip">Image: <b>left</b></span>
+        <span class="chip">Shape: <b>square / icon</b></span>
+        <span class="chip"><i class="dot blue"></i> link <b>#0a5db5</b></span>
+      </div>
+    </div>
+    <div class="stage">
+      <div class="stage-inner">
+        <div class="email-card">
+          <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%;">
+            <tr>
+              <td class="mobile-padding" style="padding:35px;">
+                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%;">
+                  <tr>
+                    <td class="col-stack split-img" width="40%" valign="middle" style="width:40%; padding:0 24px 0 0;" align="center">
+                      <a href="#" target="_blank" style="text-decoration:none;">
+                        <img src="https://info.scalecomputing.com/l/46782/2026-01-07/9llcx5/46782/1767794258nahrN58F/sc_cta_pricing_300x300.png" alt="" width="175" class="fluid" style="width:175px; max-width:100%; height:auto; display:block; margin:0 auto; border-radius:6px;" />
+                      </a>
+                    </td>
+                    <td class="col-stack split-text" width="60%" valign="middle" style="width:60%; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif;">
+                      <p class="mobile-h2" style="margin:0 0 12px; font-size:22px; line-height:28px; letter-spacing:-0.3px; color:#1a1a1a; font-weight:bold;">We believe in pricing transparency.</p>
+                      <p class="mobile-body dark-text" style="margin:0 0 16px; font-size:15px; line-height:24px; color:#1a1a1a;">The Scale Computing&trade; Pricing Tool makes purchasing hardware and software simple and painless.</p>
+                      <p style="margin:0; font-size:15px; line-height:24px;"><a href="#" target="_blank" style="color:#0a5db5; font-weight:bold; text-decoration:none;">Get a Quote &nbsp;&rArr;</a></p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Instance 5: Book Your Hotel -->
+  <div class="block">
+    <div class="block-head">
+      <p class="type">Content · Two-up row</p>
+      <h2>Media + Text Row — Book Your Hotel</h2>
+      <div class="chips">
+        <span class="chip">Image: <b>left</b></span>
+        <span class="chip">Shape: <b>circle</b></span>
+        <span class="chip"><i class="dot mag"></i> link <b>#9c2e91</b></span>
+      </div>
+      <p class="note">Circle-photo asset pending. Resorts World specifics and the May 12, 2025 date are per-campaign variables, not locked text.</p>
+    </div>
+    <div class="stage">
+      <div class="stage-inner">
+        <div class="email-card">
+          <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%;">
+            <tr>
+              <td class="mobile-padding" style="padding:35px;">
+                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%;">
+                  <tr>
+                    <td class="col-stack split-img" width="40%" valign="middle" style="width:40%; padding:0 24px 0 0;" align="center">
+                      <a href="#" target="_blank" style="text-decoration:none;">
+                        <img src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='220'%20height='220'%3E%3Ccircle%20cx='110'%20cy='110'%20r='110'%20fill='%23e6ebf2'/%3E%3Ctext%20x='110'%20y='104'%20font-family='Arial'%20font-size='12'%20fill='%238a97a8'%20text-anchor='middle'%20font-weight='bold'%3EPHOTO%3C/text%3E%3Ctext%20x='110'%20y='124'%20font-family='Arial'%20font-size='12'%20fill='%238a97a8'%20text-anchor='middle'%20font-weight='bold'%3EPENDING%3C/text%3E%3C/svg%3E" alt="" width="220" class="fluid" style="width:220px; max-width:100%; height:auto; display:block; margin:0 auto; border-radius:50%;" />
+                      </a>
+                    </td>
+                    <td class="col-stack split-text" width="60%" valign="middle" style="width:60%; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif;">
+                      <p class="mobile-h2" style="margin:0 0 12px; font-size:22px; line-height:28px; letter-spacing:-0.3px; color:#1a1a1a; font-weight:bold;">Book your hotel!</p>
+                      <p class="mobile-body dark-text" style="margin:0 0 16px; font-size:15px; line-height:24px; color:#1a1a1a;">Your registration includes a hotel room at Resorts World Las Vegas! Just click the &ldquo;book hotel&rdquo; button below to reserve your room. And if you&rsquo;re planning to join one of our training and certification courses, plan to arrive by <strong>May 12, 2025</strong>&mdash;because learning never sleeps, but you definitely should!</p>
+                      <p style="margin:0; font-size:15px; line-height:24px;"><a href="#" target="_blank" style="color:#9c2e91; font-weight:bold; text-decoration:none;">Book Now &nbsp;&rArr;</a></p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== PRODUCT TOUR — TWO TREATMENTS ===================== -->
+  <p class="section-label">Product Tour · two CTA treatments</p>
+  <p class="pair-intro">Same copy, same CTA — two surface treatments. Pick one per send. <b>Option 1 (On-Card)</b> reads as a quiet inline row that blends into the body. <b>Option 2 (Navy Spotlight)</b> stands apart as its own panel and self-separates, which makes it the stronger choice directly after a primary CTA. In a brief, just call it by number, e.g. &ldquo;Product Tour — Option 2 (Navy Spotlight).&rdquo;</p>
+
+  <!-- Option 1: On-Card (light) -->
+  <div class="block">
+    <div class="block-head">
+      <span class="opt-badge one"><span class="num">1</span> Option 1</span>
+      <p class="type">Content · Two-up row</p>
+      <h2>On-Card — light surface</h2>
+      <div class="chips">
+        <span class="chip">Image: <b>left</b></span>
+        <span class="chip">Shape: <b>square / icon</b></span>
+        <span class="chip">Surface: <b>white card</b></span>
+        <span class="chip"><i class="dot blue"></i> link <b>#0a5db5</b></span>
+      </div>
+      <p class="note">The base Media + Text Row. Sits on the white card and reads as a self-contained row. Use mid-body, or when a softer, integrated feel is wanted. If it follows a primary CTA, add a hairline divider to separate the two.</p>
+    </div>
+    <div class="stage">
+      <div class="stage-inner">
+        <div class="email-card">
+          <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%;">
+            <tr>
+              <td class="mobile-padding" style="padding:35px;">
+                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%;">
+                  <tr>
+                    <td class="col-stack split-img" width="40%" valign="middle" style="width:40%; padding:0 24px 0 0;" align="center">
+                      <a href="#" target="_blank" style="text-decoration:none;">
+                        <img src="https://info.scalecomputing.com/l/46782/2026-01-07/9llcwk/46782/1767794257tdQjKZzy/sc_cta_demo_300x300.png" alt="" width="175" class="fluid" style="width:175px; max-width:100%; height:auto; display:block; margin:0 auto; border-radius:6px;" />
+                      </a>
+                    </td>
+                    <td class="col-stack split-text" width="60%" valign="middle" style="width:60%; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif;">
+                      <p class="mobile-h2" style="margin:0 0 12px; font-size:22px; line-height:28px; letter-spacing:-0.3px; color:#1a1a1a; font-weight:bold;">Scale Computing Platform&trade; Product Tour</p>
+                      <p class="mobile-body dark-text" style="margin:0 0 16px; font-size:15px; line-height:24px; color:#1a1a1a;">Scale Computing Platform&trade; brings simplicity, high availability and scalability together, replacing the existing infrastructure and providing high availability for running VMs in a single, easy-to-manage platform.</p>
+                      <p style="margin:0; font-size:15px; line-height:24px;"><a href="#" target="_blank" style="color:#0a5db5; font-weight:bold; text-decoration:none;">Schedule Your Demo &nbsp;&rArr;</a></p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option 2: Navy Spotlight -->
+  <div class="block">
+    <div class="block-head">
+      <span class="opt-badge two"><span class="num">2</span> Option 2</span>
+      <p class="type">Content · Two-up row · Emphasis surface</p>
+      <h2>Navy Spotlight</h2>
+      <div class="chips">
+        <span class="chip">Image: <b>left</b></span>
+        <span class="chip"><i class="swatch navy"></i> surface <b>#0a2540</b></span>
+        <span class="chip">Icon on <b>white tile</b></span>
+        <span class="chip"><i class="dot blue"></i> link <b>#1e88e5</b></span>
+      </div>
+      <p class="note">Navy sibling of the row. Self-separating, so it needs no divider — the strong choice as a secondary CTA directly after the primary CTA. Headline white, body <code>#dbe4f0</code>, link bright blue <code>#1e88e5</code>. The icon sits on a white tile so it reads cleanly whatever its own background. Don&rsquo;t pair with another navy box in the same email.</p>
+    </div>
+    <div class="stage">
+      <div class="stage-inner">
+        <div class="email-card">
+          <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%;">
+            <tr>
+              <td class="mobile-padding" style="padding:35px;">
+                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%; background:#0a2540; border-radius:8px;">
+                  <tr>
+                    <td class="mobile-padding" style="padding:30px;">
+                      <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%;">
+                        <tr>
+                          <!-- IMAGE COLUMN — icon on a white tile so it reads cleanly on navy -->
+                          <td class="col-stack split-img" width="40%" valign="middle" style="width:40%; padding:0 24px 0 0;" align="center">
+                            <a href="#" target="_blank" style="text-decoration:none;">
+                              <table role="presentation" border="0" cellpadding="0" cellspacing="0" align="center" style="margin:0 auto;">
+                                <tr>
+                                  <td style="background:#ffffff; border-radius:14px; padding:18px;" align="center">
+                                    <img src="https://info.scalecomputing.com/l/46782/2026-01-07/9llcwk/46782/1767794257tdQjKZzy/sc_cta_demo_300x300.png" alt="" width="150" class="fluid" style="width:150px; max-width:100%; height:auto; display:block; margin:0 auto;" />
+                                  </td>
+                                </tr>
+                              </table>
+                            </a>
+                          </td>
+                          <!-- TEXT COLUMN -->
+                          <td class="col-stack split-text" width="60%" valign="middle" style="width:60%; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif;">
+                            <p class="mobile-h2" style="margin:0 0 12px; font-size:22px; line-height:28px; letter-spacing:-0.3px; color:#ffffff; font-weight:bold;">Scale Computing Platform&trade; Product Tour</p>
+                            <p class="mobile-body" style="margin:0 0 16px; font-size:15px; line-height:24px; color:#dbe4f0;">Scale Computing Platform&trade; brings simplicity, high availability and scalability together, replacing the existing infrastructure and providing high availability for running VMs in a single, easy-to-manage platform.</p>
+                            <p style="margin:0; font-size:15px; line-height:24px;"><a href="#" target="_blank" style="color:#1e88e5; font-weight:bold; text-decoration:none;">Schedule Your Demo &nbsp;&rArr;</a></p>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== HOUSE-STYLE PATTERN ===================== -->
+  <p class="section-label">House-style pattern (spec in house-style.md)</p>
+
+  <div class="block">
+    <div class="block-head">
+      <p class="type">Structural · Section container · spec in house-style.md</p>
+      <h2>Informational Card — grey box</h2>
+      <div class="chips">
+        <span class="chip"><i class="swatch" style="background:#f1f0ee;border-color:#e4e2dd;"></i> surface <b>#f1f0ee</b></span>
+        <span class="chip">border <b>1px #e4e2dd</b></span>
+        <span class="chip">heading <b>navy #0a2540</b></span>
+        <span class="chip"><i class="dot blue"></i> eyebrow <b>#1e88e5</b></span>
+      </div>
+      <p class="note">Not a content block — a <b>structural pattern</b> documented in <code>house-style.md</code>, shown here for visual reference beside the navy and soft cards. Wraps explanatory or instructional prose (a report overview, a &ldquo;how to leverage this&rdquo; passage) as its own section; the navy heading ties it to the navy-box family. Often used as a <b>pair</b> (overview + how-to) with a 20px gap between cards. Don&rsquo;t use it for clickable lists (Linked Session List) or ranked points (Numbered Outcome Grid). Example: <code>Q2-2026-GigaOm-Active-Partners.html</code>.</p>
+    </div>
+    <div class="stage">
+      <div class="stage-inner">
+        <div class="email-card">
+          <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%;">
+            <tr><td style="height:20px;line-height:20px;font-size:0;">&nbsp;</td></tr>
+            <!-- INFORMATIONAL CARD (grey box) -->
+            <tr>
+              <td class="card-outer" style="padding:0 35px 0;">
+                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#f1f0ee" style="width:100%; background:#f1f0ee; border:1px solid #e4e2dd; border-radius:8px;">
+                  <tr>
+                    <td class="card-padding" style="padding:30px 34px; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif;">
+                      <p class="mobile-eyebrow" style="margin:0 0 8px; font-size:11px; line-height:14px; letter-spacing:2.5px; text-transform:uppercase; color:#1e88e5; font-weight:bold;">GigaOm&reg; Radar</p>
+                      <h2 class="mobile-h2" style="margin:0 0 12px; font-size:24px; line-height:30px; letter-spacing:-0.3px; color:#0a2540; font-weight:bold;">Report Overview</h2>
+                      <p class="mobile-body dark-text" style="margin:0; font-size:15px; line-height:24px; color:#1a1a1a;">The report examines how full-stack edge deployments provide all the tools necessary to run applications at customers&rsquo; preferred locations for local data collection and processing. These solutions offer a cloud-like experience at edge locations, which are otherwise challenging to manage at scale with traditional IT practices.</p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr><td style="height:20px;line-height:20px;font-size:0;">&nbsp;</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="note" style="margin-top:40px;border-left-color:var(--blue);">Build backlog: 9+ blocks remain to migrate from BeePro (CTA blocks and structural blocks are stubbed in <code>reusable-blocks.md</code>). As each is rebuilt to house-style, it can be added to this reference.</p>
+</div>
+</div>
         </div>
       </div>
 
@@ -1448,8 +2229,7 @@ body.is-email-route .page { display: none; }
     if (parts[0] === 'year' && parts[1]) {
       return { route: 'year', year: parts[1] };
     }
-    if (parts[0] === 'tags') return { route: 'tags' };
-    if (parts[0] === 'builder') return { route: 'builder' };
+    if (OPS_VIEWS[parts[0]]) return { route: 'ops', tool: parts[0] };
     return { route: 'home' };
   }
 
@@ -1475,10 +2255,8 @@ body.is-email-route .page { display: none; }
       } else {
         showCampaignDetail(c);
       }
-    } else if (r.route === 'tags') {
-      showTagsView();
-    } else if (r.route === 'builder') {
-      showBuilderView();
+    } else if (r.route === 'ops') {
+      showOpsTool(r.tool);
     } else if (r.route === 'year') {
       currentView = { type: 'year', value: r.year };
       showHome();
@@ -1560,9 +2338,28 @@ body.is-email-route .page { display: none; }
   // Routed views inside the app shell, so the sidebar, breadcrumb, and hero
   // stay consistent with the rest of the library.
 
+  // Route slug -> view config. The slug is the hash path (#/tags, #/builder, …).
+  const OPS_VIEWS = {
+    tags: {
+      el: 'tagsView', leaf: 'Tag Library',
+      meta: 'Single source of truth for every tag — the registry lives in <strong>data/tag-library.json</strong>, the validator audits every manifest tag against it, and the Campaign Builder resolves tags from it. Never invent tags ad hoc.'
+    },
+    builder: {
+      el: 'builderView', leaf: 'Campaign Builder',
+      meta: 'Compose the emails, Pardot form, SalesLoft cadence, and Qualified experience for a single campaign — then export the Word build doc, tags and all.'
+    },
+    branding: {
+      el: 'brandingView', leaf: 'Branding',
+      meta: 'Approved Scale Computing logo variants for marketing assets, partner co-marketing, and internal communications. Click a logo to open the full-resolution file; click a hex code to copy it.'
+    },
+    blocks: {
+      el: 'blocksView', leaf: 'Content Blocks',
+      meta: 'Standing blocks that drop into the white content card of any email, rendered exactly to the locked <strong>house-style.md</strong> spec — same class names, color tokens, padding rhythm, and MSO fallbacks. Compose by name in a chat.'
+    },
+  };
+
   function hideOpsViews() {
-    document.getElementById('tagsView').style.display = 'none';
-    document.getElementById('builderView').style.display = 'none';
+    Object.values(OPS_VIEWS).forEach(v => { document.getElementById(v.el).style.display = 'none'; });
   }
 
   // Registry (data/tag-library.json) — fetched once, shared by both tools.
@@ -1575,20 +2372,21 @@ body.is-email-route .page { display: none; }
       .then(d => { tagRegistry = d; window.TAG_DATA = d; return d; });
   }
 
-  function showOpsView(which) {
+  function showOpsTool(which) {
+    const cfg = OPS_VIEWS[which];
     document.body.classList.remove('is-email-route');
     document.getElementById('homeView').style.display = 'none';
     document.getElementById('detailView').style.display = 'none';
-    document.getElementById('tagsView').style.display = which === 'tags' ? '' : 'none';
-    document.getElementById('builderView').style.display = which === 'builder' ? '' : 'none';
+    Object.entries(OPS_VIEWS).forEach(([k, v]) => {
+      document.getElementById(v.el).style.display = k === which ? '' : 'none';
+    });
 
-    const leaf = which === 'tags' ? 'Tag Library' : 'Campaign Builder';
     document.getElementById('breadcrumb').innerHTML = `
       <span class="bc-group">Channels</span>
       <span class="bc-sep">/</span>
       <span class="bc-group" id="bcLibrary" role="button" tabindex="0" style="cursor:pointer;">Email Library</span>
       <span class="bc-sep">/</span>
-      <span class="bc-leaf">${leaf}</span>
+      <span class="bc-leaf">${cfg.leaf}</span>
     `;
     document.getElementById('bcLibrary').addEventListener('click', () => navigate(''));
     document.getElementById('bcLibrary').addEventListener('keydown', (e) => {
@@ -1596,36 +2394,29 @@ body.is-email-route .page { display: none; }
     });
 
     document.getElementById('heroLabel').textContent = 'Ops Tools';
-    document.getElementById('heroTitle').textContent = leaf;
-    document.getElementById('heroMeta').innerHTML = which === 'tags'
-      ? 'Single source of truth for every tag — the registry lives in <strong>data/tag-library.json</strong>, the validator audits every manifest tag against it, and the Campaign Builder resolves tags from it. Never invent tags ad hoc.'
-      : 'Compose the emails, Pardot form, SalesLoft cadence, and Qualified experience for a single campaign — then export the Word build doc, tags and all.';
+    document.getElementById('heroTitle').textContent = cfg.leaf;
+    document.getElementById('heroMeta').innerHTML = cfg.meta;
 
     document.querySelectorAll('.sidebar .nav-item').forEach(n => n.classList.remove('active'));
     const navEl = document.querySelector(`.sidebar .nav-item[data-ops="${which}"]`);
     if (navEl) navEl.classList.add('active');
-  }
 
-  function showTagsView() {
-    showOpsView('tags');
-    loadRegistry().then(renderTagLibrary).catch(e => {
-      document.getElementById('tlTagList').innerHTML =
-        '<div class="empty-hint">Could not load data/tag-library.json (' + esc(e.message) + ').</div>';
-    });
-  }
-
-  let builderStarted = false;
-  function showBuilderView() {
-    showOpsView('builder');
-    if (builderStarted) return;
-    builderStarted = true;
-    // Registry first, then the section script (it reads window.TAG_DATA on init;
-    // it carries fallback literals, so a failed fetch degrades rather than breaks).
-    loadRegistry().catch(() => null).then(() => {
-      const s = document.createElement('script');
-      s.src = 'assets/campaign-builder.js';
-      document.body.appendChild(s);
-    });
+    // Per-tool initialization
+    if (which === 'tags') {
+      loadRegistry().then(renderTagLibrary).catch(e => {
+        document.getElementById('tlTagList').innerHTML =
+          '<div class="empty-hint">Could not load data/tag-library.json (' + esc(e.message) + ').</div>';
+      });
+    } else if (which === 'builder' && !showOpsTool._builderStarted) {
+      showOpsTool._builderStarted = true;
+      // Registry first, then the section script (it reads window.TAG_DATA on init;
+      // it carries fallback literals, so a failed fetch degrades rather than breaks).
+      loadRegistry().catch(() => null).then(() => {
+        const s = document.createElement('script');
+        s.src = 'assets/campaign-builder.js';
+        document.body.appendChild(s);
+      });
+    }
   }
 
   // --- Tag Library rendering ---
@@ -2312,6 +3103,22 @@ body.is-email-route .page { display: none; }
 
   document.querySelectorAll('.nav-group-header').forEach(header => {
     header.addEventListener('click', () => header.parentElement.classList.toggle('open'));
+  });
+
+  // Branding swatches: click a hex to copy it (same behavior as the dashboard had).
+  document.querySelectorAll('#brandingView .brand-swatch').forEach(sw => {
+    sw.addEventListener('click', () => {
+      const hex = sw.getAttribute('data-swatch') || '';
+      const hexEl = sw.querySelector('.brand-swatch-hex');
+      const done = () => {
+        const orig = hexEl.textContent;
+        sw.classList.add('copied'); hexEl.textContent = 'Copied';
+        setTimeout(() => { sw.classList.remove('copied'); hexEl.textContent = orig; }, 1100);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(hex).then(done).catch(() => fallbackCopy(hex, done));
+      } else fallbackCopy(hex, done);
+    });
   });
 
   // Mobile sidebar drawer: toggle on the hamburger; any navigation closes it.

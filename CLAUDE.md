@@ -18,12 +18,13 @@ for Pardot). `index.html` is the page itself — **you almost never edit it.**
   tags** (moved here from the mar-ops-dashboard June 2026). To add or change a
   tag, edit this file. Never invent tags ad hoc.
 - Ops Tools are **routed views inside `index.html`** (`#/tags` = Tag Library
-  browser, `#/builder` = Campaign Builder) so they share the app shell
-  (sidebar, breadcrumb, hero). The builder's logic is
-  `assets/campaign-builder.{css,js}` (verbatim from the dashboard's old
-  `sections/campaign-builder/`; reads the registry as `window.TAG_DATA`,
-  exports the Word build doc). `tags.html` / `builder.html` are just redirect
-  stubs for old links.
+  browser, `#/builder` = Campaign Builder, `#/blocks` = Content Blocks visual
+  reference, `#/branding` = logo system) so they share the app shell (sidebar,
+  breadcrumb, hero). The builder's logic is `assets/campaign-builder.{css,js}`
+  (verbatim from the dashboard's old `sections/campaign-builder/`; reads the
+  registry as `window.TAG_DATA`, exports the Word build doc). Branding and
+  Content Blocks markup is verbatim from the dashboard's old sections.
+  `tags.html` / `builder.html` are just redirect stubs for old links.
 - `scripts/validate-library.mjs` — consistency checker (run before every commit).
   Audits every manifest tag against `data/tag-library.json`; minted
   per-campaign tags (`campaign-*`, `event-*`, `ab-variant-*`) are
