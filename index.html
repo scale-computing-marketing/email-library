@@ -13,6 +13,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600;700&family=Bebas+Neue&family=JetBrains+Mono:wght@400;500;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,400;9..144,0,500;9..144,0,600;9..144,1,400;9..144,1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/campaign-builder.css">
 <style>
 :root {
   --sc-blue: #2572b9;
@@ -197,7 +198,87 @@ body {
   color: var(--accent);
 }
 
-/* Ops Tools callouts — internal pages (tags.html, builder.html), boxed so they
+/* ===== OPS TOOLS: TAG LIBRARY (routed view) ===== */
+.tl-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 22px; }
+.tl-kpi { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--sh); padding: 14px 16px; }
+.tl-kpi .n { font-family: 'DM Mono', monospace; font-size: 24px; font-weight: 500; color: var(--sc-dark); }
+.tl-kpi .l { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--ink-3); margin-top: 2px; }
+.tl-controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 14px; }
+.tl-controls .search-wrap { flex: 1 1 240px; }
+.tl-fgroup { display: flex; gap: 6px; flex-wrap: wrap; }
+.tl-fbtn {
+  appearance: none; cursor: pointer; transition: all 0.13s;
+  font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 500; letter-spacing: 0.4px;
+  padding: 6px 12px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--panel); color: var(--ink-2);
+}
+.tl-fbtn:hover { border-color: var(--accent); color: var(--accent); }
+.tl-fbtn.active { background: var(--sc-dark); border-color: var(--sc-dark); color: #fff; }
+.tl-cats { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 22px; }
+.tl-cat-group { margin-bottom: 26px; }
+.tl-cat-head { display: flex; align-items: baseline; gap: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--ink); margin-bottom: 10px; }
+.tl-cat-title { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; font-weight: 700; letter-spacing: 2.4px; text-transform: uppercase; color: var(--sc-dark); }
+.tl-cat-count { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink-3); margin-left: auto; }
+.tl-tag-row {
+  display: flex; align-items: flex-start; gap: 14px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--r);
+  box-shadow: var(--sh); padding: 12px 16px; margin-bottom: 8px;
+}
+.tl-tag-name-wrap { flex: 0 0 290px; min-width: 0; display: flex; align-items: center; gap: 8px; }
+.tl-tag-name {
+  font-family: 'JetBrains Mono', monospace; font-size: 12.5px; font-weight: 500; color: var(--sc-dark);
+  background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px; padding: 3px 9px;
+  overflow-wrap: anywhere;
+}
+.tl-tag-copy {
+  appearance: none; cursor: pointer; flex-shrink: 0;
+  width: 26px; height: 24px; border: 1px solid var(--line); border-radius: 6px;
+  background: var(--panel); color: var(--ink-3);
+  display: inline-flex; align-items: center; justify-content: center; transition: all 0.12s;
+}
+.tl-tag-copy:hover { border-color: var(--accent); color: var(--accent); }
+.tl-tag-copy.copied { border-color: var(--sc-green); color: #2a7e30; }
+.tl-tag-copy svg { width: 13px; height: 13px; }
+.tl-tag-desc { flex: 1 1 auto; font-size: 13px; color: var(--ink-2); line-height: 1.5; padding-top: 3px; }
+.tl-tag-meta { flex: 0 0 auto; display: flex; gap: 6px; align-items: center; padding-top: 2px; }
+.tl-badge {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700;
+  letter-spacing: 0.8px; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 999px; border: 1px solid transparent;
+}
+.tl-badge.required    { background: var(--accent-soft); color: var(--accent-2); border-color: rgba(37,114,185,0.25); }
+.tl-badge.optional    { background: var(--panel-2); color: var(--ink-2); border-color: var(--line); }
+.tl-badge.conditional { background: rgba(232,120,10,0.10); color: #a4570a; border-color: rgba(232,120,10,0.3); }
+.tl-badge.plat { background: var(--panel-2); color: var(--ink-2); border-color: var(--line); }
+.tl-section-block { margin-top: 40px; }
+.tl-section-block > h2 {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700;
+  letter-spacing: 2.6px; text-transform: uppercase; color: var(--sc-dark);
+  padding-bottom: 10px; border-bottom: 2px solid var(--ink); margin-bottom: 4px;
+}
+.tl-note { font-size: 12.5px; color: var(--ink-2); margin: 8px 0 14px; }
+.tl-mono { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; }
+.tl-tbl-wrap { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--sh); overflow-x: auto; }
+.tl-tbl-wrap table { width: 100%; border-collapse: collapse; min-width: 640px; }
+.tl-tbl-wrap th {
+  text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-2);
+  padding: 11px 14px; border-bottom: 2px solid var(--line); background: var(--panel-2); white-space: nowrap;
+}
+.tl-tbl-wrap td { padding: 11px 14px; border-bottom: 1px solid var(--line); font-size: 12.5px; vertical-align: top; color: var(--ink); }
+.tl-tbl-wrap tr:last-child td { border-bottom: 0; }
+.tl-tbl-wrap .muted { color: var(--ink-3); }
+@media (max-width: 760px) {
+  .tl-tag-row { flex-wrap: wrap; gap: 8px; }
+  .tl-tag-name-wrap { flex: 1 1 100%; }
+  .tl-tag-desc { flex: 1 1 100%; padding-top: 0; }
+}
+
+/* ===== OPS TOOLS: CAMPAIGN BUILDER (routed view) =====
+   assets/campaign-builder.css is fully self-contained, scoped under #p-builder. */
+#p-builder { font-family: 'Fraunces', Georgia, serif; -webkit-font-smoothing: antialiased; }
+
+/* Ops Tools callouts — routed views (#/tags, #/builder), boxed so they
    read as tools rather than another campaign in the list. */
 .nav-ops { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
 .nav-ops-label {
@@ -1012,11 +1093,11 @@ body.is-email-route .page { display: none; }
     <div class="nav-group open nav-ops">
       <div class="nav-ops-label">Ops Tools</div>
       <div class="nav-group-items">
-        <a class="nav-item ops-callout" href="tags.html">
+        <a class="nav-item ops-callout" href="#/tags" data-ops="tags">
           <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2H2v10l9.3 9.3a1.7 1.7 0 0 0 2.4 0l7.6-7.6a1.7 1.7 0 0 0 0-2.4z"/><circle cx="7.5" cy="7.5" r="1.3"/></svg></span>
           <span class="nav-label">Tag Library</span>
         </a>
-        <a class="nav-item ops-callout" href="builder.html">
+        <a class="nav-item ops-callout" href="#/builder" data-ops="builder">
           <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 12h6"/><path d="M9 16h6"/></svg></span>
           <span class="nav-label">Campaign Builder</span>
         </a>
@@ -1091,6 +1172,70 @@ body.is-email-route .page { display: none; }
         </div>
 
         <div id="emailsContainer"></div>
+      </div>
+
+      <!-- ===== OPS TOOLS: TAG LIBRARY (routed view, #/tags) ===== -->
+      <div id="tagsView" style="display:none;">
+        <div class="tl-kpis" id="tlKpis"></div>
+        <div class="tl-controls">
+          <div class="search-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="tlSearch" placeholder="Search tags or descriptions" autocomplete="off" />
+          </div>
+          <div class="tl-fgroup" id="tlRuleFilters"></div>
+          <div class="tl-fgroup" id="tlPlatFilters"></div>
+        </div>
+        <div class="tl-cats" id="tlCatChips"></div>
+        <div id="tlTagList"></div>
+        <div class="tl-section-block" id="tlCampaignBlock" style="display:none;">
+          <h2>Registered Campaign Tags</h2>
+          <p class="tl-note">Campaign tags are minted per campaign (format <span class="tl-mono">campaign-[name]-[q#-yyyy]</span>) and registered here once in use.</p>
+          <div class="tl-tbl-wrap"><table id="tlCampaignTbl"></table></div>
+        </div>
+        <div class="tl-section-block" id="tlNamingBlock" style="display:none;">
+          <h2>Naming Conventions</h2>
+          <div class="tl-tbl-wrap"><table id="tlNamingTbl"></table></div>
+        </div>
+        <div class="tl-section-block" id="tlGuideBlock" style="display:none;">
+          <h2>Platform Guide</h2>
+          <div class="tl-tbl-wrap"><table id="tlGuideTbl"></table></div>
+        </div>
+      </div>
+
+      <!-- ===== OPS TOOLS: CAMPAIGN BUILDER (routed view, #/builder) =====
+           Markup verbatim from the mar-ops-dashboard's sections/campaign-builder/section.html
+           minus its editorial masthead — the app hero carries the title instead.
+           assets/campaign-builder.js is injected on first visit (after TAG_DATA loads). -->
+      <div id="builderView" style="display:none;">
+        <div id="p-builder" style="max-width:1320px;margin:0 auto;">
+
+          <div class="cb-barwrap">
+          <div class="cb-bar">
+            <div class="cb-scope-row" id="cb-scope"></div>
+            <div class="cb-actions">
+              <span id="cbDraftState" class="cb-draft-state"></span>
+              <button class="cb-uicon cb-labeled" data-draftsave aria-label="Save draft" title="Save draft"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8"/><path d="M7 3v5h8"/></svg><span>Save</span></button>
+              <button class="cb-uicon" data-draftload aria-label="Load draft" title="Load draft"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M12 16v-5"/><path d="M9.5 13.5 12 11l2.5 2.5"/></svg></button>
+              <button class="cb-uicon" data-import aria-label="Import .docx" title="Import .docx"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M5 3h9l5 5v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M12 11v6"/><path d="M9.5 14.5 12 17l2.5-2.5"/></svg></button>
+              <button class="cb-uicon cb-danger" data-draftfresh aria-label="Start fresh" title="Start fresh"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v6h-6"/></svg></button>
+              <span class="cb-div"></span>
+              <button class="cb-primary" data-gen><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v11"/><path d="M8 10l4 4 4-4"/><path d="M5 19h14"/></svg>Generate Word doc</button>
+            </div>
+          </div>
+          </div>
+
+          <div class="cb-panes">
+            <aside class="cb-tree" id="cb-tree"></aside>
+            <main class="cb-editor" id="cb-editor"></main>
+            <aside class="cb-rail" id="cb-rail"></aside>
+          </div>
+
+          <div id="cb-toast" class="cb-toast"></div>
+          <input type="file" id="cb-importfile" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden>
+          <input type="file" id="cb-draftfile" accept=".json,application/json" hidden>
+          <datalist id="cb-timeopts"></datalist>
+
+        </div>
       </div>
 
     </div>
@@ -1303,6 +1448,8 @@ body.is-email-route .page { display: none; }
     if (parts[0] === 'year' && parts[1]) {
       return { route: 'year', year: parts[1] };
     }
+    if (parts[0] === 'tags') return { route: 'tags' };
+    if (parts[0] === 'builder') return { route: 'builder' };
     return { route: 'home' };
   }
 
@@ -1328,6 +1475,10 @@ body.is-email-route .page { display: none; }
       } else {
         showCampaignDetail(c);
       }
+    } else if (r.route === 'tags') {
+      showTagsView();
+    } else if (r.route === 'builder') {
+      showBuilderView();
     } else if (r.route === 'year') {
       currentView = { type: 'year', value: r.year };
       showHome();
@@ -1341,6 +1492,7 @@ body.is-email-route .page { display: none; }
     document.body.classList.remove('is-email-route');
     document.getElementById('homeView').style.display = '';
     document.getElementById('detailView').style.display = 'none';
+    hideOpsViews();
 
     // Reset header to library view
     document.getElementById('breadcrumb').innerHTML = `
@@ -1371,6 +1523,7 @@ body.is-email-route .page { display: none; }
     document.body.classList.remove('is-email-route');
     document.getElementById('homeView').style.display = 'none';
     document.getElementById('detailView').style.display = '';
+    hideOpsViews();
 
     // Breadcrumb (Email Library is now a clickable span)
     document.getElementById('breadcrumb').innerHTML = `
@@ -1401,6 +1554,196 @@ body.is-email-route .page { display: none; }
     detailCampaign = campaign;
     document.getElementById('emailsContainer').innerHTML = `<div id="emailGrid"></div>`;
     renderEmailCards(campaign, '');
+  }
+
+  // ===== OPS TOOLS — Tag Library (#/tags) and Campaign Builder (#/builder) =====
+  // Routed views inside the app shell, so the sidebar, breadcrumb, and hero
+  // stay consistent with the rest of the library.
+
+  function hideOpsViews() {
+    document.getElementById('tagsView').style.display = 'none';
+    document.getElementById('builderView').style.display = 'none';
+  }
+
+  // Registry (data/tag-library.json) — fetched once, shared by both tools.
+  // The Campaign Builder reads it as window.TAG_DATA.
+  let tagRegistry = null;
+  function loadRegistry() {
+    if (tagRegistry) return Promise.resolve(tagRegistry);
+    return fetch('data/tag-library.json', { cache: 'no-store' })
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(d => { tagRegistry = d; window.TAG_DATA = d; return d; });
+  }
+
+  function showOpsView(which) {
+    document.body.classList.remove('is-email-route');
+    document.getElementById('homeView').style.display = 'none';
+    document.getElementById('detailView').style.display = 'none';
+    document.getElementById('tagsView').style.display = which === 'tags' ? '' : 'none';
+    document.getElementById('builderView').style.display = which === 'builder' ? '' : 'none';
+
+    const leaf = which === 'tags' ? 'Tag Library' : 'Campaign Builder';
+    document.getElementById('breadcrumb').innerHTML = `
+      <span class="bc-group">Channels</span>
+      <span class="bc-sep">/</span>
+      <span class="bc-group" id="bcLibrary" role="button" tabindex="0" style="cursor:pointer;">Email Library</span>
+      <span class="bc-sep">/</span>
+      <span class="bc-leaf">${leaf}</span>
+    `;
+    document.getElementById('bcLibrary').addEventListener('click', () => navigate(''));
+    document.getElementById('bcLibrary').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(''); }
+    });
+
+    document.getElementById('heroLabel').textContent = 'Ops Tools';
+    document.getElementById('heroTitle').textContent = leaf;
+    document.getElementById('heroMeta').innerHTML = which === 'tags'
+      ? 'Single source of truth for every tag — the registry lives in <strong>data/tag-library.json</strong>, the validator audits every manifest tag against it, and the Campaign Builder resolves tags from it. Never invent tags ad hoc.'
+      : 'Compose the emails, Pardot form, SalesLoft cadence, and Qualified experience for a single campaign — then export the Word build doc, tags and all.';
+
+    document.querySelectorAll('.sidebar .nav-item').forEach(n => n.classList.remove('active'));
+    const navEl = document.querySelector(`.sidebar .nav-item[data-ops="${which}"]`);
+    if (navEl) navEl.classList.add('active');
+  }
+
+  function showTagsView() {
+    showOpsView('tags');
+    loadRegistry().then(renderTagLibrary).catch(e => {
+      document.getElementById('tlTagList').innerHTML =
+        '<div class="empty-hint">Could not load data/tag-library.json (' + esc(e.message) + ').</div>';
+    });
+  }
+
+  let builderStarted = false;
+  function showBuilderView() {
+    showOpsView('builder');
+    if (builderStarted) return;
+    builderStarted = true;
+    // Registry first, then the section script (it reads window.TAG_DATA on init;
+    // it carries fallback literals, so a failed fetch degrades rather than breaks).
+    loadRegistry().catch(() => null).then(() => {
+      const s = document.createElement('script');
+      s.src = 'assets/campaign-builder.js';
+      document.body.appendChild(s);
+    });
+  }
+
+  // --- Tag Library rendering ---
+  const TL_CAT_ORDER = ['Send Type','Content Type','Audience Type','Geography','Funnel Stage','Campaign Theme','Vertical','Incentive','CTA','Campaign','Event','Cadence Type','Step Type'];
+  const TL_COPY_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>';
+  const TL_CHECK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+  const tlState = { q: '', cat: 'All', rule: 'All', plat: 'All' };
+  let tlBuilt = false;
+
+  function tlPlatforms(t) { return t.both ? ['Pardot', 'SalesLoft'] : (t.platforms || []); }
+
+  function renderTagLibrary(data) {
+    if (!tlBuilt) { tlBuilt = true; tlBuildKpis(data); tlBuildControls(data); tlBuildTables(data); }
+    tlRenderList(data);
+  }
+
+  function tlRenderList(data) {
+    const tags = (data.tags || []).filter(t => {
+      if (tlState.cat !== 'All' && t.category !== tlState.cat) return false;
+      if (tlState.rule !== 'All' && String(t.rule).toLowerCase() !== tlState.rule.toLowerCase()) return false;
+      if (tlState.plat !== 'All' && !tlPlatforms(t).includes(tlState.plat)) return false;
+      if (tlState.q) {
+        const hay = (t.tag + ' ' + t.description + ' ' + t.category).toLowerCase();
+        if (!hay.includes(tlState.q)) return false;
+      }
+      return true;
+    });
+    const cats = [...TL_CAT_ORDER.filter(c => tags.some(t => t.category === c)),
+                  ...[...new Set(tags.map(t => t.category))].filter(c => !TL_CAT_ORDER.includes(c))];
+    const el = document.getElementById('tlTagList');
+    if (!tags.length) { el.innerHTML = '<div class="empty-hint">No tags match.</div>'; return; }
+    el.innerHTML = cats.map(cat => {
+      const inCat = tags.filter(t => t.category === cat);
+      return `<div class="tl-cat-group">
+        <div class="tl-cat-head"><span class="tl-cat-title">${esc(cat)}</span><span class="tl-cat-count">${inCat.length} tag${inCat.length === 1 ? '' : 's'}</span></div>
+        ${inCat.map(t => `
+        <div class="tl-tag-row">
+          <div class="tl-tag-name-wrap">
+            <span class="tl-tag-name">${esc(t.tag)}</span>
+            <button class="tl-tag-copy" data-tag="${esc(t.tag)}" title="Copy tag" aria-label="Copy ${esc(t.tag)}">${TL_COPY_ICON}</button>
+          </div>
+          <div class="tl-tag-desc">${esc(t.description)}</div>
+          <div class="tl-tag-meta">
+            <span class="tl-badge ${String(t.rule || '').toLowerCase()}">${esc(t.rule)}</span>
+            ${tlPlatforms(t).map(p => `<span class="tl-badge plat">${p === 'Pardot' ? 'P' : 'S'}</span>`).join('')}
+          </div>
+        </div>`).join('')}
+      </div>`;
+    }).join('');
+    el.querySelectorAll('.tl-tag-copy').forEach(btn => btn.addEventListener('click', () => {
+      const done = () => {
+        btn.classList.add('copied'); btn.innerHTML = TL_CHECK_ICON;
+        setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = TL_COPY_ICON; }, 1400);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(btn.dataset.tag).then(done).catch(() => fallbackCopy(btn.dataset.tag, done));
+      } else fallbackCopy(btn.dataset.tag, done);
+    }));
+  }
+
+  function tlChip(label, group, key) {
+    const b = document.createElement('button');
+    b.className = 'tl-fbtn' + (tlState[key] === label ? ' active' : '');
+    b.type = 'button';
+    b.textContent = label;
+    b.addEventListener('click', () => {
+      tlState[key] = label;
+      group.querySelectorAll('.tl-fbtn').forEach(x => x.classList.toggle('active', x === b));
+      tlRenderList(tagRegistry);
+    });
+    group.appendChild(b);
+  }
+
+  function tlBuildControls(data) {
+    const cats = document.getElementById('tlCatChips');
+    ['All', ...TL_CAT_ORDER.filter(c => (data.tags || []).some(t => t.category === c))].forEach(c => tlChip(c, cats, 'cat'));
+    const rules = document.getElementById('tlRuleFilters');
+    ['All','Required','Optional','Conditional'].filter(r => r === 'All' || (data.tags || []).some(t => String(t.rule).toLowerCase() === r.toLowerCase())).forEach(r => tlChip(r, rules, 'rule'));
+    const plats = document.getElementById('tlPlatFilters');
+    ['All','Pardot','SalesLoft'].forEach(p => tlChip(p, plats, 'plat'));
+    document.getElementById('tlSearch').addEventListener('input', e => {
+      tlState.q = e.target.value.toLowerCase().trim();
+      tlRenderList(tagRegistry);
+    });
+  }
+
+  function tlBuildKpis(data) {
+    const tags = data.tags || [];
+    const kpis = [
+      [tags.length, 'Total tags'],
+      [new Set(tags.map(t => t.category)).size, 'Categories'],
+      [tags.filter(t => String(t.rule).toLowerCase() === 'required').length, 'Required'],
+      [(data.naming || []).length, 'Naming rules'],
+      [(data.campaigns || []).length, 'Campaigns registered'],
+    ];
+    document.getElementById('tlKpis').innerHTML =
+      kpis.map(([n, l]) => `<div class="tl-kpi"><div class="n">${n}</div><div class="l">${l}</div></div>`).join('');
+  }
+
+  function tlBuildTables(data) {
+    if ((data.campaigns || []).length) {
+      document.getElementById('tlCampaignBlock').style.display = '';
+      document.getElementById('tlCampaignTbl').innerHTML =
+        '<thead><tr><th>Tag</th><th>Campaign</th><th>Quarter</th><th>Platform</th><th>Notes</th></tr></thead><tbody>' +
+        data.campaigns.map(c => `<tr><td class="tl-mono">${esc(c.tag)}</td><td>${esc(c.name)}</td><td class="tl-mono">${esc(c.quarter)}-${esc(c.year)}</td><td>${esc(c.platform)}</td><td><span class="muted">${esc(c.notes || '')}</span></td></tr>`).join('') + '</tbody>';
+    }
+    if ((data.naming || []).length) {
+      document.getElementById('tlNamingBlock').style.display = '';
+      document.getElementById('tlNamingTbl').innerHTML =
+        '<thead><tr><th>Platform</th><th>Asset type</th><th>Format</th><th>Example</th><th>Notes</th></tr></thead><tbody>' +
+        data.naming.map(n => `<tr><td class="tl-mono">${esc(n.platform)}</td><td>${esc(n.asset_type)}</td><td class="tl-mono">${esc(n.format)}</td><td class="tl-mono">${esc(n.example)}</td><td><span class="muted">${esc(n.notes || '')}</span></td></tr>`).join('') + '</tbody>';
+    }
+    if ((data.platform_guide || []).length) {
+      document.getElementById('tlGuideBlock').style.display = '';
+      document.getElementById('tlGuideTbl').innerHTML =
+        '<thead><tr><th>Platform</th><th>Applies</th><th>Doesn&rsquo;t apply</th></tr></thead><tbody>' +
+        data.platform_guide.map(g => `<tr><td class="tl-mono">${esc(g.platform)}</td><td>${esc(g.applies)}</td><td><span class="muted">${esc(g.doesnt)}</span></td></tr>`).join('') + '</tbody>';
+    }
   }
 
   function renderEmailCards(campaign, search) {
