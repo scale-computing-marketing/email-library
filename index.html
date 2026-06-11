@@ -105,7 +105,7 @@ body {
 }
 .nav-group-header:hover { background: var(--panel-2); }
 .nav-group-label {
-  font-family: 'DM Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
   letter-spacing: 0.18em;
   color: var(--ink-3);
@@ -137,8 +137,10 @@ body {
   text-align: left;
   padding: 7px 9px;
   border-radius: 6px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
   font-weight: 500;
   color: var(--ink-2);
   display: flex;
@@ -915,7 +917,7 @@ body.is-email-route .page { display: none; }
       </div>
     </div>
 
-    <div class="nav-group" id="navGroup-campaign">
+    <div class="nav-group open" id="navGroup-campaign">
       <div class="nav-group-header">
         <span class="nav-group-label">By Campaign</span>
         <svg class="nav-group-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"/></svg>
@@ -1259,9 +1261,6 @@ body.is-email-route .page { display: none; }
       const el = document.querySelector(`.sidebar .nav-item[data-view="year"][data-value="${currentView.value}"]`);
       if (el) el.classList.add('active');
     }
-
-    // Collapse By Campaign group when returning to home (unless a year filter is active)
-    document.getElementById('navGroup-campaign').classList.remove('open');
 
     // View label
     let label = 'All campaigns';
