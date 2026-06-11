@@ -791,8 +791,8 @@ body.is-email-route .page { display: none; }
 .pv-rail-head:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .pv-eyebrow {
   font-family: 'DM Mono', monospace;
-  font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--ink-3); font-weight: 500;
+  font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--accent); font-weight: 700;
 }
 .pv-toggle {
   border: none; background: transparent; cursor: pointer;
@@ -845,8 +845,8 @@ body.is-email-route .page { display: none; }
 /* Right section: rendered email */
 .pv-render-eyebrow {
   font-family: 'DM Mono', monospace;
-  font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--ink-3); font-weight: 500; margin-bottom: 14px;
+  font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--accent); font-weight: 700; margin-bottom: 14px;
 }
 .pv-email {
   width: 680px; max-width: 100%;
@@ -1658,14 +1658,14 @@ body.is-email-route .page { display: none; }
 
       <div class="pv-grid-2">
         <div class="pv-field"><div class="pv-label">Send date</div>${pvVal(email.sendDate)}</div>
-        <div class="pv-field"><div class="pv-label">Send time</div><div class="pv-value muted">— not set —</div></div>
+        <div class="pv-field"><div class="pv-label">Send time</div>${pvVal(email.sendTime)}</div>
       </div>
 
       <div class="pv-divider"></div>
 
       <div class="pv-grid-3">
         <div class="pv-field"><div class="pv-label">Email type</div>${pvVal(deriveEmailType(email.tags))}</div>
-        <div class="pv-field"><div class="pv-label">Content type</div>${pvVal(campaign ? campaign.kind : '')}</div>
+        <div class="pv-field"><div class="pv-label">Content type</div>${pvVal(email.contentType || (campaign ? campaign.kind : ''))}</div>
         <div class="pv-field"><div class="pv-label">Audience</div>${pvVal(deriveAudience(email.tags))}</div>
         <div class="pv-field"><div class="pv-label">Theme</div>${pvVal(deriveTheme(email.tags))}</div>
         <div class="pv-field"><div class="pv-label">A/B test</div><div class="pv-value">No</div></div>
@@ -1683,7 +1683,7 @@ body.is-email-route .page { display: none; }
       <div class="pv-divider"></div>
 
       <div class="pv-grid-2">
-        <div class="pv-field"><div class="pv-label">Send to (lists)</div><div class="pv-value muted">— select list —</div></div>
+        <div class="pv-field"><div class="pv-label">Send to (lists)</div>${pvVal(Array.isArray(email.sendTo) ? email.sendTo.join(', ') : email.sendTo, '— select list —')}</div>
         <div class="pv-field"><div class="pv-label">Suppression</div>${pvVal(Array.isArray(email.suppression) ? email.suppression.join(', ') : email.suppression)}</div>
       </div>
       ${email.tags && email.tags.length ? `

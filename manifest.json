@@ -240,7 +240,15 @@
             "cta-vmware-alternative",
             "event-itag",
             "event-q2-2026"
-          ]
+          ],
+          "sendDate": "June 12, 2026",
+          "sendTime": "10:00 AM EST",
+          "pardotName": "Q2-2026 │ ITAG",
+          "contentType": "Post Event",
+          "from": "noreply@scalecomputing.com",
+          "replyTo": "noreply@scalecomputing.com",
+          "sendTo": ["Q2-2026 │ ITAG"],
+          "suppression": ["Suppression | Global", "SC Employees"]
         }
       ]
     },
