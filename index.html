@@ -2817,21 +2817,27 @@ body.is-email-route .page { display: none; }
 
   // Turn an audience-* tag into a friendly label, e.g.
   // "audience-end-user-prospect" -> "End User Prospect".
-  function deriveAudience(tags) {
-    if (!tags || !tags.length) return '';
-    const labels = tags
-      .filter(t => t.indexOf('audience-') === 0)
-      .map(t => prettifyTagValue(t.slice('audience-'.length)));
-    return labels.join(', ');
-  }
-
   // Title-case a tag slug fragment: "report-syndication" -> "Report Syndication".
   function prettifyTagValue(slug) {
     return String(slug).split('-')
       .map(w => w ? w.charAt(0).toUpperCase() + w.slice(1) : w).join(' ');
   }
-  // Build-detail fields derived from the same tag vocabulary used across the library.
-  // Send Type tags from the Tag Library registry, plus legacy -send variants.
+  // Build-detail fields classified against the Tag Library registry
+  // (data/tag-library.json, fetched at boot). The prefix heuristics are a
+  // fallback for the rare case the registry hasn't loaded.
+  function tagCategory(tag) {
+    const d = tagRegistry;
+    if (!d || !Array.isArray(d.tags)) return null;
+    const hit = d.tags.find(t => t.tag === tag);
+    return hit ? hit.category : null;
+  }
+  function deriveAudience(tags) {
+    if (!tags || !tags.length) return '';
+    return tags
+      .filter(t => tagCategory(t) === 'Audience Type' || t.indexOf('audience-') === 0)
+      .map(t => prettifyTagValue(t.replace(/^audience-/, ''))).join(', ');
+  }
+  // Display labels for Send Type tags, plus legacy -send variants.
   const EMAIL_TYPE_LABELS = {
     'one-time-send': 'One-time send',
     'recurring-send': 'Recurring send',
@@ -2845,16 +2851,20 @@ body.is-email-route .page { display: none; }
     'announcement': 'Announcement'
   };
   function deriveEmailType(tags) {
-    const t = (tags || []).find(x => EMAIL_TYPE_LABELS[x] || x.endsWith('-send'));
+    const t = (tags || []).find(x => tagCategory(x) === 'Send Type' || EMAIL_TYPE_LABELS[x] || x.endsWith('-send'));
     return t ? (EMAIL_TYPE_LABELS[t] || prettifyTagValue(t)) : '';
   }
   function deriveCTAs(tags) {
-    return (tags || []).filter(t => t.indexOf('cta-') === 0)
-      .map(t => prettifyTagValue(t.slice('cta-'.length))).join(' · ');
+    return (tags || []).filter(t => tagCategory(t) === 'CTA' || t.indexOf('cta-') === 0)
+      .map(t => prettifyTagValue(t.replace(/^cta-/, ''))).join(' · ');
   }
   function deriveTheme(tags) {
-    const t = (tags || []).find(x => x.indexOf('theme-') === 0);
-    return t ? prettifyTagValue(t.slice('theme-'.length)) : '';
+    const t = (tags || []).find(x => tagCategory(x) === 'Campaign Theme' || x.indexOf('theme-') === 0);
+    return t ? prettifyTagValue(t.replace(/^theme-/, '')) : '';
+  }
+  function deriveContentType(tags) {
+    const t = (tags || []).find(x => tagCategory(x) === 'Content Type' || x.indexOf('content-') === 0);
+    return t ? prettifyTagValue(t.replace(/^content-/, '')) : '';
   }
 
   // Pull the inbox preview text from an email's hidden preheader block.
@@ -2917,7 +2927,7 @@ body.is-email-route .page { display: none; }
 
       <div class="pv-grid-3">
         <div class="pv-field"><div class="pv-label">Email type</div>${pvVal(deriveEmailType(email.tags))}</div>
-        <div class="pv-field"><div class="pv-label">Content type</div>${pvVal(email.contentType || (campaign ? campaign.kind : ''))}</div>
+        <div class="pv-field"><div class="pv-label">Content type</div>${pvVal(deriveContentType(email.tags) || email.contentType || (campaign ? campaign.kind : ''))}</div>
         <div class="pv-field"><div class="pv-label">Audience</div>${pvVal(deriveAudience(email.tags))}</div>
         <div class="pv-field"><div class="pv-label">Theme</div>${pvVal(deriveTheme(email.tags))}</div>
         <div class="pv-field"><div class="pv-label">A/B test</div><div class="pv-value">No</div></div>
@@ -3170,6 +3180,9 @@ body.is-email-route .page { display: none; }
   window.addEventListener('hashchange', handleRoute);
 
   async function init() {
+    // Fetch the tag registry alongside the manifest so the build-details rail can
+    // classify tags by Tag Library category; a miss falls back to prefix heuristics.
+    const registryReady = loadRegistry().catch(() => null);
     try {
       const res = await fetch('manifest.json', { cache: 'no-store' });
       if (!res.ok) throw new Error('manifest.json failed to load');
@@ -3180,6 +3193,7 @@ body.is-email-route .page { display: none; }
         '<div class="empty-hint">Could not load manifest.json. If you are opening this file directly from your computer, view it through GitHub Pages (or a local web server) instead — browsers block file loads otherwise.</div>';
       return;
     }
+    await registryReady;
     buildCampaignNav();
     initTagFilter();
     handleRoute();
