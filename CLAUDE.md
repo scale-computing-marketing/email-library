@@ -143,6 +143,15 @@ archive; don't follow its publishing steps.
 | Accent blue | `#1e88e5` |
 | Navy box / hero | `#0a2540` |
 | Opt-in link (magenta, per-send) | `#9c2e91` |
+| Informational Card (grey prose box) | bg `#f1f0ee`, 1px border `#e4e2dd` |
+| Soft data card (numbered grid / ticket) | `#f7f9fc` |
+
+**Token rule:** before choosing any color/spacing/box value, look it up in
+`house-style.md` (then `reusable-blocks.md`) by the pattern's name — **never infer
+a token from another email; sibling emails can be off-spec.** The three card tints
+are meaningful and not interchangeable: navy `#0a2540` = action, grey `#f1f0ee` =
+explanatory prose (Informational Card — e.g. "Report Overview" / "How to Leverage"),
+soft blue-gray `#f7f9fc` = structured data (Numbered Outcome Grid, Save-the-Date).
 
 ## Resolving & creating
 
