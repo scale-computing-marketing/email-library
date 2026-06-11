@@ -81,13 +81,13 @@ function titleBlock(camp){var EVG=function(v){return !v||v==='N/A'||v==='Evergre
 function dsection(title,rows){return dtable(dbanner(title)+rows.filter(Boolean).map(r=>drow(r.label,r.value,{required:r.required,valueColor:r.valueColor,html:r.html})).join(''))+dspacer();}
 function buildDocBody(data){const parts=[];const camp=data.campaign||{};const inc=data.include||{email:true};
   parts.push(titleBlock(camp));
-  parts.push(dsection('Campaign',[{label:'Campaign Name',value:camp.name,required:true},{label:'CRM Campaign Link',value:camp.crm,valueColor:DC.link},{label:'Quarter',value:camp.quarterLabel,required:true},{label:'Year',value:camp.yearLabel,required:true}]));
+  parts.push(dsection('Campaign',[{label:'Campaign Name',value:camp.name,required:true},{label:'CRM Campaign Link',value:camp.crm,valueColor:DC.link},{label:'Event Name',value:camp.eventName},{label:'Quarter',value:camp.quarterLabel,required:true},{label:'Year',value:camp.yearLabel,required:true}]));
   if(inc.email)(data.emails||[]).forEach((e,i)=>{
     parts.push(dheading(e.audience?('Email - '+e.audience):('Email '+(i+1)),28,300,140,true));
     parts.push(dsection('Basic email information',[{label:'Pardot Email Name',value:e.pardotName},{label:'Tags',value:e.tags}]));
     const tagRows=[{label:'Campaign',value:camp.name}];
     if(e.hasOrder)tagRows.push({label:'Email #',value:e.number||String(i+1)});
-    tagRows.push({label:'Send Type',value:e.emailType,required:true},{label:'Content Type',value:e.contentType,required:true},{label:'Audience Type',value:e.audience,required:true},{label:'Funnel Stage',value:e.funnel,required:true},{label:'Campaign Theme',value:e.theme,required:true},{label:'A/B Test',value:e.abTest||'No'},{label:'CTA',value:e.cta});
+    tagRows.push({label:'Send Type',value:e.emailType,required:true},{label:'Content Type',value:e.contentType,required:true},{label:'Audience Type',value:e.audience,required:true},{label:'Funnel Stage',value:e.funnel,required:true},{label:'Campaign Theme',value:e.theme,required:true},{label:'Geography',value:e.geo},{label:'Vertical',value:e.vertical},{label:'Incentive',value:e.incentive},{label:'A/B Test',value:e.abTest||'No'},{label:'CTA',value:e.cta});
     parts.push(dsection('Tagging \u2014 feeds the Tag Builder',tagRows));
     parts.push(dsection('To \u2014 choose who gets this email',[{label:'Lists (Send To)',value:e.lists},{label:'Suppression Lists',value:e.suppression}]));
     parts.push(dsection('From \u2014 choose who it is sent from',[{label:'Sender Name',value:e.senderName||'Scale Computing'},{label:'From Email Address',value:e.fromEmail||'noreply@scalecomputing.com'},{label:'Reply-To Email Address',value:e.replyTo||'noreply@scalecomputing.com'}]));
@@ -153,7 +153,7 @@ function buildDocx(data,logo){const body=buildDocBody(data);
 function cap(s){return s?s.charAt(0).toUpperCase()+s.slice(1):s;}
 function labelOf(tag,prefix){return cap(String(tag).replace(prefix,'').replace(/-/g,' '));}
 // Curated display labels for tags whose auto-prettified form isn't quite right.
-var TAG_LABELS={'one-time-send':'One-time send','re-engagement':'Re-engagement','drip-sequence':'Drip / automated sequence','a-b-test':'A/B test','audience-msp':'MSP','theme-dcig':'DCIG','stage-tofu':'Top of funnel (awareness)','stage-mofu':'Middle of funnel (consideration)','stage-bofu':'Bottom of funnel (decision)','stage-nurture':'Nurture','stage-retention':'Retention','stage-expansion':'Expansion','stage-advocacy':'Advocacy'};
+var TAG_LABELS={'one-time-send':'One-time send','re-engagement':'Re-engagement','drip-sequence':'Drip / automated sequence','a-b-test':'A/B test','audience-msp':'MSP','theme-dcig':'DCIG','stage-tofu':'Top of funnel (awareness)','stage-mofu':'Middle of funnel (consideration)','stage-bofu':'Bottom of funnel (decision)','stage-nurture':'Nurture','stage-retention':'Retention','stage-expansion':'Expansion','stage-advocacy':'Advocacy','geo-na':'NA','geo-emea':'EMEA','geo-dach':'DACH','geo-uk':'UK','geo-apac':'APAC','vertical-slg':'SLG','vertical-msp':'MSP'};
 function libTags(){var d=window.TAG_DATA;return (d&&Array.isArray(d.tags))?d.tags:null;}
 // Build [label,tag] option pairs for a Tag Library category, in library order.
 function optsFor(category,prefix){
@@ -176,6 +176,12 @@ const FUNNEL=optsFor('Funnel Stage','stage-')||FUNNEL_FB;
 const CONTENT=optsFor('Content Type','content-')||CONTENT_FB;
 const THEME=optsFor('Campaign Theme','theme-')||THEME_FB;
 const CTAOPTS=optsFor('CTA','cta-')||CTAOPTS_FB;
+const GEO_FB=['geo-na','geo-emea','geo-dach','geo-france','geo-uk','geo-apac','geo-global'].map(t=>[TAG_LABELS[t]||labelOf(t,/^geo-/),t]);
+const VERTICAL_FB=['vertical-retail','vertical-education','vertical-healthcare','vertical-slg','vertical-msp','vertical-financial'].map(t=>[TAG_LABELS[t]||labelOf(t,/^vertical-/),t]);
+const INCENTIVE_FB=['incentive-swag','incentive-gift-card','incentive-prize','incentive-discount','incentive-none'].map(t=>[labelOf(t,/^incentive-/),t]);
+const GEO=optsFor('Geography','geo-')||GEO_FB;
+const VERTICAL=optsFor('Vertical','vertical-')||VERTICAL_FB;
+const INCENTIVE=optsFor('Incentive','incentive-')||INCENTIVE_FB;
 const AB=[['No','No'],['Yes','Yes']];
 const QUARTERS=[['Q1','1'],['Q2','2'],['Q3','3'],['Q4','4'],['Evergreen','na']];
 const YEARS=[['2025','2025'],['2026','2026'],['2027','2027'],['2028','2028'],['Evergreen','na']];
@@ -201,13 +207,13 @@ function revLabel(opts,tag){for(var i=0;i<opts.length;i++)if(opts[i][1]===tag)re
 function findCampaign(name){if(!name)return null;var nn=norm(name);for(var i=0;i<REGISTRY.length;i++)if(norm(REGISTRY[i].name)===nn)return REGISTRY[i];for(var i=0;i<REGISTRY.length;i++){var cn=norm(REGISTRY[i].name);if(cn&&(nn.indexOf(cn)>=0||cn.indexOf(nn)>=0))return REGISTRY[i];}return null;}
 
 //// ============ STATE ============
-const state={include:{email:true,form:false,cadence:false,qualified:false},campaign:{name:'',crm:'',quarter:'',year:''},emails:[],form:null,cadence:null,qualified:null};
+const state={include:{email:true,form:false,cadence:false,qualified:false},campaign:{name:'',crm:'',quarter:'',year:'',eventName:''},emails:[],form:null,cadence:null,qualified:null};
 function newFormFields(){return [{label:'First Name',req:true,custom:false},{label:'Last Name',req:true,custom:false},{label:'Business Email',req:true,custom:false},{label:'Phone',req:true,custom:false},{label:'Company',req:true,custom:false},{label:'Country',req:true,custom:false}];}
 function newForm(){return{nameEdited:false,name:'',fields:newFormFields(),previewLink:'',iframe:'',source:'Marketing',leadSource:'Website',slack:'pardot_notifications',autoresponder:'',displayMsg:'Thank you! Check your inbox for the report.',tc:'',open:false};}
 function newCadence(){return{nameEdited:false,name:'',steps:[{subject:'',body:''}],open:true};}
 function newQualified(){return{nameEdited:false,name:'',segment:'',headline:'',body:'',imageUrl:'',subtext:'',ctas:'',open:true};}
 const TC_TYPES=[];
-function newEmail(){return{pardotName:'',pardotEdited:false,hasOrder:true,number:'',emailType:'',contentType:'',audience:'',funnel:'',theme:'',ab:'No',cta:[],
+function newEmail(){return{pardotName:'',pardotEdited:false,hasOrder:true,number:'',emailType:'',contentType:'',audience:'',funnel:'',theme:'',geo:'',vertical:'',incentive:'',ab:'No',cta:[],
   lists:'',suppressionList:DEFAULT_SUPPRESSION.slice(),senderName:'Scale Computing',fromEmail:'noreply@scalecomputing.com',replyTo:'noreply@scalecomputing.com',
   subjectA:'',subjectB:'',preview:'',sendDate:'',sendTime:'',hero:'',body:'',mainCtaText:'',mainCtaLink:'',secCtaText:'',secCtaLink:'',open:false};}
 
@@ -225,11 +231,19 @@ function computeEmail(i){
   const pardotName=prefix+nm+(e.hasOrder?(' | Email '+num):'')+(audLbl?(' | '+audLbl):'');
   const campaignTag=matched?reg.tag:(ever?('campaign-'+(slug(cleanName(c.name))||'name')):('campaign-'+(slug(cleanName(c.name))||'name')+'-q'+(c.quarter||'?')+'-'+(c.year||'yyyy')));
   const tags=[{t:campaignTag,c:'Campaign',req:true,src:matched?'reg':'doc'}];
+  const evName=slug(c.eventName||'');
+  if(evName){tags.push({t:'event-'+evName,c:'Event',req:false,src:'doc'});
+    if(!ever)tags.push({t:'event-q'+(c.quarter||'?')+'-'+(c.year||'yyyy'),c:'Event',req:false,src:'doc'});}
   if(e.emailType)tags.push({t:e.emailType,c:'Send Type',req:true,src:'doc'});
   if(e.contentType)tags.push({t:e.contentType,c:'Content Type',req:true,src:'doc'});
   if(e.audience)tags.push({t:e.audience,c:'Audience Type',req:true,src:'doc'});
   if(e.funnel)tags.push({t:e.funnel,c:'Funnel Stage',req:true,src:'doc'});
   if(e.theme)tags.push({t:e.theme,c:'Campaign Theme',req:true,src:'doc'});
+  if(e.geo)tags.push({t:e.geo,c:'Geography',req:false,src:'doc'});
+  if(e.vertical)tags.push({t:e.vertical,c:'Vertical',req:false,src:'doc'});
+  if(e.incentive)tags.push({t:e.incentive,c:'Incentive',req:false,src:'doc'});
+  if(e.ab==='Yes'){tags.push({t:'ab-variant-a',c:'A/B Variant',req:false,src:'doc'});
+    tags.push({t:'ab-variant-b',c:'A/B Variant',req:false,src:'doc'});}
   (e.cta||[]).forEach(t=>tags.push({t:t,c:'CTA',req:false,src:'doc'}));
   return {pardotName,tags,matched};
 }
@@ -316,14 +330,14 @@ function cbParseBuildDoc(xml){
   for(var s=0;s<sections.length;s++){
     var sec=sections[s],t=sec.title,m;
     if(t==='Campaign'){m=mapOf(sec);
-      st.campaign.name=v(m,'Campaign Name');st.campaign.crm=v(m,'CRM Campaign Link');
+      st.campaign.name=v(m,'Campaign Name');st.campaign.crm=v(m,'CRM Campaign Link');st.campaign.eventName=v(m,'Event Name')||'';
       st.campaign.quarter=cbLabelToValue(QUARTERS,v(m,'Quarter'))||(/^(n\/a|evergreen)$/i.test((v(m,'Quarter')||'').trim())?'na':'');
       st.campaign.year=cbLabelToValue(YEARS,v(m,'Year'))||(/^(n\/a|evergreen)$/i.test((v(m,'Year')||'').trim())?'na':'');
     } else if(t==='Basic email information'){cur=newEmail();cur.open=false;st.emails.push(cur);m=mapOf(sec);
       var pn=v(m,'Pardot Email Name');if(pn)cur.pardotName=pn;
     } else if(cur&&t.indexOf('Tagging')===0){m=mapOf(sec);
       if(m['Email #']){cur.hasOrder=true;cur.number=v(m,'Email #');}else{cur.hasOrder=false;}
-      var sel=[[['Send Type','Email Type'],SENDTYPE,'emailType'],[['Content Type'],CONTENT,'contentType'],[['Audience Type','Audience'],AUDIENCE,'audience'],[['Funnel Stage'],FUNNEL,'funnel'],[['Campaign Theme','Theme'],THEME,'theme']];
+      var sel=[[['Send Type','Email Type'],SENDTYPE,'emailType'],[['Content Type'],CONTENT,'contentType'],[['Audience Type','Audience'],AUDIENCE,'audience'],[['Funnel Stage'],FUNNEL,'funnel'],[['Campaign Theme','Theme'],THEME,'theme'],[['Geography'],GEO,'geo'],[['Vertical'],VERTICAL,'vertical'],[['Incentive'],INCENTIVE,'incentive']];
       for(var x=0;x<sel.length;x++){var labs=sel[x][0],raw='';for(var li=0;li<labs.length;li++){var rv=v(m,labs[li]);if(rv){raw=rv;break;}}var vv=cbLabelToValue(sel[x][1],raw);cur[sel[x][2]]=vv;if(raw&&!vv)warn.push('Email '+st.emails.length+' \u2014 '+labs[0]+': "'+raw+'" not recognized');}
       cur.ab=/yes/i.test(v(m,'A/B Test'))?'Yes':'No';
       var ctaStr=v(m,'CTA');cur.cta=ctaStr?ctaStr.split(/,\s*/).map(function(c){return cbLabelToValue(CTAOPTS,c.trim());}).filter(Boolean):[];
@@ -380,7 +394,7 @@ function cbRestoreState(ns){
   if(!ns||typeof ns!=='object')return false;
   var inc=ns.include||{};
   state.include={email:!!inc.email,form:!!inc.form,cadence:!!inc.cadence,qualified:!!inc.qualified};
-  state.campaign=cbMerge({name:'',crm:'',quarter:'',year:'',open:true},ns.campaign);
+  state.campaign=cbMerge({name:'',crm:'',quarter:'',year:'',eventName:'',open:true},ns.campaign);
   state.emails.length=0;(ns.emails||[]).forEach(function(e){state.emails.push(cbMerge(newEmail(),e));});
   state.form=ns.form?cbMerge(newForm(),ns.form):null;
   state.cadence=ns.cadence?cbMerge(newCadence(),ns.cadence):null;
@@ -557,6 +571,7 @@ function editorCampaign(){
   var reg=findCampaign(c.name);
   var inner=fld({l:'Campaign Name',req:true,wide:true,ph:'Imaging Service'},c.name,'c.name')
     +fld({l:'CRM Campaign Link',wide:true,ph:'https://scalecomputing.lightning.force.com/...'},c.crm,'c.crm')
+    +fld({l:'Event Name',hint:'(optional — adds event-* tags to every send)',wide:true,ph:'ITAG'},c.eventName,'c.eventName')
     +fld({l:'Quarter',req:true,type:'select',opts:QUARTERS},c.quarter,'c.quarter')
     +fld({l:'Year',req:true,type:'select',opts:YEARS},c.year,'c.year');
   var ever=isEvergreen()?'<p class="cb-evg-note">Evergreen selected — Pardot names and tags will skip the <code>Qx-YYYY</code> prefix.</p>':'';
@@ -573,6 +588,9 @@ function editorEmail(i){
     +fld({l:'Audience Type',req:true,type:'select',opts:AUDIENCE},e.audience,'e.'+i+'.audience')
     +fld({l:'Funnel Stage',req:true,type:'select',opts:FUNNEL},e.funnel,'e.'+i+'.funnel')
     +fld({l:'Campaign Theme',req:true,type:'select',opts:THEME},e.theme,'e.'+i+'.theme')
+    +fld({l:'Geography',type:'select',opts:GEO},e.geo,'e.'+i+'.geo')
+    +fld({l:'Vertical',type:'select',opts:VERTICAL},e.vertical,'e.'+i+'.vertical')
+    +fld({l:'Incentive',type:'select',opts:INCENTIVE},e.incentive,'e.'+i+'.incentive')
     +fld({l:'A/B Test',type:'select',opts:AB,noEmpty:true},e.ab,'e.'+i+'.ab')
     +fld({l:'CTA',type:'chips',opts:CTAOPTS,wide:true},e.cta,'e.'+i+'.cta');
   var fan='<div class="fan wide"><div class="fan-h">Create audience variants of this send</div>'
@@ -692,7 +710,7 @@ function renderRail(){
   var h='';
   if(active.type==='email'){
     var i=active.i,r=computeEmail(i);
-    var order=['Campaign','Send Type','Content Type','Audience Type','Funnel Stage','Campaign Theme','CTA'],by={};
+    var order=['Campaign','Event','Send Type','Content Type','Audience Type','Funnel Stage','Campaign Theme','Geography','Vertical','Incentive','A/B Variant','CTA'],by={};
     r.tags.forEach(function(x){(by[x.c]=by[x.c]||[]).push(x);});
     h+='<div class="rl-sec"><div class="rl-h">Pardot name</div><code class="rl-name">'+escH(effPardot(i))+'</code>'
       +'<button type="button" class="cb-iconbtn" data-copyname="'+i+'">'+ICON('copy')+'Copy</button></div>';
@@ -846,11 +864,11 @@ async function doGenerate(){
   try{
     var c=state.campaign,inc=state.include;
     var data={include:{email:inc.email,form:inc.form,cadence:inc.cadence,qualified:inc.qualified},
-      campaign:{name:c.name,crm:c.crm,quarterLabel:revLabel(QUARTERS,c.quarter),yearLabel:revLabel(YEARS,c.year)},
+      campaign:{name:c.name,crm:c.crm,eventName:c.eventName,quarterLabel:revLabel(QUARTERS,c.quarter),yearLabel:revLabel(YEARS,c.year)},
       emails:state.emails.map(function(e,i){var r=computeEmail(i);return{
         number:e.hasOrder?(e.number||String(i+1)):'',hasOrder:e.hasOrder,pardotName:effPardot(i),tags:r.tags.map(function(x){return x.t;}).join(', '),
         emailType:revLabel(SENDTYPE,e.emailType),contentType:revLabel(CONTENT,e.contentType),audience:revLabel(AUDIENCE,e.audience),funnel:revLabel(FUNNEL,e.funnel),
-        theme:revLabel(THEME,e.theme),abTest:e.ab||'No',cta:(e.cta||[]).map(function(t){return revLabel(CTAOPTS,t);}).join(', '),
+        theme:revLabel(THEME,e.theme),geo:revLabel(GEO,e.geo),vertical:revLabel(VERTICAL,e.vertical),incentive:revLabel(INCENTIVE,e.incentive),abTest:e.ab||'No',cta:(e.cta||[]).map(function(t){return revLabel(CTAOPTS,t);}).join(', '),
         lists:e.lists,suppression:(e.suppressionList||[]).join('\n'),senderName:e.senderName,fromEmail:e.fromEmail,replyTo:e.replyTo,
         subjectA:e.subjectA,subjectB:e.subjectB,preview:e.preview,sendDate:fmtDate(e.sendDate),sendTime:e.sendTime,
         hero:e.hero,body:e.body,mainCtaText:e.mainCtaText,mainCtaLink:e.mainCtaLink,secCtaText:e.secCtaText,secCtaLink:e.secCtaLink};})};
