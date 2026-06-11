@@ -1700,7 +1700,10 @@ body.is-email-route .page { display: none; }
       <div class="pv-divider"></div>
 
       <div class="pv-field"><div class="pv-label">Sender name</div><div class="pv-value">Scale Computing</div></div>
-      <div class="pv-field"><div class="pv-label">From / reply-to</div>${pvVal(email.fromReplyTo)}</div>
+      <div class="pv-grid-2">
+        <div class="pv-field"><div class="pv-label">From</div>${pvVal(email.from)}</div>
+        <div class="pv-field"><div class="pv-label">Reply-to</div>${pvVal(email.replyTo)}</div>
+      </div>
 
       <div class="pv-divider"></div>
 
