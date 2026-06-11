@@ -513,40 +513,53 @@ body {
 }
 
 /* Share URL hint */
-/* ===== CAMPAIGN LIST CARDS (no expansion, click to navigate) ===== */
+/* ===== CAMPAIGN LIST TILES (compact grid, click to navigate) ===== */
+.campaign-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+  align-items: stretch;
+}
 .campaign {
   background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: 12px;
-  margin-bottom: 10px;
+  border-radius: 14px;
   overflow: hidden;
   box-shadow: var(--sh);
   cursor: pointer;
-  transition: border-color 0.15s, transform 0.12s;
+  transition: border-color 0.15s, transform 0.12s, box-shadow 0.15s;
   text-decoration: none;
   color: inherit;
-  display: block;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+.campaign-bar {
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--sc-blue);
 }
 .campaign:hover {
   border-color: var(--accent);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(17,56,89,.10);
 }
-.campaign-header {
+.campaign-top {
   display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 18px 22px;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 16px 0;
 }
 .campaign-icon {
-  width: 44px; height: 44px;
+  width: 38px; height: 38px;
   border-radius: 10px;
-  background: rgba(37,114,185,0.09);
+  background: rgba(37,114,185,0.10);
+  color: var(--sc-blue);
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
-  color: var(--accent);
 }
-.campaign-icon svg { width: 20px; height: 20px; color: var(--accent); }
-.campaign-body { flex: 1; min-width: 0; }
+.campaign-icon svg { width: 18px; height: 18px; }
+.campaign-body { flex: 1; min-width: 0; padding: 12px 16px 18px; }
 .campaign-kind {
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
@@ -554,7 +567,7 @@ body {
   letter-spacing: 1.5px;
   color: var(--ink-3);
   text-transform: uppercase;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
 }
 .campaign-title {
   font-family: 'DM Sans', sans-serif;
@@ -564,16 +577,6 @@ body {
   line-height: 1.25;
   letter-spacing: -0.01em;
 }
-.campaign-meta {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  margin-top: 7px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  color: var(--ink-2);
-}
-.campaign-meta svg { width: 12px; height: 12px; color: var(--ink-3); flex-shrink: 0; }
 .campaign-count {
   background: var(--panel-2);
   color: var(--ink-2);
@@ -586,12 +589,6 @@ body {
   letter-spacing: 0.04em;
   flex-shrink: 0;
 }
-.campaign-arrow {
-  width: 22px; height: 22px;
-  color: var(--ink-3);
-  flex-shrink: 0;
-}
-.campaign:hover .campaign-arrow { color: var(--accent-2); }
 
 /* ===== Email table (campaign + tag-filtered views) ===== */
 .email-table-wrap {
@@ -1428,35 +1425,17 @@ body.is-email-route .page { display: none; }
     `;
   }
 
-  // Campaign send window from its emails' concrete dates — "Jun 16, 2026",
-  // "May 29 – Jun 8, 2026", or '' when no email carries a concrete date.
-  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  function fmtShortDate(ts, withYear) {
-    const d = new Date(ts);
-    return MONTHS[d.getMonth()] + ' ' + d.getDate() + (withYear ? ', ' + d.getFullYear() : '');
-  }
-  function campaignWindow(c) {
-    const ts = c.emails.map(e => parseSendDate(e.sendDate)).filter(t => !isNaN(t)).sort((a, b) => a - b);
-    if (!ts.length) return '';
-    const min = ts[0], max = ts[ts.length - 1];
-    if (min === max) return fmtShortDate(min, true);
-    const sameYear = new Date(min).getFullYear() === new Date(max).getFullYear();
-    return fmtShortDate(min, !sameYear) + ' – ' + fmtShortDate(max, true);
-  }
-
   function campaignCardHTML(c) {
-    const win = campaignWindow(c);
     return `
       <div class="campaign" data-campaign-link="${c.id}" role="button" tabindex="0">
-        <div class="campaign-header">
+        <span class="campaign-bar"></span>
+        <div class="campaign-top">
           <div class="campaign-icon">${ICONS.folder}</div>
-          <div class="campaign-body">
-            <div class="campaign-kind">${c.kind}</div>
-            <div class="campaign-title">${c.title}</div>
-            ${win ? `<div class="campaign-meta">${ICONS.calendar} ${win}</div>` : ''}
-          </div>
           <span class="campaign-count">${c.emails.length} EMAIL${c.emails.length !== 1 ? 'S' : ''}</span>
-          <span class="campaign-arrow">${ICONS.arrow}</span>
+        </div>
+        <div class="campaign-body">
+          <div class="campaign-kind">${c.kind}</div>
+          <div class="campaign-title">${c.title}</div>
         </div>
       </div>
     `;
@@ -1506,7 +1485,7 @@ body.is-email-route .page { display: none; }
       return;
     }
 
-    container.innerHTML = filtered.map(campaignCardHTML).join('');
+    container.innerHTML = '<div class="campaign-grid">' + filtered.map(campaignCardHTML).join('') + '</div>';
   }
 
   // ===== Tag filter UI =====
