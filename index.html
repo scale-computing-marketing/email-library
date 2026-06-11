@@ -1638,13 +1638,10 @@ body.is-email-route .page { display: none; }
   // Populate the left build-details rail from the email + its campaign. Fields the manifest
   // model doesn't carry are shown muted rather than invented (mirrors the locked layout).
   function renderBuildDetails(email, campaign) {
-    const idx = campaign ? campaign.emails.findIndex(e => e.id === email.id) + 1 : 0;
-    const total = campaign ? campaign.emails.length : 0;
     const pardotName = email.pardotName || (campaign ? `${campaign.title} │ ${email.title}` : email.title);
     const html = `
       <div class="pv-name-row">
         <span class="pv-label" style="margin:0;">Pardot Email Name</span>
-        ${total ? `<span class="pv-badge">Email ${idx} of ${total}</span>` : ''}
       </div>
       <div class="pv-value mono">${esc(pardotName)}</div>
 
