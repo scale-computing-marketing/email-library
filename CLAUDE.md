@@ -15,6 +15,12 @@ for Pardot). `index.html` is the page itself — **you almost never edit it.**
 - `manifest.json` — the list of campaigns and emails. **You edit this.**
 - `emails/<sourceId>.html` — one standalone, Pardot-ready email per file.
 - `scripts/validate-library.mjs` — consistency checker (run before every commit).
+  Also audits every manifest tag against the Tag Library registry (the
+  mar-ops-dashboard's `data/tag-library.js` — the single source of truth for
+  tags; fetched live, offline fallback in `scripts/tag-registry.cache.json`).
+  Minted per-campaign tags (`campaign-*`, `event-*`, `ab-variant-*`) are
+  shape-checked. An unknown tag is a warning: fix the tag or register it in
+  the dashboard — never invent tags ad hoc.
 - `house-style.md`, `reusable-blocks.md`, `plain-text-style.md` — the locked
   build specs (see "Which spec to build from").
 

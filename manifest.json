@@ -23,7 +23,8 @@
           "tags": [
             "one-time-send",
             "content-report-syndication",
-            "audience-end-user-prospect",
+            "audience-end-user",
+            "audience-prospect",
             "campaign-gigaom-radar-report-q2-2026",
             "geo-global",
             "cta-download",
@@ -161,7 +162,8 @@
           "tags": [
             "content-post-event",
             "one-time-send",
-            "audience-end-user-prospect",
+            "audience-end-user",
+            "audience-prospect",
             "cta-pricing",
             "cta-vmware-alternative"
           ],
@@ -177,7 +179,8 @@
             "content-post-event",
             "one-time-send",
             "event-q2-2026",
-            "audience-end-user-prospect",
+            "audience-end-user",
+            "audience-prospect",
             "cta-learn-more",
             "cta-demo",
             "campaign-eplus-transform-q2-2026",
