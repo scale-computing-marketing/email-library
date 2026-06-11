@@ -8,11 +8,11 @@
  *      (Preview throws "Could not load ..." — this is the live nyslgitda bug).
  *   3. An emails/*.html file no email entry points at (orphan, never shown).
  *   4. Duplicate ids/sourceIds, missing required fields, retired "icon" field.
- *   5. Manifest tags that don't exist in the Tag Library registry (the
- *      mar-ops-dashboard's data/tag-library.js — the single source of truth
- *      for tags). Minted per-campaign tags (campaign-*, event-*, ab-variant-*)
- *      are pattern-checked instead. Fetched live; falls back to the committed
- *      snapshot scripts/tag-registry.cache.json when offline.
+ *   5. Manifest tags that don't exist in the Tag Library registry
+ *      (data/tag-library.json in this repo — the single source of truth for
+ *      tags; the Tag Library page and Campaign Builder render from it too).
+ *      Minted per-campaign tags (campaign-*, event-*, ab-variant-*) are
+ *      pattern-checked instead.
  *
  * Run locally before you push:   node scripts/validate-library.mjs
  * Runs automatically in CI via .github/workflows/validate-library.yml
@@ -21,7 +21,7 @@
  * No dependencies — stock Node 18+.
  */
 
-import { readdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { readdirSync, readFileSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -29,9 +29,8 @@ const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const MANIFEST = join(REPO_ROOT, 'manifest.json');
 const EMAILS_DIR = join(REPO_ROOT, 'emails');
 
-// Tag Library registry — the dashboard owns it; this repo only reads it.
-const REGISTRY_URL = 'https://scale-computing-marketing.github.io/mar-ops-dashboard/data/tag-library.js';
-const REGISTRY_CACHE = join(REPO_ROOT, 'scripts', 'tag-registry.cache.json');
+// Tag Library registry — lives in this repo; the dashboard reads it from here.
+const REGISTRY = join(REPO_ROOT, 'data', 'tag-library.json');
 // Tags minted per campaign (the registry carries them as templates like
 // "campaign-[name]-[q#-yyyy]") are validated by shape, not membership.
 const MINTED_PATTERNS = [
@@ -123,51 +122,34 @@ if (existsSync(EMAILS_DIR)) {
 }
 
 // 5. tags must exist in the Tag Library registry ---------------------------
-// Fetch live; on success refresh the committed cache (only when content
-// changed, so git diffs of the cache show real registry changes); on network
-// failure fall back to the cache; with neither, skip the check and say so.
-async function loadTagRegistry() {
+// The registry is a repo file the Tag Library page and Campaign Builder also
+// render from — if it's missing or unparseable, those pages are broken too,
+// so that's an error, not a skipped check.
+let registryNote = '';
+let registry = null;
+if (!existsSync(REGISTRY)) {
+  errors.push('data/tag-library.json is missing — the Tag Library page, Campaign Builder, and tag checks all depend on it.');
+} else {
   try {
-    const res = await fetch(REGISTRY_URL, { signal: AbortSignal.timeout(5000) });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const m = (await res.text()).match(/TAG_DATA\s*=\s*(\{[\s\S]*\});/);
-    if (!m) throw new Error('TAG_DATA object not found in tag-library.js');
-    const data = JSON.parse(m[1]);
-    const snapshot = JSON.stringify({ source: REGISTRY_URL, data }, null, 1) + '\n';
-    if (!existsSync(REGISTRY_CACHE) || readFileSync(REGISTRY_CACHE, 'utf8') !== snapshot) {
-      writeFileSync(REGISTRY_CACHE, snapshot);
-    }
-    return { data, from: 'live' };
-  } catch (err) {
-    if (existsSync(REGISTRY_CACHE)) {
-      try {
-        return { data: JSON.parse(readFileSync(REGISTRY_CACHE, 'utf8')).data, from: 'cache' };
-      } catch { /* corrupt cache — treat as missing */ }
-    }
-    return { data: null, from: null, reason: err.message };
+    registry = JSON.parse(readFileSync(REGISTRY, 'utf8'));
+  } catch (e) {
+    errors.push(`data/tag-library.json is not valid JSON: ${e.message}`);
   }
 }
-
-let registryNote = '';
-if (usedTags.length) {
-  const reg = await loadTagRegistry();
-  if (!reg.data) {
-    registryNote = `Tag registry unreachable (${reg.reason}) and no cache yet — tag check skipped.`;
-  } else {
-    const known = new Set(
-      [...(reg.data.tags || []), ...(reg.data.campaigns || [])]
-        .map(t => t.tag)
-        .filter(t => t && !t.includes('[')) // drop template entries like campaign-[name]-[q#-yyyy]
-    );
-    const flagged = new Set(); // warn once per unknown tag, listing where it's used
-    for (const { tag, where } of usedTags) {
-      if (known.has(tag) || MINTED_PATTERNS.some(p => p.test(tag)) || flagged.has(tag)) continue;
-      flagged.add(tag);
-      const uses = usedTags.filter(u => u.tag === tag).map(u => u.where);
-      warnings.push(`tag "${tag}" is not in the Tag Library registry — used by: ${uses.join('; ')}.`);
-    }
-    registryNote = `Tags checked against the Tag Library registry (${known.size} registered, ${reg.from === 'cache' ? 'offline cache' : 'live'}).`;
+if (registry) {
+  const known = new Set(
+    [...(registry.tags || []), ...(registry.campaigns || [])]
+      .map(t => t.tag)
+      .filter(t => t && !t.includes('[')) // drop template entries like campaign-[name]-[q#-yyyy]
+  );
+  const flagged = new Set(); // warn once per unknown tag, listing where it's used
+  for (const { tag, where } of usedTags) {
+    if (known.has(tag) || MINTED_PATTERNS.some(p => p.test(tag)) || flagged.has(tag)) continue;
+    flagged.add(tag);
+    const uses = usedTags.filter(u => u.tag === tag).map(u => u.where);
+    warnings.push(`tag "${tag}" is not in the Tag Library registry — used by: ${uses.join('; ')}.`);
   }
+  registryNote = `Tags checked against data/tag-library.json (${known.size} registered).`;
 }
 
 // report ------------------------------------------------------------------

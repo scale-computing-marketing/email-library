@@ -197,6 +197,27 @@ body {
   color: var(--accent);
 }
 
+/* Ops Tools callouts — internal pages (tags.html, builder.html), boxed so they
+   read as tools rather than another campaign in the list. */
+.nav-ops { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
+.nav-ops-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  padding: 4px 10px;
+}
+.nav-item.ops-callout {
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+  border-radius: 8px;
+  margin-bottom: 6px;
+  padding: 9px 10px;
+}
+.nav-item.ops-callout:hover { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); }
+.nav-item.ops-callout .nav-icon { color: var(--accent); }
+
 /* ===== HEADER ===== */
 .hdr {
   background: var(--panel);
@@ -984,6 +1005,21 @@ body.is-email-route .page { display: none; }
       </div>
       <div class="nav-group-items">
         <div id="campaignNav"></div>
+      </div>
+    </div>
+
+    <!-- Ops Tools — internal pages, visually set apart from the reviewer-facing campaign nav -->
+    <div class="nav-group open nav-ops">
+      <div class="nav-ops-label">Ops Tools</div>
+      <div class="nav-group-items">
+        <a class="nav-item ops-callout" href="tags.html">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2H2v10l9.3 9.3a1.7 1.7 0 0 0 2.4 0l7.6-7.6a1.7 1.7 0 0 0 0-2.4z"/><circle cx="7.5" cy="7.5" r="1.3"/></svg></span>
+          <span class="nav-label">Tag Library</span>
+        </a>
+        <a class="nav-item ops-callout" href="builder.html">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 12h6"/><path d="M9 16h6"/></svg></span>
+          <span class="nav-label">Campaign Builder</span>
+        </a>
       </div>
     </div>
 

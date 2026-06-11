@@ -14,13 +14,17 @@ for Pardot). `index.html` is the page itself — **you almost never edit it.**
 - `index.html` — the app (layout, search, tags). Don't edit for content.
 - `manifest.json` — the list of campaigns and emails. **You edit this.**
 - `emails/<sourceId>.html` — one standalone, Pardot-ready email per file.
+- `data/tag-library.json` — **the tag registry, single source of truth for
+  tags** (moved here from the mar-ops-dashboard June 2026). To add or change a
+  tag, edit this file. Never invent tags ad hoc.
+- `tags.html` — Ops Tools: Tag Library browser (renders the registry).
+- `builder.html` + `assets/campaign-builder.{css,js}` — Ops Tools: Campaign
+  Builder (ported verbatim from the dashboard's `sections/campaign-builder/`;
+  reads the registry, exports the Word build doc).
 - `scripts/validate-library.mjs` — consistency checker (run before every commit).
-  Also audits every manifest tag against the Tag Library registry (the
-  mar-ops-dashboard's `data/tag-library.js` — the single source of truth for
-  tags; fetched live, offline fallback in `scripts/tag-registry.cache.json`).
-  Minted per-campaign tags (`campaign-*`, `event-*`, `ab-variant-*`) are
-  shape-checked. An unknown tag is a warning: fix the tag or register it in
-  the dashboard — never invent tags ad hoc.
+  Audits every manifest tag against `data/tag-library.json`; minted
+  per-campaign tags (`campaign-*`, `event-*`, `ab-variant-*`) are
+  shape-checked. An unknown tag is a warning: fix it or register it.
 - `house-style.md`, `reusable-blocks.md`, `plain-text-style.md` — the locked
   build specs (see "Which spec to build from").
 

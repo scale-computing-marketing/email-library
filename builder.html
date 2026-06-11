@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campaign Builder — Email Library · Scale Computing Marketing Ops</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,400;9..144,0,500;9..144,0,600;9..144,1,400;9..144,1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/campaign-builder.css">
+<style>
+/* Page shell — ported from the mar-ops-dashboard's gov-ed editorial frame so the
+   Campaign Builder section (assets/campaign-builder.{css,js}, copied verbatim
+   from sections/campaign-builder/) renders unchanged. The top bar matches the
+   Email Library. */
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: #f4f6f9; min-height: 100vh; min-height: 100dvh; }
+
+.lib-hdr {
+  background: #ffffff; border-bottom: 1px solid #e2e8f0;
+  padding: 12px 28px; min-height: 56px;
+  display: flex; align-items: center; gap: 14px;
+  font-family: 'DM Sans', sans-serif;
+}
+.lib-back {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #2572b9; border: 1px solid #2572b9;
+  padding: 6px 12px; border-radius: 999px;
+  font-size: 12px; font-weight: 600; color: #fff;
+  cursor: pointer; text-decoration: none; transition: all 0.15s;
+}
+.lib-back:hover { background: #1d5a91; border-color: #1d5a91; }
+.lib-back svg { width: 12px; height: 12px; }
+.lib-crumb {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  letter-spacing: 1.5px; text-transform: uppercase; color: #94a3b8; font-weight: 500;
+}
+.lib-crumb b { color: #1a2433; font-weight: 700; }
+
+/* No further frame styles needed: assets/campaign-builder.css is fully
+   self-contained — every rule (masthead included) is scoped under #p-builder. */
+#p-builder { font-family: 'Fraunces', Georgia, serif; -webkit-font-smoothing: antialiased; }
+</style>
+</head>
+<body>
+
+<div class="lib-hdr">
+  <a class="lib-back" href="index.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Email Library
+  </a>
+  <span class="lib-crumb">Ops Tools / <b>Campaign Builder</b></span>
+</div>
+
+<div id="p-builder" style="padding:24px 28px;max-width:1320px;margin:0 auto;">
+
+<!-- ── Section markup: verbatim from mar-ops-dashboard sections/campaign-builder/section.html ── -->
+<header class="ed-masthead cb-mast">
+  <p class="ed-kicker">Ops Tools · Campaign Builder</p>
+  <h1>Assemble &amp; <em>tag</em> a campaign</h1>
+  <p class="ed-lede">Compose the emails, Pardot form, SalesLoft cadence, and Qualified experience for a single campaign — then export the Word build doc, tags and all.</p>
+</header>
+
+<div class="cb-barwrap">
+<div class="cb-bar">
+  <div class="cb-scope-row" id="cb-scope"></div>
+  <div class="cb-actions">
+    <span id="cbDraftState" class="cb-draft-state"></span>
+    <button class="cb-uicon cb-labeled" data-draftsave aria-label="Save draft" title="Save draft"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8"/><path d="M7 3v5h8"/></svg><span>Save</span></button>
+    <button class="cb-uicon" data-draftload aria-label="Load draft" title="Load draft"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M12 16v-5"/><path d="M9.5 13.5 12 11l2.5 2.5"/></svg></button>
+    <button class="cb-uicon" data-import aria-label="Import .docx" title="Import .docx"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M5 3h9l5 5v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M12 11v6"/><path d="M9.5 14.5 12 17l2.5-2.5"/></svg></button>
+    <button class="cb-uicon cb-danger" data-draftfresh aria-label="Start fresh" title="Start fresh"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v6h-6"/></svg></button>
+    <span class="cb-div"></span>
+    <button class="cb-primary" data-gen><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v11"/><path d="M8 10l4 4 4-4"/><path d="M5 19h14"/></svg>Generate Word doc</button>
+  </div>
+</div>
+</div>
+
+<div class="cb-panes">
+  <aside class="cb-tree" id="cb-tree"></aside>
+  <main class="cb-editor" id="cb-editor"></main>
+  <aside class="cb-rail" id="cb-rail"></aside>
+</div>
+
+<div id="cb-toast" class="cb-toast"></div>
+<input type="file" id="cb-importfile" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden>
+<input type="file" id="cb-draftfile" accept=".json,application/json" hidden>
+<datalist id="cb-timeopts"></datalist>
+<!-- ── End verbatim section markup ── -->
+
+</div>
+
+<script>
+// The builder reads window.TAG_DATA (single source of truth: data/tag-library.json).
+// Load the registry first, then inject the section script — same order as the
+// dashboard's loader (tag data before section JS).
+fetch('data/tag-library.json', { cache: 'no-store' })
+  .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+  .catch(() => null) // the builder has its own fallback literals if the registry is unreachable
+  .then(data => {
+    if (data) window.TAG_DATA = data;
+    const s = document.createElement('script');
+    s.src = 'assets/campaign-builder.js';
+    document.body.appendChild(s);
+  });
+</script>
+</body>
+</html>
