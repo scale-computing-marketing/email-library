@@ -314,7 +314,8 @@ body {
 .tl-fbtn:hover { border-color: var(--accent); color: var(--accent); }
 .tl-fbtn.active { background: var(--sc-dark); border-color: var(--sc-dark); color: #fff; }
 /* Send Schedule kind filter — same chip language as the Tag Library filters. */
-.sched-filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
+.sched-filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; align-items: center; }
+.sched-past-toggle { margin-left: auto; border-style: dashed; }
 .tl-cats { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 22px; }
 .tl-cat-group { margin-bottom: 26px; }
 .tl-cat-head { display: flex; align-items: baseline; gap: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--ink); margin-bottom: 10px; }
@@ -363,6 +364,26 @@ body {
 .tl-usage.zero {
   cursor: default; background: var(--panel-2); color: var(--ink-3); border-color: var(--line);
 }
+#tlGapList {
+  background: rgba(232,120,10,0.07); border: 1px solid rgba(232,120,10,0.3);
+  border-radius: var(--r); padding: 14px 16px; margin-bottom: 22px;
+}
+.tl-gap-head {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; font-weight: 600; color: #a4570a; margin-bottom: 10px;
+}
+.tl-gap-head svg { width: 15px; height: 15px; flex-shrink: 0; }
+.tl-gap-head code {
+  font-family: 'JetBrains Mono', monospace; font-size: 11.5px; font-weight: 500;
+  background: #fff; border: 1px solid rgba(232,120,10,0.3); border-radius: 5px; padding: 1px 5px;
+}
+.tl-gap-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tl-gap-tag {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #8a4a09;
+  background: #fff; border: 1px solid rgba(232,120,10,0.35); border-radius: 6px; padding: 3px 9px;
+}
+.tl-gap-tag em { font-style: normal; font-size: 10.5px; color: var(--ink-3); }
 .tl-section-block { margin-top: 40px; }
 .tl-section-block > h2 {
   font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700;
@@ -1366,6 +1387,8 @@ body.is-email-route .page { display: none; }
       <!-- ===== OPS TOOLS: TAG LIBRARY (routed view, #/tags) ===== -->
       <div id="tagsView" style="display:none;">
         <div class="tl-kpis" id="tlKpis"></div>
+        <!-- Manifest tags missing from the registry — hidden while everything matches. -->
+        <div id="tlGapList" style="display:none;"></div>
         <div class="tl-controls">
           <div class="search-wrap">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -2589,15 +2612,21 @@ body.is-email-route .page { display: none; }
   }
 
   let schedKindFilter = 'All';
+  let schedShowPast = false;
 
   function renderSchedule() {
     const container = document.getElementById('scheduleContainer');
     const thisWeek = weekStartTs(todayMidnight());
 
     const allRows = [];
+    let pastCount = 0;
     CAMPAIGNS.forEach(c => c.emails.forEach(e => {
       const ts = parseSendDate(e.sendDate);
-      if (isNaN(ts) || weekStartTs(ts) < thisWeek) return;
+      if (isNaN(ts)) return;
+      if (weekStartTs(ts) < thisWeek) {
+        pastCount++;
+        if (!schedShowPast) return;
+      }
       allRows.push({ ts, email: e, campaign: c });
     }));
     allRows.sort((a, b) => a.ts - b.ts
@@ -2631,10 +2660,13 @@ body.is-email-route .page { display: none; }
     }
 
     let html = '';
-    if (showFilters) {
-      html += '<div class="sched-filters">' + ['All', ...kinds].map(k =>
-        `<button class="tl-fbtn${k === schedKindFilter ? ' active' : ''}" type="button" data-schedkind="${esc(k)}">${esc(k)}</button>`
-      ).join('') + '</div>';
+    if (showFilters || pastCount) {
+      html += '<div class="sched-filters">'
+        + (showFilters ? ['All', ...kinds].map(k =>
+            `<button class="tl-fbtn${k === schedKindFilter ? ' active' : ''}" type="button" data-schedkind="${esc(k)}">${esc(k)}</button>`
+          ).join('') : '')
+        + (pastCount ? `<button class="tl-fbtn sched-past-toggle${schedShowPast ? ' active' : ''}" type="button" data-schedpast>${schedShowPast ? 'Hide past sends' : 'Show past sends (' + pastCount + ')'}</button>` : '')
+        + '</div>';
     }
     html += '<div class="sched-wrap"><div class="sched-rail"></div>';
     let lastWeek = null, lastMonth = null;
@@ -2733,6 +2765,8 @@ body.is-email-route .page { display: none; }
     container.querySelectorAll('[data-schedkind]').forEach(btn => {
       btn.addEventListener('click', () => { schedKindFilter = btn.dataset.schedkind; renderSchedule(); });
     });
+    const pastToggle = container.querySelector('[data-schedpast]');
+    if (pastToggle) pastToggle.addEventListener('click', () => { schedShowPast = !schedShowPast; renderSchedule(); });
   }
 
   function showCampaignDetail(campaign) {
@@ -2907,7 +2941,23 @@ body.is-email-route .page { display: none; }
 
   function renderTagLibrary(data) {
     if (!tlBuilt) { tlBuilt = true; tlBuildKpis(data); tlBuildControls(data); tlBuildTables(data); }
+    tlRenderGaps();
     tlRenderList(data);
+  }
+
+  // The inverse of the per-email validation badges: manifest tags the registry
+  // doesn't know. Renders nothing while the library and registry agree.
+  function tlRenderGaps() {
+    const el = document.getElementById('tlGapList');
+    const counts = manifestTagCounts();
+    const gaps = Object.keys(counts).filter(t => !isTagRegistered(t)).sort();
+    el.style.display = gaps.length ? '' : 'none';
+    if (!gaps.length) { el.innerHTML = ''; return; }
+    el.innerHTML = `
+      <div class="tl-gap-head">${ICONS.alert} ${gaps.length} manifest tag${gaps.length === 1 ? '' : 's'} not in the registry — register in <code>data/tag-library.json</code> or fix the manifest</div>
+      <div class="tl-gap-tags">${gaps.map(t =>
+        `<span class="tl-gap-tag">${esc(t)}<em>${counts[t]} email${counts[t] === 1 ? '' : 's'}</em></span>`).join('')}</div>
+    `;
   }
 
   function tlRenderList(data) {
