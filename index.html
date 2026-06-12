@@ -392,6 +392,7 @@ body {
 /* Ops Tools callouts — routed views (#/tags, #/builder), boxed so they
    read as tools rather than another campaign in the list. */
 .nav-ops { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
+.is-reviewer .nav-ops { display: none; }
 .nav-ops-label {
   font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
@@ -521,6 +522,25 @@ body {
   color: #ffffff;
 }
 .back-link svg { width: 12px; height: 12px; }
+.share-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  background: var(--panel);
+  border: 1px solid var(--line-2);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.share-link:hover { border-color: var(--accent); color: var(--accent); }
+.share-link.copied { border-color: var(--sc-green); color: #2a7e30; }
+.share-link svg { width: 12px; height: 12px; }
 
 /* ===== CONTENT ===== */
 .page { width: 100%; max-width: 1560px; margin: 0 auto; padding: 24px 28px 40px; }
@@ -1222,7 +1242,8 @@ body.is-email-route .page { display: none; }
       </div>
     </div>
 
-    <!-- Ops Tools — internal pages, visually set apart from the reviewer-facing campaign nav -->
+    <!-- Ops Tools — internal pages, visually set apart from the reviewer-facing campaign nav.
+         Hidden while body has .is-reviewer (session started on a shared deep link). -->
     <div class="nav-group open nav-ops">
       <div class="nav-ops-label">Ops Tools</div>
       <div class="nav-group-items">
@@ -1314,6 +1335,10 @@ body.is-email-route .page { display: none; }
           <button class="back-link" id="backLink" type="button">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
             Back to Email Library
+          </button>
+          <button class="share-link" id="campaignShareBtn" type="button" title="Copy a shareable review link to this campaign — anyone with the link can preview the rendered emails">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            Copy share link
           </button>
         </div>
 
@@ -2418,6 +2443,15 @@ body.is-email-route .page { display: none; }
   function handleRoute() {
     closeSidebarDrawer();
     const r = parseHash();
+    // Reviewer framing: a session that STARTS on a shared campaign/email deep
+    // link hides the Ops Tools nav until the visitor navigates into the app
+    // proper — shared links read as a review page, not an internal console.
+    if (!handleRoute._routedOnce) {
+      handleRoute._routedOnce = true;
+      if (r.route === 'campaign') document.body.classList.add('is-reviewer');
+    } else if (r.route !== 'campaign') {
+      document.body.classList.remove('is-reviewer');
+    }
     if (r.route === 'campaign') {
       const c = getCampaignById(r.id);
       if (!c) { navigate(''); return; }
@@ -2678,9 +2712,25 @@ body.is-email-route .page { display: none; }
     // Auto-open the By Campaign group
     document.getElementById('navGroup-campaign').classList.add('open');
 
-    // Email table (no in-campaign search — the list is short and already grouped by campaign)
+    // Share link: the reviewer URL for this campaign (see "Reviewer sharing" in CLAUDE.md).
+    // onclick (not addEventListener) so repeat visits don't stack handlers.
+    const shareBtn = document.getElementById('campaignShareBtn');
+    shareBtn.onclick = () => copyText(
+      window.location.origin + window.location.pathname + '#/campaign/' + campaign.id, shareBtn);
+
+    // Email table. Short lists stay search-free (grouped by campaign already);
+    // a search input appears once a campaign grows past 8 sends.
     detailCampaign = campaign;
-    document.getElementById('emailsContainer').innerHTML = `<div id="emailGrid"></div>`;
+    const searchable = campaign.emails.length >= 8;
+    document.getElementById('emailsContainer').innerHTML =
+      (searchable
+        ? `<div class="search-row"><div class="search-wrap">${ICONS.search}<input type="text" id="campaignSearchInput" placeholder="Search this campaign..." /></div></div>`
+        : '') +
+      `<div id="emailGrid"></div>`;
+    if (searchable) {
+      document.getElementById('campaignSearchInput').addEventListener('input',
+        e => renderEmailCards(campaign, e.target.value));
+    }
     renderEmailCards(campaign, '');
   }
 
