@@ -1124,9 +1124,11 @@ body.is-email-route .page { display: none; }
 }
 /* shared independent scroll for both sections */
 .pv-rail, .pv-render { overflow-y: auto; -webkit-overflow-scrolling: touch; }
-.pv-rail::-webkit-scrollbar, .pv-render::-webkit-scrollbar { width: 5px; }
-.pv-rail::-webkit-scrollbar-thumb, .pv-render::-webkit-scrollbar-thumb { background: transparent; border-radius: 3px; }
-.pv-rail:hover::-webkit-scrollbar-thumb, .pv-render:hover::-webkit-scrollbar-thumb { background: var(--line-2); }
+/* Build view panes: no scrollbars at all — both still scroll by wheel and
+   trackpad. (A :hover-revealed thumb fails here: the cursor is always over
+   the pane while reading, so the bar never actually hid.) */
+.pv-rail, .pv-render { scrollbar-width: none; }
+.pv-rail::-webkit-scrollbar, .pv-render::-webkit-scrollbar { display: none; }
 
 /* Left section: build details (fixed; scrolls only if tall) */
 .pv-rail {
