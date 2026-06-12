@@ -267,6 +267,14 @@ body {
 .sched-pill.sent { background: #eef2f6; color: var(--ink-3); } .sched-pill.sent .dot { background: var(--ink-3); }
 .sched-pill.upcoming { background: var(--accent-soft); color: var(--accent-2); } .sched-pill.upcoming .dot { background: var(--accent); }
 .sched-pill.today { background: rgba(66,182,73,.12); color: #23752d; } .sched-pill.today .dot { background: var(--sc-green); }
+/* Audience overlap: two campaigns hit the same audience-* tag in one week */
+.sched-pill.overlap { background: rgba(196,116,16,.1); color: #9a5b0a; } .sched-pill.overlap .dot { background: #c47410; }
+.sched-week-overlap {
+  display: inline-flex; align-items: center; gap: 4px; font-family: 'DM Mono', monospace;
+  font-size: 9.5px; letter-spacing: .8px; text-transform: uppercase; padding: 3px 9px;
+  border-radius: 99px; background: rgba(196,116,16,.1); color: #9a5b0a; white-space: nowrap;
+}
+.sched-week-overlap svg { width: 11px; height: 11px; }
 /* Grouped card: several emails from one campaign going out the same day */
 .sched-card.is-group { display: block; padding: 0; cursor: default; }
 .sched-group-head { display: flex; align-items: center; gap: 14px; padding: 11px 16px; cursor: pointer; }
@@ -352,6 +360,7 @@ body {
 .scal-chip.sent { background: #eef2f6; color: var(--ink-3); }
 .scal-chip.upcoming { background: var(--accent-soft); color: var(--accent-2); }
 .scal-chip.today { background: rgba(66,182,73,0.12); color: #23752d; }
+.scal-chip.is-overlap { box-shadow: 0 0 0 1px #c47410 inset; }
 /* Narrow screens: cells shrink and chips collapse to kind-colored dots
    (the title survives in the tooltip; tap still opens the email). */
 @media (max-width: 900px) {
@@ -949,6 +958,8 @@ body.is-home-route .hero { display: none; }
   font-size: 14px; font-weight: 600; color: var(--sc-dark);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
+/* Search result matched inside the email body, not its title/subject/tags */
+.row-bodyhit { font-size: 11px; color: var(--ink-3); font-style: italic; margin-top: 1px; }
 .t-mono { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-2); }
 .row-actions { display: flex; gap: 6px; }
 .ib {
@@ -3296,6 +3307,42 @@ Scale Computing
     return false;
   }
 
+  // ===== FULL-TEXT SEARCH (email body index) =====
+  // Built lazily the first time someone searches: every email file is fetched
+  // once and stripped to its visible text. Until the index is ready, search
+  // matches metadata only; the caller's re-render fires when bodies arrive.
+  const bodyTextIndex = new Map(); // sourceId -> lowercased visible text
+  let bodyIndexState = 'idle';     // idle | loading | ready
+  let bodyIndexRerender = null;    // latest caller wins; called once on ready
+  function ensureBodyIndex(rerender) {
+    if (bodyIndexState === 'ready') return;
+    bodyIndexRerender = rerender || bodyIndexRerender;
+    if (bodyIndexState !== 'idle') return;
+    bodyIndexState = 'loading';
+    const all = [];
+    CAMPAIGNS.forEach(c => c.emails.forEach(e => all.push(e)));
+    Promise.all(all.map(e =>
+      fetchEmailHTML(e.sourceId).then(html => {
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        doc.querySelectorAll('style, script, title').forEach(n => n.remove());
+        const text = (doc.body ? doc.body.textContent : '') || '';
+        bodyTextIndex.set(e.sourceId, text.replace(/\s+/g, ' ').toLowerCase());
+      }).catch(() => {}) // a missing file just stays metadata-only
+    )).then(() => {
+      bodyIndexState = 'ready';
+      if (bodyIndexRerender) bodyIndexRerender();
+    });
+  }
+  function emailBodyText(email) { return bodyTextIndex.get(email.sourceId) || ''; }
+  // True when the query only matches inside the email body (drives the
+  // "matches email content" hint on result rows).
+  function emailSearchMatch(email, q) {
+    const meta = (email.title + ' ' + email.subject + ' ' + email.kind + ' ' + (email.tags || []).join(' ')).toLowerCase();
+    if (meta.includes(q)) return 'meta';
+    if (emailBodyText(email).includes(q)) return 'body';
+    return null;
+  }
+
   function getFilteredEmails(textSearch) {
     const q = (textSearch || '').toLowerCase().trim();
     const out = [];
@@ -3303,11 +3350,13 @@ Scale Computing
       if (currentView.type === 'year' && c.year !== currentView.value) return;
       c.emails.forEach(e => {
         if (!emailMatchesSelectedTags(e)) return;
+        let bodyMatch = false;
         if (q) {
-          const hay = (e.title + ' ' + e.subject + ' ' + e.kind + ' ' + (e.tags || []).join(' ')).toLowerCase();
-          if (!hay.includes(q)) return;
+          const m = emailSearchMatch(e, q);
+          if (!m) return;
+          bodyMatch = m === 'body';
         }
-        out.push({ email: e, campaign: c });
+        out.push({ email: e, campaign: c, bodyMatch });
       });
     });
     return out;
@@ -3480,6 +3529,21 @@ Scale Computing
   try { if (localStorage.getItem('sc-sched-view') === 'month') schedViewMode = 'month'; } catch (e) {}
   let schedMonthCur = null; // month-grid cursor {y, m}; null = current month
 
+  // Audience-overlap flags (filled by renderSchedule, read by both layouts):
+  // email.id -> [{tag, others}] and weekStart -> [{tag, count}].
+  let schedOverlapInfo = new Map();
+  let schedOverlapWeeks = new Map();
+  function audienceLabel(tag) {
+    const t = tag.replace(/^audience-/, '').replace(/-/g, ' ');
+    return t.charAt(0).toUpperCase() + t.slice(1);
+  }
+  function overlapTip(entries) {
+    return entries.map(o =>
+      audienceLabel(o.tag) + ' audience is also reached this week by: '
+      + o.others.map(x => x.email.title + ' (' + x.campaign.title + ')').join(', ')
+    ).join('\n');
+  }
+
   const SCHED_MON_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
   // The month grid: Sun–Sat calendar of every dated send. Chips are status-
@@ -3513,8 +3577,10 @@ Scale Computing
         ${items.map(r => {
           const st = sendStatus(r.email);
           const cls = st === 'sent' ? 'sent' : st === 'today' ? 'today' : 'upcoming';
-          const tip = r.email.title + ' — ' + r.campaign.title + (r.email.sendTime ? ' · ' + r.email.sendTime : '');
-          return `<div class="scal-chip ${cls}" data-sched-email="${esc(r.email.id)}" data-sched-campaign="${esc(r.campaign.id)}" role="button" tabindex="0" title="${esc(tip)}"><span class="dot" style="background:${kindHue(r.email.kind)}"></span><span class="txt">${esc(r.email.title)}</span></div>`;
+          const overlap = schedOverlapInfo.get(r.email.id);
+          let tip = r.email.title + ' — ' + r.campaign.title + (r.email.sendTime ? ' · ' + r.email.sendTime : '');
+          if (overlap) tip += '\n' + overlapTip(overlap);
+          return `<div class="scal-chip ${cls}${overlap ? ' is-overlap' : ''}" data-sched-email="${esc(r.email.id)}" data-sched-campaign="${esc(r.campaign.id)}" role="button" tabindex="0" title="${esc(tip)}"><span class="dot" style="background:${kindHue(r.email.kind)}"></span><span class="txt">${esc(r.email.title)}</span></div>`;
         }).join('')}
       </div>`;
     }
@@ -3556,6 +3622,34 @@ Scale Computing
       || a.email.title.localeCompare(b.email.title);
     allRows.sort(byDate);
     datedRows.sort(byDate);
+
+    // Audience overlap: two different campaigns reaching the same audience-*
+    // tag in the same week. Computed from every dated send (ignoring the kind
+    // filter) so a flag never disappears just because its counterpart is
+    // filtered out of view. Same-campaign repeats are exempt — drip steps and
+    // tradeshow variants share an audience on purpose.
+    schedOverlapInfo = new Map();
+    schedOverlapWeeks = new Map();
+    const byWeekAudience = new Map(); // "<weekStart>|<tag>" -> rows
+    datedRows.forEach(r => (r.email.tags || []).forEach(t => {
+      if (!t.startsWith('audience-')) return;
+      const k = weekStartTs(r.ts) + '|' + t;
+      if (!byWeekAudience.has(k)) byWeekAudience.set(k, []);
+      byWeekAudience.get(k).push(r);
+    }));
+    byWeekAudience.forEach((group, k) => {
+      if (new Set(group.map(r => r.campaign.id)).size < 2) return;
+      const [ws, tag] = k.split('|');
+      if (!schedOverlapWeeks.has(+ws)) schedOverlapWeeks.set(+ws, []);
+      schedOverlapWeeks.get(+ws).push({ tag, count: group.length });
+      group.forEach(r => {
+        if (!schedOverlapInfo.has(r.email.id)) schedOverlapInfo.set(r.email.id, []);
+        schedOverlapInfo.get(r.email.id).push({
+          tag,
+          others: group.filter(o => o.email.id !== r.email.id),
+        });
+      });
+    });
 
     // Kind filter — like the in-campaign search, it only appears once the
     // schedule is busy enough to need narrowing (several sends, mixed kinds).
@@ -3632,6 +3726,9 @@ Scale Computing
               <span class="sched-week-eyebrow">${cur ? 'This week' : 'Week of'}</span>
               <span class="sched-week-range">${schedWeekRange(ws)}</span>
               <span class="sched-count">${count} send${count !== 1 ? 's' : ''}</span>
+              ${(schedOverlapWeeks.get(ws) || []).map(o =>
+                `<span class="sched-week-overlap" title="${esc(o.count)} sends from different campaigns reach the ${esc(audienceLabel(o.tag).toLowerCase())} audience this week">${ICONS.alert}${esc(audienceLabel(o.tag))} ×${o.count}</span>`
+              ).join('')}
             </div>
           </div>`;
       }
@@ -3659,6 +3756,7 @@ Scale Computing
               <div class="sched-camp">${esc(campaign.title)}</div>
             </div>
             <span class="sched-kind">${esc(email.kind || '')}</span>
+            ${schedOverlapInfo.has(email.id) ? `<span class="sched-pill overlap" title="${esc(overlapTip(schedOverlapInfo.get(email.id)))}"><span class="dot"></span>Audience overlap</span>` : ''}
             ${pill}
           </div>
         </div>`;
@@ -3678,7 +3776,7 @@ Scale Computing
             <div class="sched-group-items">
               ${items.map(email => `
               <div class="sched-group-item" data-sched-email="${esc(email.id)}" data-sched-campaign="${esc(campaign.id)}" role="button" tabindex="0">
-                <div class="sched-title">${esc(email.title)}</div>
+                <div class="sched-title">${esc(email.title)}${schedOverlapInfo.has(email.id) ? `<span class="tag-warn" title="${esc(overlapTip(schedOverlapInfo.get(email.id)))}">${ICONS.alert}</span>` : ''}</div>
                 <span class="sched-kind">${esc(email.kind || '')}</span>
               </div>`).join('')}
             </div>
@@ -4211,18 +4309,29 @@ Scale Computing
 
   function renderEmailCards(campaign, search) {
     const q = (search || '').toLowerCase().trim();
-    const list = campaign.emails.filter(e => {
-      if (!q) return true;
-      return (e.title + ' ' + e.subject + ' ' + e.kind + ' ' + (e.tags || []).join(' ')).toLowerCase().includes(q);
+    if (q) ensureBodyIndex(() => {
+      // Re-run with the input's current value — the user may still be typing.
+      const input = document.getElementById('campaignSearchInput');
+      if (input) renderEmailCards(campaign, input.value);
     });
-    list.sort(bySendDateDesc);
+    const list = [];
+    campaign.emails.forEach(e => {
+      let bodyMatch = false;
+      if (q) {
+        const m = emailSearchMatch(e, q);
+        if (!m) return;
+        bodyMatch = m === 'body';
+      }
+      list.push({ email: e, bodyMatch });
+    });
+    list.sort((a, b) => bySendDateDesc(a.email, b.email));
     const grid = document.getElementById('emailGrid');
     if (!grid) return;
     if (list.length === 0) {
       grid.innerHTML = '<div class="empty-hint">No emails match your search.</div>';
       return;
     }
-    grid.innerHTML = emailTableHTML(list.map(e => emailRowHTML(e, campaign.id)).join(''));
+    grid.innerHTML = emailTableHTML(list.map(m => emailRowHTML(m.email, campaign.id, { bodyMatch: m.bodyMatch })).join(''));
     wireEmailCardButtons(grid);
   }
 
@@ -4275,7 +4384,7 @@ Scale Computing
     return `<span class="phase-label">${icon}${phase === 'pre' ? 'Pre-event' : 'Post-event'}</span>`;
   }
 
-  function emailRowHTML(email, campaignId) {
+  function emailRowHTML(email, campaignId, opts) {
     const mc = isMarketingCenter(email);
     const st = sendStatus(email);
     const flagged = !mc && (st === 'upcoming' || st === 'today');
@@ -4292,6 +4401,7 @@ Scale Computing
             <div class="row-email-text">
               <div class="row-kind">${esc(email.kind)}</div>
               <div class="row-title">${esc(email.title)}${warn}</div>
+              ${opts && opts.bodyMatch ? '<div class="row-bodyhit">Matches email content</div>' : ''}
             </div>
           </div>
         </td>
@@ -4360,6 +4470,7 @@ Scale Computing
     const rawSearch = document.getElementById('searchInput').value;
     const search = rawSearch.toLowerCase().trim();
     const label = document.getElementById('viewLabel');
+    if (search) ensureBodyIndex(renderCampaigns); // re-renders once bodies are indexed
 
     // When one or more tags are selected, flatten to matching email cards
     // (across campaigns) instead of showing campaign cards.
@@ -4374,7 +4485,7 @@ Scale Computing
         return;
       }
       container.innerHTML = emailTableHTML(
-        matches.map(m => emailRowHTML(m.email, m.campaign.id)).join('')
+        matches.map(m => emailRowHTML(m.email, m.campaign.id, { bodyMatch: m.bodyMatch })).join('')
       );
       wireEmailCardButtons(container);
       return;
@@ -4388,7 +4499,7 @@ Scale Computing
     const filtered = CAMPAIGNS.filter(c => {
       if (currentView.type === 'year' && c.year !== currentView.value) return false;
       if (search) {
-        const haystack = (c.title + ' ' + c.kind + ' ' + c.emails.map(e => e.title + ' ' + e.subject + ' ' + (e.tags || []).join(' ')).join(' ')).toLowerCase();
+        const haystack = (c.title + ' ' + c.kind + ' ' + c.emails.map(e => e.title + ' ' + e.subject + ' ' + (e.tags || []).join(' ') + ' ' + emailBodyText(e)).join(' ')).toLowerCase();
         return haystack.includes(search);
       }
       return true;
