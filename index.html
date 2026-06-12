@@ -3501,11 +3501,43 @@ body.is-email-route .page { display: none; }
   }
 
   // ===== Pre-send checks: the validator's content checks, mirrored live =====
-  // Same rules as scripts/validate-library.mjs step 6: an unsubscribe link must
-  // exist (an error while the send is upcoming, a warning once sent), merge
-  // tokens must be the locked-spec ones, and upcoming sends should carry a
-  // hidden preheader. Hosted assets never reach here (not sends).
+  // Same rules as scripts/validate-library.mjs steps 6–7: an unsubscribe link
+  // must exist (an error while the send is upcoming, a warning once sent),
+  // merge tokens must be the locked-spec ones, upcoming sends should carry a
+  // hidden preheader, and the markup must avoid what major email clients drop
+  // (client-compatibility lint). Hosted assets never reach here (not sends).
   const SPEC_MERGE_TOKENS = new Set(['{{unsubscribe}}', '{{Recipient.FirstName}}']);
+  function clientCompatFindings(html) {
+    const findings = [];
+    const css = [
+      [/display\s*:\s*flex/i, 'display:flex'],
+      [/display\s*:\s*grid/i, 'display:grid'],
+      [/position\s*:\s*(absolute|fixed)/i, 'position:absolute/fixed'],
+      [/\b\d+(?:\.\d+)?(?:vh|vw)\b/i, 'vh/vw units'],
+      [/\b\d+(?:\.\d+)?rem\b/i, 'rem units'],
+    ];
+    for (const [re, label] of css) if (re.test(html)) findings.push(`${label} (ignored by Outlook)`);
+    const els = [
+      [/<svg\b/i, '<svg> (dropped by Outlook and Gmail)'],
+      [/<video\b/i, '<video> (unsupported in most clients)'],
+      [/<form\b/i, '<form> (stripped by most clients)'],
+      [/<button\b/i, '<button> (broken in Outlook — use the spec link + MSO fallback)'],
+      [/<iframe\b/i, '<iframe> (stripped by all major clients)'],
+      [/<link\b[^>]*rel=["']?stylesheet/i, 'external stylesheet (stripped by Gmail)'],
+    ];
+    for (const [re, label] of els) if (re.test(html)) findings.push(label);
+    if (/background(?:-image)?\s*:[^;}"']*url\(/i.test(html) && !/<!--\[if\s+gte\s+mso|<v:fill|<v:rect/i.test(html)) {
+      findings.push('background image without a VML fallback (Outlook shows none)');
+    }
+    const btnLike = (html.match(/<a\b[^>]*>/gi) || [])
+      .filter(t => /border-radius/i.test(t) && /background/i.test(t)).length;
+    if (btnLike && !/<!--\[if\s+mso\]/i.test(html)) {
+      findings.push('button-style links without an MSO fallback (Outlook renders them unpadded)');
+    }
+    const noAlt = (html.match(/<img\b[^>]*>/gi) || []).filter(t => !/\balt\s*=/i.test(t)).length;
+    if (noAlt) findings.push(`${noAlt} <img> without alt text (blank when images are blocked)`);
+    return findings;
+  }
   function preSendChecks(email, html) {
     const upcoming = sendStatus(email) !== 'sent'; // undated = still editable = upcoming
     const checks = [];
@@ -3522,6 +3554,12 @@ body.is-email-route .page { display: none; }
     checks.push({
       label: 'Merge tokens', ok: offSpec.length === 0, level: 'warn',
       detail: offSpec.length ? 'off-spec ' + offSpec.join(', ') + ' (may render literally in Pardot)' : ''
+    });
+
+    const compat = clientCompatFindings(html);
+    checks.push({
+      label: 'Client compatibility', ok: compat.length === 0, level: 'warn',
+      detail: compat.join('; ')
     });
 
     if (upcoming) {

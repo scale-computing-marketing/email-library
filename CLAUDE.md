@@ -39,7 +39,11 @@ for Pardot). `index.html` is the page itself — **you almost never edit it.**
   inside each email file: a missing unsubscribe link is an **error** while the
   send is still upcoming (warning once sent), merge tokens must be the locked
   `{{Recipient.FirstName}}` / `{{unsubscribe}}`, and upcoming sends without a
-  hidden preheader get a warning. Hosted assets (Marketing Center) are exempt.
+  hidden preheader get a warning. A client-compatibility lint also warns on
+  markup major email clients drop (flex/grid/position, vh/vw/rem, `<svg>` /
+  `<form>` / `<button>` / `<iframe>` / external stylesheets, background images
+  or button-style links without MSO/VML fallbacks, `<img>` missing alt text).
+  Hosted assets (Marketing Center) are exempt.
   The app mirrors these content checks live too: each email's build rail opens
   with a passive "Pre-send checks" section (green pass / amber warn / red
   error). The build view's rendered-email pane also has a Desktop / Mobile

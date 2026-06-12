@@ -19,6 +19,13 @@
  *      {{Recipient.FirstName}}), and upcoming sends should carry a hidden
  *      preheader block (inbox preview text). Hosted assets (Marketing
  *      Center) are exempt — they aren't sends.
+ *   7. Client-compatibility lint: markup/CSS that major email clients drop —
+ *      flex/grid/position and vh/vw/rem units (ignored by Word-engine
+ *      Outlook), <svg>/<video>/<form>/<button>/<iframe>/external stylesheets
+ *      (stripped by Outlook and/or Gmail), background images with no VML
+ *      fallback, button-style links with no MSO fallback, and <img> tags
+ *      missing alt text. Warnings only — the locked specs' table-based
+ *      patterns never hit these. Hosted assets are exempt (browser-viewed).
  *
  * Run locally before you push:   node scripts/validate-library.mjs
  * Runs automatically in CI via .github/workflows/validate.yml
@@ -186,6 +193,40 @@ const SPEC_TOKENS = new Set(['{{unsubscribe}}', '{{Recipient.FirstName}}']);
 // merge fields, or preheader expected. Same heuristic the app uses.
 const isHostedAsset = (e) => /marketing\s*center/i.test(`${e.kind || ''} ${e.title || ''}`);
 
+// 7. client-compatibility lint (run inside the same per-email loop as step 6).
+// Each finding is a short label; the app's build rail mirrors this function.
+function clientCompatFindings(html) {
+  const findings = [];
+  const css = [
+    [/display\s*:\s*flex/i, 'display:flex'],
+    [/display\s*:\s*grid/i, 'display:grid'],
+    [/position\s*:\s*(absolute|fixed)/i, 'position:absolute/fixed'],
+    [/\b\d+(?:\.\d+)?(?:vh|vw)\b/i, 'vh/vw units'],
+    [/\b\d+(?:\.\d+)?rem\b/i, 'rem units'],
+  ];
+  for (const [re, label] of css) if (re.test(html)) findings.push(`${label} (ignored by Outlook)`);
+  const els = [
+    [/<svg\b/i, '<svg> (dropped by Outlook and Gmail)'],
+    [/<video\b/i, '<video> (unsupported in most clients)'],
+    [/<form\b/i, '<form> (stripped by most clients)'],
+    [/<button\b/i, '<button> (broken in Outlook — use the spec link + MSO fallback)'],
+    [/<iframe\b/i, '<iframe> (stripped by all major clients)'],
+    [/<link\b[^>]*rel=["']?stylesheet/i, 'external stylesheet (stripped by Gmail)'],
+  ];
+  for (const [re, label] of els) if (re.test(html)) findings.push(label);
+  if (/background(?:-image)?\s*:[^;}"']*url\(/i.test(html) && !/<!--\[if\s+gte\s+mso|<v:fill|<v:rect/i.test(html)) {
+    findings.push('background image without a VML fallback (Outlook shows none)');
+  }
+  const btnLike = (html.match(/<a\b[^>]*>/gi) || [])
+    .filter(t => /border-radius/i.test(t) && /background/i.test(t)).length;
+  if (btnLike && !/<!--\[if\s+mso\]/i.test(html)) {
+    findings.push('button-style links without an MSO fallback (Outlook renders them unpadded)');
+  }
+  const noAlt = (html.match(/<img\b[^>]*>/gi) || []).filter(t => !/\balt\s*=/i.test(t)).length;
+  if (noAlt) findings.push(`${noAlt} <img> without alt text (blank when images are blocked)`);
+  return findings;
+}
+
 for (const c of manifest.campaigns) {
   if (!Array.isArray(c?.emails)) continue;
   for (const e of c.emails) {
@@ -221,6 +262,9 @@ for (const c of manifest.campaigns) {
         warnings.push(`${ref}: upcoming send has no hidden preheader — the inbox preview will show whatever text comes first.`);
       }
     }
+
+    // d) client-compatibility lint (step 7)
+    for (const f of clientCompatFindings(html)) warnings.push(`${ref}: ${f}.`);
   }
 }
 
