@@ -1185,6 +1185,8 @@ body.is-email-route .page { display: none; }
   background: var(--panel); border: 1px solid var(--line); color: var(--ink-2);
 }
 .pv-tag.is-matched { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-2); }
+.pv-tag-link { text-decoration: none; cursor: pointer; }
+.pv-tag-link:hover { border-color: var(--accent); color: var(--accent-2); background: var(--accent-soft); }
 .pv-tag.is-unknown { background: rgba(232,120,10,0.10); border-color: rgba(232,120,10,0.45); color: #a4570a; }
 .tag-warn { display: inline-flex; align-items: center; margin-left: 6px; color: #c47410; vertical-align: -2px; }
 .tag-warn svg { width: 13px; height: 13px; }
@@ -1198,6 +1200,40 @@ body.is-email-route .page { display: none; }
 .pv-tag-copy:hover { border-color: var(--accent); background: var(--accent-soft); }
 .pv-tag-copy svg { width: 11px; height: 11px; }
 .pv-tag-copy.copied { border-color: var(--sc-green); color: #2a7e30; background: rgba(66,182,73,0.12); }
+
+/* Single-scroll campaign review (#/campaign/<id>/scroll) — jump rail + stack */
+.cs-layout { display: flex; gap: 22px; align-items: flex-start; }
+.cs-rail {
+  width: 230px; flex: none; position: sticky; top: 16px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+  padding: 10px;
+}
+.cs-rail-title {
+  font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--ink-3); font-weight: 700; margin: 4px 8px 10px;
+}
+.cs-rail-item {
+  display: flex; gap: 8px; align-items: baseline;
+  padding: 7px 9px; border-radius: 6px; border-left: 3px solid transparent;
+  font-size: 12.5px; line-height: 1.35; color: var(--ink-2); text-decoration: none;
+}
+.cs-rail-item:hover { color: var(--accent); }
+.cs-rail-item.is-current { background: var(--accent-soft); color: var(--accent-2); font-weight: 600; border-left-color: var(--accent); }
+.cs-rail-num { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--ink-3); flex: none; }
+.cs-rail-item.is-current .cs-rail-num { color: var(--accent-2); }
+.cs-stack { flex: 1; min-width: 0; }
+.cs-email { margin: 0 0 26px; }
+.cs-email-head { display: flex; align-items: baseline; gap: 10px; margin: 0 0 10px; }
+.cs-email-n { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink-3); flex: none; }
+.cs-email-subject { font-size: 13px; font-weight: 600; color: var(--ink-2); flex: 1; min-width: 0; }
+.cs-email-open { font-size: 12px; font-weight: 600; color: var(--accent); text-decoration: none; white-space: nowrap; }
+.cs-email-open:hover { text-decoration: underline; }
+.cs-frame-wrap { background: #f2f2f2; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.cs-frame-wrap iframe { display: block; width: 100%; border: 0; background: #f2f2f2; }
+@media (max-width: 900px) {
+  .cs-layout { display: block; }
+  .cs-rail { position: static; width: auto; margin-bottom: 18px; }
+}
 
 /* Pre-send checks (the validator's content checks, mirrored live in the rail) */
 .pv-check {
@@ -1779,6 +1815,10 @@ body.is-email-route .page { display: none; }
     background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;
     box-shadow:0 1px 0 rgba(0,0,0,.02),0 22px 44px -30px rgba(25,32,43,.45);
     margin:0 0 40px;
+    transition:box-shadow .3s;
+  }
+#cb-library .block.is-flash{
+    box-shadow:0 0 0 3px var(--blue),0 22px 44px -30px rgba(25,32,43,.45);
   }
 #cb-library .block-head{padding:26px 30px 24px;border-bottom:1px solid var(--line);position:relative;}
 #cb-library .cb-copy-btn{
@@ -3262,12 +3302,13 @@ Scale Computing
     const parts = hash.split('/');
     if (parts[0] === 'library') return { route: 'home' };
     if (parts[0] === 'campaign' && parts[1]) {
-      return { route: 'campaign', id: decodeURIComponent(parts[1]), emailId: parts[2] ? decodeURIComponent(parts[2]) : null };
+      const scrollMode = parts[2] === 'scroll'; // #/campaign/<id>/scroll = single-scroll review
+      return { route: 'campaign', id: decodeURIComponent(parts[1]), emailId: (parts[2] && !scrollMode) ? decodeURIComponent(parts[2]) : null, scrollMode };
     }
     if (parts[0] === 'year' && parts[1]) {
       return { route: 'year', year: parts[1] };
     }
-    if (OPS_VIEWS[parts[0]]) return { route: 'ops', tool: parts[0] };
+    if (OPS_VIEWS[parts[0]]) return { route: 'ops', tool: parts[0], anchor: parts[1] ? decodeURIComponent(parts[1]) : null };
     return { route: 'home' };
   }
 
@@ -3307,11 +3348,14 @@ Scale Computing
         // Unknown email, or one that isn't in this campaign → fall back to the campaign.
         if (!e || !c.emails.some(x => x.id === r.emailId)) { navigate('#/campaign/' + c.id); return; }
         showEmailView(c, e);
+      } else if (r.scrollMode) {
+        showCampaignScroll(c);
       } else {
         showCampaignDetail(c);
       }
     } else if (r.route === 'ops') {
       showOpsTool(r.tool);
+      if (r.tool === 'blocks' && r.anchor) scrollToBlockCard(r.anchor);
     } else if (r.route === 'year') {
       currentView = { type: 'year', value: r.year };
       showHome();
@@ -3675,6 +3719,7 @@ Scale Computing
     document.getElementById('heroLabel').textContent = (campaign.year ? campaign.year + ' · ' : '') + campaign.kind;
     document.getElementById('heroTitle').textContent = campaign.title;
     document.getElementById('heroMeta').innerHTML = '';
+    renderCampaignViewToggle(campaign, 'cards');
 
     // Update sidebar active state
     document.querySelectorAll('.sidebar .nav-item').forEach(n => n.classList.remove('active'));
@@ -3703,6 +3748,152 @@ Scale Computing
         e => renderEmailCards(campaign, e.target.value));
     }
     renderEmailCards(campaign, '');
+  }
+
+  // Cards | Single scroll switch in the hero actions slot (view controls live
+  // in the hero, not in filter rows) — both campaign views render it.
+  function renderCampaignViewToggle(campaign, mode) {
+    document.getElementById('heroActions').innerHTML = `
+      <div class="pv-width-toggle" role="group" aria-label="Campaign view">
+        <button type="button" class="pv-width-btn${mode === 'cards' ? ' is-active' : ''}" data-campview="cards">Cards</button>
+        <button type="button" class="pv-width-btn${mode === 'scroll' ? ' is-active' : ''}" data-campview="scroll">Single scroll</button>
+      </div>`;
+    document.querySelectorAll('#heroActions [data-campview]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (btn.dataset.campview === mode) return;
+        navigate('#/campaign/' + campaign.id + (btn.dataset.campview === 'scroll' ? '/scroll' : ''));
+      });
+    });
+  }
+
+  // ===== Single-scroll campaign review (#/campaign/<id>/scroll) =====
+  // Every email rendered full-height in send order with a sticky jump rail
+  // beside the stack — reviewers read the whole drip top-to-bottom instead of
+  // stepping through build views. Frames render exactly like the build view's
+  // Preview pane (same files, same auto-height + scale-to-fit sizing).
+  function showCampaignScroll(campaign) {
+    document.body.classList.remove('is-email-route');
+    document.getElementById('scheduleView').style.display = 'none';
+    document.getElementById('homeView').style.display = 'none';
+    document.getElementById('detailView').style.display = '';
+    hideOpsViews();
+
+    document.getElementById('breadcrumb').innerHTML = `
+      <span class="bc-group">Channels</span>
+      <span class="bc-sep">/</span>
+      <span class="bc-group" id="bcLibrary" role="button" tabindex="0" style="cursor:pointer;">Email Library</span>
+      <span class="bc-sep">/</span>
+      <span class="bc-leaf">${campaign.title}</span>
+    `;
+    document.getElementById('bcLibrary').addEventListener('click', () => navigate('#/library'));
+    document.getElementById('bcLibrary').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('#/library'); }
+    });
+
+    document.getElementById('heroLabel').textContent = (campaign.year ? campaign.year + ' · ' : '') + campaign.kind;
+    document.getElementById('heroTitle').textContent = campaign.title;
+    document.getElementById('heroMeta').innerHTML = '';
+    renderCampaignViewToggle(campaign, 'scroll');
+
+    document.querySelectorAll('.sidebar .nav-item').forEach(n => n.classList.remove('active'));
+    const navEl = document.querySelector(`.sidebar .nav-item[data-campaign="${campaign.id}"]`);
+    if (navEl) navEl.classList.add('active');
+    document.getElementById('navGroup-campaign').classList.add('open');
+
+    // Share link lands the reviewer directly in single-scroll.
+    const shareBtn = document.getElementById('campaignShareBtn');
+    shareBtn.onclick = () => copyText(
+      window.location.origin + window.location.pathname + '#/campaign/' + campaign.id + '/scroll', shareBtn);
+
+    detailCampaign = campaign;
+    const emails = campaign.emails; // manifest order = send order
+    const total = String(emails.length).padStart(2, '0');
+    document.getElementById('emailsContainer').innerHTML = `
+      <div class="cs-layout">
+        <nav class="cs-rail" aria-label="Emails in this campaign">
+          <div class="cs-rail-title">In this campaign</div>
+          ${emails.map((e, i) => `
+            <a class="cs-rail-item${i === 0 ? ' is-current' : ''}" href="#/campaign/${esc(campaign.id)}/scroll" data-cstarget="${esc(e.id)}">
+              <span class="cs-rail-num">${String(i + 1).padStart(2, '0')}</span>
+              <span>${esc(e.title)}</span>
+            </a>`).join('')}
+        </nav>
+        <div class="cs-stack">
+          ${emails.map((e, i) => `
+            <section class="cs-email" id="cs-${esc(e.id)}">
+              <div class="cs-email-head">
+                <span class="cs-email-n">${String(i + 1).padStart(2, '0')} / ${total}</span>
+                <span class="cs-email-subject">${esc(e.subject || e.title)}</span>
+                <a class="cs-email-open" href="#/campaign/${esc(campaign.id)}/${esc(e.id)}">Open build view &rarr;</a>
+              </div>
+              <div class="cs-frame-wrap"><iframe title="${esc(e.title)}" data-cssrc="${esc(e.sourceId)}"></iframe></div>
+            </section>`).join('')}
+        </div>
+      </div>`;
+
+    document.querySelectorAll('#emailsContainer iframe[data-cssrc]').forEach(loadScrollFrame);
+
+    // Rail click = jump to that send (the hash stays on the scroll route).
+    document.querySelectorAll('#emailsContainer [data-cstarget]').forEach(a => {
+      a.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        const sec = document.getElementById('cs-' + a.dataset.cstarget);
+        if (sec) sec.scrollIntoView({ block: 'start' }); // instant — smooth gets eaten on long pages
+        document.querySelectorAll('#emailsContainer .cs-rail-item').forEach(x =>
+          x.classList.toggle('is-current', x === a)); // highlight now, not on the next scroll event
+      });
+    });
+
+    // Keep the rail's current item in step with the email being read: the
+    // last section whose top has passed the upper quarter of the viewport.
+    // A plain scroll listener that unhooks itself once the view is gone —
+    // no rAF (paused in hidden tabs) and cheap enough for a handful of sends.
+    const csOnScroll = () => {
+      const sections = [...document.querySelectorAll('#emailsContainer .cs-email')];
+      if (!sections.length) { window.removeEventListener('scroll', csOnScroll); return; }
+      let active = sections[0];
+      const probe = window.innerHeight * 0.25;
+      for (const s of sections) { if (s.getBoundingClientRect().top <= probe) active = s; }
+      document.querySelectorAll('#emailsContainer .cs-rail-item').forEach(x =>
+        x.classList.toggle('is-current', x.dataset.cstarget === active.id.replace(/^cs-/, '')));
+    };
+    window.addEventListener('scroll', csOnScroll, { passive: true });
+    csOnScroll();
+  }
+
+  // The build view's iframe sizing (auto-height, scale-down-to-fit), reusable
+  // per frame for the single-scroll stack.
+  function loadScrollFrame(frame) {
+    frame.style.height = '400px';
+    const resize = () => {
+      try {
+        const doc = frame.contentDocument || frame.contentWindow.document;
+        const h = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight);
+        const naturalW = Math.max(doc.body.scrollWidth, doc.documentElement.scrollWidth);
+        const availW = frame.parentElement.clientWidth;
+        if (naturalW > availW + 4) {
+          const s = availW / naturalW;
+          frame.style.width = naturalW + 'px';
+          frame.style.transform = 'scale(' + s + ')';
+          frame.style.transformOrigin = '0 0';
+          if (h > 100) {
+            frame.style.height = (h + 40) + 'px';
+            frame.style.marginBottom = -((h + 40) * (1 - s)) + 'px';
+          }
+        } else {
+          frame.style.width = '';
+          frame.style.transform = '';
+          frame.style.marginBottom = '';
+          if (h > 100) frame.style.height = (h + 40) + 'px';
+        }
+        const imgs = doc.images;
+        for (let i = 0; i < imgs.length; i++) {
+          if (!imgs[i].complete) imgs[i].addEventListener('load', resize);
+        }
+      } catch (e) {}
+    };
+    frame.onload = () => { [100, 400, 900, 1800].forEach(t => setTimeout(resize, t)); };
+    frame.src = emailFileUrl(frame.dataset.cssrc);
   }
 
   // ===== OPS TOOLS — Tag Library (#/tags) and Campaign Builder (#/builder) =====
@@ -3792,6 +3983,30 @@ Scale Computing
         document.body.appendChild(s);
       });
     }
+  }
+
+  // Scroll the Content Blocks page to the card whose title matches `name`
+  // (#/blocks/<name> deep links — the build rail's pattern badges use them).
+  // Retries briefly because the view may still be rendering when routed.
+  function scrollToBlockCard(name) {
+    const tryScroll = (attempts) => {
+      const target = [...document.querySelectorAll('#cb-library .block')].find(b =>
+        (b.querySelector('.block-head h2')?.textContent || '').toLowerCase().includes(name.toLowerCase()));
+      if (!target) { if (attempts > 0) setTimeout(() => tryScroll(attempts - 1), 120); return; }
+      // Instant jumps, re-pinned while the 20+ card previews above load (each
+      // image load shifts the layout and would leave the card off-screen).
+      // The user scrolling cancels the pinning.
+      let cancelled = false;
+      const cancel = () => { cancelled = true; };
+      window.addEventListener('wheel', cancel, { once: true, passive: true });
+      window.addEventListener('touchstart', cancel, { once: true, passive: true });
+      for (const ms of [0, 300, 800, 1500, 2500]) {
+        setTimeout(() => { if (!cancelled) target.scrollIntoView({ block: 'start' }); }, ms);
+      }
+      target.classList.add('is-flash');
+      setTimeout(() => target.classList.remove('is-flash'), 3000);
+    };
+    setTimeout(() => tryScroll(6), 60);
   }
 
   // Inject a Copy HTML button into each Content Blocks card. Copies the live
@@ -4481,6 +4696,31 @@ Scale Computing
     return found;
   }
 
+  // Detected pattern name → the Content Blocks card title to deep-link to
+  // (substring match against the card's h2). null = no card for it (yet).
+  const PATTERN_CARD_LOOKUP = {
+    'Layer-Strip Hero': 'Layer-Strip Hero',
+    'Hero Block (banner)': null,
+    'Informational Card': 'Informational Card',
+    'Featured Keynote Callout': 'Featured Keynote Callout',
+    'Gartner Review Block': 'Gartner Review Block',
+    'Linked Session List': 'Linked Session List',
+    'Numbered Outcome Grid': 'stacked variant',
+    'Numbered Outcome Grid (stacked)': 'stacked variant',
+    'Numbered Outcome Grid (mini cards)': 'mini cards',
+    'Save-the-Date Ticket': 'Save-the-Date Ticket',
+    'Signature Stat Ticket': 'Signature Stat Ticket',
+    'Event Detail Card': 'Save-the-Date Ticket',
+    'Media + Text Row': 'Media + Text Row',
+    'Media + Text Row (Navy Spotlight)': 'Navy Spotlight',
+    'Full Stack Cross-Promo': 'Full Stack Cross-Promo',
+    'VMware Alternative Offer': 'VMware Alternative Offer',
+    'Pull Quote': 'Pull Quote',
+    'Linked Action Tiles': 'Linked Action Tiles',
+    'Closing Line + Primary CTA': 'Closing Line + Primary CTA',
+    'Plain-text spec': 'Plain-Text Email',
+  };
+
   function renderPatternBadges(email, expectedId) {
     const fill = (inner) => {
       const box = document.getElementById('pvPatterns');
@@ -4490,9 +4730,12 @@ Scale Computing
     getEmailHTMLOnce(email.sourceId).then(html => {
       const names = detectPatterns(email, html);
       if (!names.length) { fill('<div class="pv-value muted">No locked patterns detected</div>'); return; }
-      fill('<div class="pv-tags">' + names.map(n =>
-        `<span class="pv-tag" title="Detected from the email markup — spec in house-style.md / reusable-blocks.md (rendered on the Content Blocks page)">${esc(n)}</span>`
-      ).join('') + '</div>');
+      fill('<div class="pv-tags">' + names.map(n => {
+        const target = PATTERN_CARD_LOOKUP[n];
+        return target
+          ? `<a class="pv-tag pv-tag-link" href="#/blocks/${encodeURIComponent(target)}" title="View this pattern on the Content Blocks page">${esc(n)}</a>`
+          : `<span class="pv-tag" title="Detected from the email markup — spec in house-style.md / reusable-blocks.md">${esc(n)}</span>`;
+      }).join('') + '</div>');
     }).catch(() => fill('<div class="pv-value muted">Could not load the email to scan.</div>'));
   }
 
