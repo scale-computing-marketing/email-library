@@ -267,17 +267,21 @@ body {
 /* Grouped card: several emails from one campaign going out the same day */
 .sched-card.is-group { display: block; padding: 0; cursor: default; }
 .sched-group-head { display: flex; align-items: center; gap: 14px; padding: 11px 16px; cursor: pointer; }
-.sched-group-items { border-top: 1px solid var(--line); }
-.sched-group-item {
-  display: flex; align-items: center; gap: 12px; padding: 9px 16px 9px 85px;
-  cursor: pointer; border-top: 1px solid var(--line);
+.sched-group-items {
+  border-top: 1px solid var(--line); background: var(--panel-2);
+  padding: 10px 16px 12px 85px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
+  border-radius: 0 0 var(--r) var(--r);
 }
-.sched-group-item:first-child { border-top: none; }
-.sched-group-item:hover { background: var(--panel-2); }
-.sched-group-item .sched-title { font-size: 13.5px; flex: 1; min-width: 0; }
+.sched-group-item {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+  padding: 9px 12px; cursor: pointer; transition: border-color .12s ease;
+}
+.sched-group-item:hover { border-color: var(--accent); }
+.sched-group-item .sched-title { font-size: 13.5px; }
+.sched-group-item .sched-kind { margin-top: 5px; }
 @media (max-width: 700px) {
   .sched-group-head { flex-wrap: wrap; gap: 8px 12px; }
-  .sched-group-item { padding-left: 16px; flex-wrap: wrap; gap: 6px 10px; }
+  .sched-group-items { padding-left: 16px; grid-template-columns: 1fr; }
 }
 @media (max-width: 700px) {
   .sched-wrap { padding-left: 0; max-width: none; }
