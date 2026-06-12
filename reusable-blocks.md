@@ -35,7 +35,9 @@ Each block entry follows this template:
 | 2 | Media + Text Row (image + headline/body/link) | Content | ✅ Built — image URLs/links pending |
 | 3 | Media + Text Row — Navy Spotlight (variant) | Content | ✅ Built |
 | 4 | Gartner Review Block (navy reward card) | CTA | ✅ Built |
-| 5 | _(next block)_ | — | ⬜ To build |
+| 5 | Full Stack Cross-Promo (3 layer bars) | CTA | ✅ Built |
+| 6 | Layer-Strip Hero (designed HTML hero) | Structural / Hero | ✅ Built |
+| 7 | _(next block)_ | — | ⬜ To build |
 | … | | | |
 
 > Build backlog: 9+ blocks to migrate from BeePro. Hand them to Claude one at a time — paste the BeePro HTML or describe the block, and it'll be rebuilt in house-style format and added below.
@@ -45,6 +47,7 @@ Each block entry follows this template:
 These are the ONLY colors approved for the content-block library beyond the locked `house-style.md` palette:
 
 - **Magenta accent `#9c2e91`** — an approved link/CTA accent for content blocks. Use is **case-by-case, specified per send** (not a default). Blue `#0a5db5` remains the standard link color; magenta is the deliberate exception when a campaign calls for it. When in doubt, use blue.
+- **Ice blue `#7ec4ff` and slate `#b8c5d6`** — navy-surface accents locked to the Layer-Strip Hero and Full Stack Cross-Promo blocks only (eyebrows/numbers on `#0a2540`, unlit strip segments and labels). Not general-purpose tokens; don't use them outside those two blocks.
 
 ---
 
@@ -214,6 +217,100 @@ On mobile the card cell drops to 24px sides (`mobile-padding`); the eyebrow/head
 
 ---
 
+## Block: Full Stack Cross-Promo (3 layer bars)
+
+**Use when:** a campaign email must cross-promote **all three products as both callouts and CTAs** — SC//HyperCore&trade; (Compute + Virtualization), SC//Connect&trade; (Network), SC//AcuVigil&trade; (Visibility + Security). Three stacked full-width "layer bars," each a tappable product CTA; in a product-specific email the layer that email covers is **lit bright blue with a "You're Here" tag**. Built for the standing directive that every campaign email carries all three products (first used: Uptime Optimization 2026).
+
+**Triggers in the brief:**
+- A campaign rule like "every email must include all three products / equal CTAs for each"
+- A product-line email inside a stack- or layer-framed campaign
+- "You're Here" / "one platform, three ways in" cross-promo language
+
+**Placement:** Inside the white content card. In a product email: AFTER the primary CTA, last block before the footer, opened by a **hairline top divider** (`border-top:1px solid #e5e5e5`) above its section header. In an overview/platform email: mid-body (e.g. after an Informational Card), no divider, **all three bars navy** (no lit bar — the hero's layer strip lights all segments instead, see Layer-Strip Hero). This module is the email's **navy moment** — don't pair it with the VMware Alternative Offer, Gartner Review Block, Navy Spotlight, or Featured Keynote Callout in the same email.
+
+**Visual:** Section header, then three bars:
+1. **Section header** — eyebrow `The Full Stack` (11px, `letter-spacing:2.5px`, uppercase, `#1e88e5`, bold, class `mobile-eyebrow`) + H2 `One Platform. Three Ways In.` (24px / 30px, `letter-spacing:-0.3px`, `#1a1a1a`, bold, classes `mobile-h2 dark-text`). Header copy is locked.
+2. **Three layer bars**, stacked with 10px spacer tables, each a full-width table, `border-radius:8px`, two cells:
+   - Number cell — `width:48px`, `padding:16px 0 16px 20px`, 26px / 26px bold, `letter-spacing:-1px` (`01` / `02` / `03`).
+   - Text cell — `padding:16px 18px 16px 12px`: layer label (11px, `letter-spacing:2px`, uppercase, bold) over the product title (18px / 24px bold, class `mobile-h3`) — the title is a block link wrapping product name + one-line descriptor + trailing arrow `<span>`.
+   - **Unlit bar** (default): bg `#0a2540` (+ matching `bgcolor` attr), number and label `#7ec4ff`, title white, arrow `#1e88e5`.
+   - **Lit bar** (the email's own layer): bg `#1e88e5`, number white, label `#dbe4f0` with ` &nbsp;&middot;&nbsp; <span style="color:#ffffff;">You&rsquo;re Here</span>` appended, title white, arrow `#0a2540`.
+
+**Variants (set per instance):**
+- `LIT_LAYER` — `01`, `02`, `03`, or `none` (overview/platform email: all bars navy)
+- Divider header (product email, after primary CTA) vs. plain header (overview email, mid-body)
+
+**Per-campaign variables:** none in the bars themselves — layer numbers, layer names, product names, descriptors, and URLs are the standing product set (defaults below). The bars' order is fixed: 01 Compute + Virtualization, 02 Network, 03 Visibility + Security.
+
+**Don't:** light more than one bar; reorder or renumber the layers; drop a product to make room (the whole point is all three); use `#0a5db5` for links on navy (illegible — arrows are `#1e88e5` on navy, `#0a2540` on the lit bar); light a bar that disagrees with the hero's lit strip segment; or stack this with another navy-box block.
+
+**Markup (product email shown: divider header + layer 01 lit; for layers 02/03 move the lit treatment to that bar; for the overview variant use the plain header and make all three bars the unlit pattern):**
+```html
+<!-- ============ THE FULL STACK (every email carries all three layers; -->
+<!-- the layer this email covers is lit bright blue) ============ -->
+<tr>
+  <td class="mobile-padding" style="padding:28px 35px 10px;">
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%; border-top:1px solid #e5e5e5;">
+      <tr><td style="padding:24px 0 0;">
+        <p class="mobile-eyebrow" style="margin:0 0 6px; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif; font-size:11px; line-height:14px; letter-spacing:2.5px; text-transform:uppercase; color:#1e88e5; font-weight:bold;">The Full Stack</p>
+        <h2 class="mobile-h2 dark-text" style="margin:0; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif; font-size:24px; line-height:30px; letter-spacing:-0.3px; color:#1a1a1a; font-weight:bold;">One Platform. Three Ways In.</h2>
+      </td></tr>
+    </table>
+  </td>
+</tr>
+<tr>
+  <td class="mobile-padding" style="padding:6px 35px 35px;">
+
+    <!-- Layer 01 — COMPUTE + VIRTUALIZATION (this email: lit) -->
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#1e88e5" style="width:100%; background:#1e88e5; border-radius:8px;">
+      <tr>
+        <td width="48" valign="middle" style="width:48px; padding:16px 0 16px 20px; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif; font-size:26px; line-height:26px; letter-spacing:-1px; color:#ffffff; font-weight:bold;">01</td>
+        <td valign="middle" style="padding:16px 18px 16px 12px; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif;">
+          <p style="margin:0 0 4px; font-size:11px; line-height:14px; letter-spacing:2px; text-transform:uppercase; color:#dbe4f0; font-weight:bold;">Compute + Virtualization &nbsp;&middot;&nbsp; <span style="color:#ffffff;">You&rsquo;re Here</span></p>
+          <h3 class="mobile-h3" style="margin:0; font-size:18px; line-height:24px; font-weight:bold;"><a href="https://www.scalecomputing.com/sc-hypercore" target="_blank" style="color:#ffffff; text-decoration:none;">SC//HyperCore&trade; &mdash; self-healing infrastructure <span style="color:#0a2540;">&rarr;</span></a></h3>
+        </td>
+      </tr>
+    </table>
+
+    <!-- spacer -->
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%"><tr><td style="height:10px; line-height:10px; font-size:0;">&nbsp;</td></tr></table>
+
+    <!-- Layer 02 — NETWORK -->
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#0a2540" style="width:100%; background:#0a2540; border-radius:8px;">
+      <tr>
+        <td width="48" valign="middle" style="width:48px; padding:16px 0 16px 20px; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif; font-size:26px; line-height:26px; letter-spacing:-1px; color:#7ec4ff; font-weight:bold;">02</td>
+        <td valign="middle" style="padding:16px 18px 16px 12px; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif;">
+          <p style="margin:0 0 4px; font-size:11px; line-height:14px; letter-spacing:2px; text-transform:uppercase; color:#7ec4ff; font-weight:bold;">Network</p>
+          <h3 class="mobile-h3" style="margin:0; font-size:18px; line-height:24px; font-weight:bold;"><a href="https://www.scalecomputing.com/sc-connect" target="_blank" style="color:#ffffff; text-decoration:none;">SC//Connect&trade; &mdash; SD-WAN with seamless failover <span style="color:#1e88e5;">&rarr;</span></a></h3>
+        </td>
+      </tr>
+    </table>
+
+    <!-- spacer -->
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%"><tr><td style="height:10px; line-height:10px; font-size:0;">&nbsp;</td></tr></table>
+
+    <!-- Layer 03 — VISIBILITY + SECURITY -->
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#0a2540" style="width:100%; background:#0a2540; border-radius:8px;">
+      <tr>
+        <td width="48" valign="middle" style="width:48px; padding:16px 0 16px 20px; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif; font-size:26px; line-height:26px; letter-spacing:-1px; color:#7ec4ff; font-weight:bold;">03</td>
+        <td valign="middle" style="padding:16px 18px 16px 12px; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif;">
+          <p style="margin:0 0 4px; font-size:11px; line-height:14px; letter-spacing:2px; text-transform:uppercase; color:#7ec4ff; font-weight:bold;">Visibility + Security</p>
+          <h3 class="mobile-h3" style="margin:0; font-size:18px; line-height:24px; font-weight:bold;"><a href="https://www.scalecomputing.com/acuvigil" target="_blank" style="color:#ffffff; text-decoration:none;">SC//AcuVigil&trade; &mdash; every site on one dashboard <span style="color:#1e88e5;">&rarr;</span></a></h3>
+        </td>
+      </tr>
+    </table>
+
+  </td>
+</tr>
+```
+
+**Current defaults (Uptime Optimization 2026 sends — the standing product set):**
+- Layer 01: `Compute + Virtualization` — `SC//HyperCore&trade; &mdash; self-healing infrastructure` &rarr; `https://www.scalecomputing.com/sc-hypercore`
+- Layer 02: `Network` — `SC//Connect&trade; &mdash; SD-WAN with seamless failover` &rarr; `https://www.scalecomputing.com/sc-connect`
+- Layer 03: `Visibility + Security` — `SC//AcuVigil&trade; &mdash; every site on one dashboard` &rarr; `https://www.scalecomputing.com/acuvigil`
+
+---
+
 # Content blocks
 
 ## Block: Media + Text Row (image + headline / body / arrow link)
@@ -375,4 +472,90 @@ Columns:
 
 # Structural blocks
 
-_(blocks to come)_
+## Block: Layer-Strip Hero (designed HTML hero, navy band)
+
+**Use when:** a campaign has **no Pardot-hosted hero banner** — this is a fully designed HTML hero (no images), so it renders even with images blocked. A navy band carrying the campaign eyebrow, headline, and one-line campaign hook, plus a **3-segment "layer strip"** that lights the segment for the layer this email covers (or all three for an overview email), and an optional bright-blue hero CTA strip that puts the primary CTA above the fold. First used: Uptime Optimization 2026. If a hosted banner exists or gets created, use the house-style.md Hero Block instead.
+
+**Triggers in the brief:**
+- A multi-email campaign framed as layers/stages of one stack, each email covering one
+- No hero banner asset supplied (or "no hosted assets exist for this campaign")
+- Direction like "carry the campaign hook in the hero" / "put the CTA above the fold"
+
+**Placement:** The **top of the white content card** — these are the card's first rows, replacing the image Hero Block. The card's `overflow:hidden` rounds the accent bar's top corners. The greeting/intro follows on the white surface.
+
+**Visual (top to bottom; all rows `background:#0a2540` except where noted):**
+1. **Top accent bar** — 3px `#1e88e5` strip, full width.
+2. **Campaign eyebrow** — ice blue `#7ec4ff`, 12px, `letter-spacing:2.5px`, uppercase, bold, centered, class `mobile-eyebrow`. Cell `padding:46px 35px 0`.
+3. **Headline** — `<h1>`, white, 28px / 34px, bold, `letter-spacing:-0.3px`, centered, class `mobile-h1`. Cell `padding:14px 35px 0`.
+4. **Campaign hook** — `#dbe4f0`, 15px / 24px, centered, class `mobile-body` (one sentence; same line across the campaign's emails). Cell `padding:12px 35px 0`.
+5. **Layer strip** — a centered 300px table: three 96px-wide segments, 6px tall, `border-radius:3px`, separated by 6px gap cells. Lit segment `#1e88e5`, unlit `#b8c5d6`. Cell `padding:26px 35px 10px`.
+6. **Layer label** — slate `#b8c5d6`, 11px, `letter-spacing:2px`, uppercase, bold, centered: `Layer 0X &middot; <Layer Name>` (one lit) or the all-layers line, e.g. `Compute &middot; Network &middot; Visibility` (all lit). Cell `padding:0 35px 44px`.
+7. **Hero CTA strip (optional)** — full-width `#1e88e5` band, cell `padding:14px 35px`, a single centered link: white, 13px / 18px, bold, `letter-spacing:1.5px`, uppercase, trailing ` &nbsp;&rarr;`. **Same destination and matching label as the email's primary CTA** — it's the primary action surfaced above the fold, not a second offer. Product emails carry it; the overview email omits it.
+
+**Variants (set per instance):**
+- `LIT_SEGMENT` — `1`, `2`, `3`, or `all` (overview email)
+- Hero CTA strip — include (product email) or omit (overview email)
+
+**Per-campaign variables:**
+- `EYEBROW` — the campaign banner line (e.g. `Optimize Your Uptime`)
+- `HEADLINE` — per-email hero headline
+- `HOOK` — the one-line campaign hook (shared across the campaign's emails)
+- `LAYER_LABEL` — the line under the strip
+- `CTA_URL` / `CTA_LABEL` — when the CTA strip is included (mirror the primary CTA)
+
+**Don't:** use it when a hosted hero banner exists (that's the house-style Hero Block); light a segment that disagrees with the email's lit Full Stack Cross-Promo bar; point the CTA strip somewhere other than the primary CTA's destination; recolor the layer label white (it's slate `#b8c5d6` by design); or use `#7ec4ff` / `#b8c5d6` outside this block and the Full Stack Cross-Promo (see Approved color tokens).
+
+**Markup (product email shown: segment 1 lit, CTA strip included; for the overview variant light all three segments, use the all-layers label, and drop the CTA strip row):**
+```html
+<!-- DESIGNED HTML HERO (image-free: renders even with images blocked).      -->
+<!-- The layer strip lights the layer this email covers. A Pardot-hosted     -->
+<!-- banner can replace this via house-style.md "Hero Block" if one is made. -->
+<tr>
+  <td style="height:3px; line-height:3px; font-size:0; background:#1e88e5;">&nbsp;</td>
+</tr>
+<tr>
+  <td align="center" class="mobile-padding" style="padding:46px 35px 0; background:#0a2540;">
+    <p class="mobile-eyebrow" style="margin:0; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif; font-size:12px; line-height:14px; color:#7ec4ff; letter-spacing:2.5px; font-weight:bold; text-transform:uppercase; text-align:center;">EYEBROW</p>
+  </td>
+</tr>
+<tr>
+  <td align="center" class="mobile-padding" style="padding:14px 35px 0; background:#0a2540;">
+    <h1 class="mobile-h1" style="margin:0; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif; font-size:28px; line-height:34px; color:#ffffff; font-weight:bold; text-align:center; letter-spacing:-0.3px;">HEADLINE</h1>
+  </td>
+</tr>
+<tr>
+  <td align="center" class="mobile-padding" style="padding:12px 35px 0; background:#0a2540;">
+    <p class="mobile-body" style="margin:0; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif; font-size:15px; line-height:24px; color:#dbe4f0; text-align:center;">HOOK</p>
+  </td>
+</tr>
+<!-- Layer strip: lit segment = #1e88e5, unlit = #b8c5d6 -->
+<tr>
+  <td align="center" style="padding:26px 35px 10px; background:#0a2540;">
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="300" align="center" style="width:300px;">
+      <tr>
+        <td width="96" style="width:96px; height:6px; line-height:6px; font-size:0; background:#1e88e5; border-radius:3px;">&nbsp;</td>
+        <td width="6" style="width:6px; font-size:0; line-height:6px;">&nbsp;</td>
+        <td width="96" style="width:96px; height:6px; line-height:6px; font-size:0; background:#b8c5d6; border-radius:3px;">&nbsp;</td>
+        <td width="6" style="width:6px; font-size:0; line-height:6px;">&nbsp;</td>
+        <td width="96" style="width:96px; height:6px; line-height:6px; font-size:0; background:#b8c5d6; border-radius:3px;">&nbsp;</td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+  <td align="center" class="mobile-padding" style="padding:0 35px 44px; background:#0a2540;">
+    <p style="margin:0; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif; font-size:11px; line-height:14px; letter-spacing:2px; text-transform:uppercase; color:#b8c5d6; font-weight:bold;">LAYER_LABEL</p>
+  </td>
+</tr>
+<!-- HERO CTA STRIP (optional — mirrors the primary CTA; omit on overview emails) -->
+<tr>
+  <td align="center" class="mobile-padding" style="padding:14px 35px; background:#1e88e5;">
+    <a href="CTA_URL" target="_blank" style="font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif; font-size:13px; line-height:18px; color:#ffffff; font-weight:bold; letter-spacing:1.5px; text-transform:uppercase; text-decoration:none;">CTA_LABEL &nbsp;&rarr;</a>
+  </td>
+</tr>
+```
+
+**Current defaults (Uptime Optimization 2026 sends):**
+- `EYEBROW` = `Optimize Your Uptime`
+- `HOOK` = `At the edge, a minute of downtime is a mile of lost revenue.`
+- Per email: HyperCore = segment 1 lit, `Layer 01 &middot; Compute + Virtualization`, headline `Infrastructure That Fixes Itself`; Connect = segment 2, `Layer 02 &middot; Network`; AcuVigil = segment 3, `Layer 03 &middot; Visibility + Security`; Platform (overview) = all segments lit, label `Compute &middot; Network &middot; Visibility`, headline `Always On. Automatically.`, no CTA strip.
