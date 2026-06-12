@@ -313,7 +313,51 @@ body {
 .tl-fbtn.active { background: var(--sc-dark); border-color: var(--sc-dark); color: #fff; }
 /* Send Schedule kind filter — same chip language as the Tag Library filters. */
 .sched-filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; align-items: center; }
-.sched-past-toggle { margin-left: auto; border-style: dashed; }
+.sched-past-toggle { border-style: dashed; }
+
+/* Week / Month pivot (reuses the build view's segmented-control classes) and
+   the month-grid calendar — same send data as the weekly timeline, second view. */
+.sched-vt { margin-left: auto; }
+.scal { max-width: 980px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--sh); overflow: hidden; }
+.scal-head { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.scal-title { font-size: 16px; font-weight: 700; color: var(--ink); min-width: 132px; }
+.scal-dows { display: grid; grid-template-columns: repeat(7, 1fr); border-bottom: 1px solid var(--line); }
+.scal-dows div {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; font-weight: 500; letter-spacing: 1.3px; text-transform: uppercase;
+  color: var(--ink-3); padding: 8px 10px;
+}
+.scal-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
+.scal-day { min-height: 92px; min-width: 0; padding: 6px; border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+.scal-day:nth-child(7n+1) { border-left: none; }
+.scal-day.is-out { background: var(--panel-2); }
+.scal-day.is-out .scal-dnum { color: var(--ink-3); opacity: 0.6; }
+.scal-dnum {
+  font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink-2);
+  width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; margin-bottom: 4px;
+}
+.scal-day.is-today .scal-dnum { background: var(--accent); color: #fff; font-weight: 700; }
+.scal-chip {
+  display: flex; align-items: center; gap: 5px; min-width: 0;
+  font-size: 11px; font-weight: 600; line-height: 1.3;
+  padding: 3px 6px; border-radius: 5px; margin-bottom: 3px;
+  cursor: pointer; transition: box-shadow 0.12s;
+}
+.scal-chip .txt { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.scal-chip .dot { width: 6px; height: 6px; border-radius: 50%; flex: none; }
+.scal-chip:hover { box-shadow: 0 0 0 1px var(--accent) inset; }
+.scal-chip.sent { background: #eef2f6; color: var(--ink-3); }
+.scal-chip.upcoming { background: var(--accent-soft); color: var(--accent-2); }
+.scal-chip.today { background: rgba(66,182,73,0.12); color: #23752d; }
+/* Narrow screens: cells shrink and chips collapse to kind-colored dots
+   (the title survives in the tooltip; tap still opens the email). */
+@media (max-width: 900px) {
+  .scal-day { min-height: 56px; padding: 4px; }
+  .scal-chip { padding: 3px; justify-content: center; }
+  .scal-chip .txt { display: none; }
+  .scal-chip .dot { width: 8px; height: 8px; }
+}
 .tl-cats { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 22px; }
 .tl-cat-group { margin-bottom: 26px; }
 .tl-cat-head { display: flex; align-items: baseline; gap: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--ink); margin-bottom: 10px; }
@@ -2656,32 +2700,95 @@ body.is-email-route .page { display: none; }
 
   let schedKindFilter = 'All';
   let schedShowPast = false;
+  // Week timeline vs month grid — the pivot is remembered per-browser.
+  let schedViewMode = 'week';
+  try { if (localStorage.getItem('sc-sched-view') === 'month') schedViewMode = 'month'; } catch (e) {}
+  let schedMonthCur = null; // month-grid cursor {y, m}; null = current month
+
+  const SCHED_MON_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  // The month grid: Sun–Sat calendar of every dated send. Chips are status-
+  // tinted (sent gray / scheduled blue / today green) with a kind-colored dot;
+  // clicking one opens the email's build view, same as the weekly cards.
+  function schedMonthHTML(rows) {
+    if (!schedMonthCur) {
+      const t = new Date(todayMidnight());
+      schedMonthCur = { y: t.getFullYear(), m: t.getMonth() };
+    }
+    const { y, m } = schedMonthCur;
+    const today = todayMidnight();
+    const byDay = new Map();
+    let monthCount = 0;
+    rows.forEach(r => {
+      const d = new Date(r.ts);
+      const k = d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate();
+      if (!byDay.has(k)) byDay.set(k, []);
+      byDay.get(k).push(r);
+      if (d.getFullYear() === y && d.getMonth() === m) monthCount++;
+    });
+    const start = new Date(y, m, 1 - new Date(y, m, 1).getDay());       // back to Sunday
+    const last = new Date(y, m + 1, 0);
+    const end = new Date(y, m + 1, 0 + (6 - last.getDay()));            // forward to Saturday
+    let cells = '';
+    for (let d = new Date(start); d <= end; d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1)) {
+      const out = d.getMonth() !== m;
+      const items = byDay.get(d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate()) || [];
+      cells += `<div class="scal-day${out ? ' is-out' : ''}${d.getTime() === today ? ' is-today' : ''}">
+        <div class="scal-dnum">${d.getDate()}</div>
+        ${items.map(r => {
+          const st = sendStatus(r.email);
+          const cls = st === 'sent' ? 'sent' : st === 'today' ? 'today' : 'upcoming';
+          const tip = r.email.title + ' — ' + r.campaign.title + (r.email.sendTime ? ' · ' + r.email.sendTime : '');
+          return `<div class="scal-chip ${cls}" data-sched-email="${esc(r.email.id)}" data-sched-campaign="${esc(r.campaign.id)}" role="button" tabindex="0" title="${esc(tip)}"><span class="dot" style="background:${kindHue(r.email.kind)}"></span><span class="txt">${esc(r.email.title)}</span></div>`;
+        }).join('')}
+      </div>`;
+    }
+    const t = new Date(today);
+    const onCurrent = t.getFullYear() === y && t.getMonth() === m;
+    return `<div class="scal">
+      <div class="scal-head">
+        <button class="ib" type="button" data-scal-nav="-1" title="Previous month" aria-label="Previous month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
+        <button class="ib" type="button" data-scal-nav="1" title="Next month" aria-label="Next month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
+        <span class="scal-title">${SCHED_MON_FULL[m]} ${y}</span>
+        <span class="sched-count">${monthCount} send${monthCount !== 1 ? 's' : ''}</span>
+        ${onCurrent ? '' : '<button class="tl-fbtn" type="button" data-scal-today>Back to today</button>'}
+      </div>
+      <div class="scal-dows">${SCHED_DOW.map(d => `<div>${d}</div>`).join('')}</div>
+      <div class="scal-grid">${cells}</div>
+    </div>`;
+  }
 
   function renderSchedule() {
     const container = document.getElementById('scheduleContainer');
     const thisWeek = weekStartTs(todayMidnight());
 
-    const allRows = [];
+    const allRows = [];   // dated sends, past hidden unless toggled (week view)
+    const datedRows = []; // every dated send (the month grid navigates anywhere)
     let pastCount = 0;
     CAMPAIGNS.forEach(c => c.emails.forEach(e => {
       const ts = parseSendDate(e.sendDate);
       if (isNaN(ts)) return;
+      const row = { ts, email: e, campaign: c };
+      datedRows.push(row);
       if (weekStartTs(ts) < thisWeek) {
         pastCount++;
         if (!schedShowPast) return;
       }
-      allRows.push({ ts, email: e, campaign: c });
+      allRows.push(row);
     }));
-    allRows.sort((a, b) => a.ts - b.ts
+    const byDate = (a, b) => a.ts - b.ts
       || a.campaign.title.localeCompare(b.campaign.title)
-      || a.email.title.localeCompare(b.email.title));
+      || a.email.title.localeCompare(b.email.title);
+    allRows.sort(byDate);
+    datedRows.sort(byDate);
 
     // Kind filter — like the in-campaign search, it only appears once the
     // schedule is busy enough to need narrowing (several sends, mixed kinds).
-    const kinds = [...new Set(allRows.map(r => r.email.kind).filter(Boolean))].sort();
-    const showFilters = allRows.length >= 6 && kinds.length >= 2;
+    const kinds = [...new Set(datedRows.map(r => r.email.kind).filter(Boolean))].sort();
+    const showFilters = datedRows.length >= 6 && kinds.length >= 2;
     if (!showFilters || (schedKindFilter !== 'All' && !kinds.includes(schedKindFilter))) schedKindFilter = 'All';
     const rows = schedKindFilter === 'All' ? allRows : allRows.filter(r => r.email.kind === schedKindFilter);
+    const monthRows = schedKindFilter === 'All' ? datedRows : datedRows.filter(r => r.email.kind === schedKindFilter);
 
     // Cluster same-day sends from the same campaign into one grouped card.
     // Tradeshow campaigns are exempt — those emails are distinct events that
@@ -2697,20 +2804,31 @@ body.is-email-route .page { display: none; }
       }
     });
 
-    if (!allRows.length) {
-      container.innerHTML = '<div class="empty-hint">No upcoming sends are scheduled. Add a sendDate in the manifest to see emails here.</div>';
+    if (!datedRows.length) {
+      container.innerHTML = '<div class="empty-hint">No dated sends yet. Add a sendDate in the manifest to see emails here.</div>';
       return;
     }
 
-    let html = '';
-    if (showFilters || pastCount) {
-      html += '<div class="sched-filters">'
-        + (showFilters ? ['All', ...kinds].map(k =>
-            `<button class="tl-fbtn${k === schedKindFilter ? ' active' : ''}" type="button" data-schedkind="${esc(k)}">${esc(k)}</button>`
-          ).join('') : '')
-        + (pastCount ? `<button class="tl-fbtn sched-past-toggle${schedShowPast ? ' active' : ''}" type="button" data-schedpast>${schedShowPast ? 'Hide past sends' : 'Show past sends (' + pastCount + ')'}</button>` : '')
-        + '</div>';
-    }
+    document.getElementById('heroMeta').textContent = schedViewMode === 'month'
+      ? 'Every dated send on a month grid — step between months with the arrows. Click an email to open its preview.'
+      : 'Every scheduled send from this week forward, grouped by week. Click an email to open its preview.';
+
+    let html = '<div class="sched-filters">'
+      + (showFilters ? ['All', ...kinds].map(k =>
+          `<button class="tl-fbtn${k === schedKindFilter ? ' active' : ''}" type="button" data-schedkind="${esc(k)}">${esc(k)}</button>`
+        ).join('') : '')
+      + (schedViewMode === 'week' && pastCount ? `<button class="tl-fbtn sched-past-toggle${schedShowPast ? ' active' : ''}" type="button" data-schedpast>${schedShowPast ? 'Hide past sends' : 'Show past sends (' + pastCount + ')'}</button>` : '')
+      + `<div class="pv-width-toggle sched-vt" role="group" aria-label="Schedule layout">
+           <button type="button" class="pv-width-btn${schedViewMode === 'week' ? ' is-active' : ''}" data-schedview="week">Week</button>
+           <button type="button" class="pv-width-btn${schedViewMode === 'month' ? ' is-active' : ''}" data-schedview="month">Month</button>
+         </div>`
+      + '</div>';
+
+    if (schedViewMode === 'month') {
+      html += schedMonthHTML(monthRows);
+    } else if (!clusters.length) {
+      html += '<div class="empty-hint">No sends match — try "Show past sends" or another kind.</div>';
+    } else {
     html += '<div class="sched-wrap"><div class="sched-rail"></div>';
     let lastWeek = null, lastMonth = null;
     clusters.forEach(({ ts, campaign, items }) => {
@@ -2791,6 +2909,7 @@ body.is-email-route .page { display: none; }
       }
     });
     html += '</div>';
+    }
     container.innerHTML = html;
 
     const bind = (el, fn) => {
@@ -2799,7 +2918,7 @@ body.is-email-route .page { display: none; }
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(); }
       });
     };
-    container.querySelectorAll('.sched-card:not(.is-group), .sched-group-item').forEach(el => {
+    container.querySelectorAll('.sched-card:not(.is-group), .sched-group-item, .scal-chip').forEach(el => {
       bind(el, () => navigate('#/campaign/' + el.dataset.schedCampaign + '/' + el.dataset.schedEmail));
     });
     container.querySelectorAll('.sched-group-head').forEach(el => {
@@ -2810,6 +2929,23 @@ body.is-email-route .page { display: none; }
     });
     const pastToggle = container.querySelector('[data-schedpast]');
     if (pastToggle) pastToggle.addEventListener('click', () => { schedShowPast = !schedShowPast; renderSchedule(); });
+    container.querySelectorAll('[data-schedview]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (btn.dataset.schedview === schedViewMode) return;
+        schedViewMode = btn.dataset.schedview;
+        try { localStorage.setItem('sc-sched-view', schedViewMode); } catch (e) {}
+        renderSchedule();
+      });
+    });
+    container.querySelectorAll('[data-scal-nav]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const d = new Date(schedMonthCur.y, schedMonthCur.m + (+btn.dataset.scalNav), 1);
+        schedMonthCur = { y: d.getFullYear(), m: d.getMonth() };
+        renderSchedule();
+      });
+    });
+    const todayBtn = container.querySelector('[data-scal-today]');
+    if (todayBtn) todayBtn.addEventListener('click', () => { schedMonthCur = null; renderSchedule(); });
   }
 
   function showCampaignDetail(campaign) {
