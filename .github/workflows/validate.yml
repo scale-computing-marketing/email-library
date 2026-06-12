@@ -1,0 +1,20 @@
+# Runs the library consistency checker on every push and PR.
+# Catches what would blank or break the public site (invalid manifest.json,
+# missing email files, unknown tags) before GitHub Pages publishes it.
+# The validator exits 1 only on real errors; warnings pass.
+name: Validate library
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node scripts/validate-library.mjs

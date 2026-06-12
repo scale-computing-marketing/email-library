@@ -2231,6 +2231,10 @@ body.is-email-route .page { display: none; }
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
               </button>
             </div>
+            <button class="btn" id="evLinkBtn" title="Copy a direct review link to this email">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              Copy link
+            </button>
             <button class="btn" id="evCopyBtn">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
               Copy HTML
@@ -3510,6 +3514,9 @@ body.is-email-route .page { display: none; }
     document.getElementById('pvRail').scrollTop = 0;
     document.querySelector('.pv-render').scrollTop = 0;
     document.getElementById('evCopyBtn').dataset.id = email.id;
+    const linkBtn = document.getElementById('evLinkBtn');
+    linkBtn.dataset.id = email.id;
+    linkBtn.dataset.campaign = campaign.id;
     document.getElementById('evBack').dataset.campaign = campaign.id;
 
     // Prev/next within the campaign, in the same order the campaign table shows.
@@ -3637,10 +3644,15 @@ body.is-email-route .page { display: none; }
     });
   })();
 
-  // Email-view bar: Copy HTML, Back to the campaign, and Esc to leave the view.
+  // Email-view bar: Copy link, Copy HTML, Back to the campaign, and Esc to leave the view.
   document.getElementById('evCopyBtn').addEventListener('click', (e) => {
     const id = e.currentTarget.dataset.id;
     if (id) copyHTML(id, e.currentTarget);
+  });
+  document.getElementById('evLinkBtn').addEventListener('click', (e) => {
+    const { id, campaign } = e.currentTarget.dataset;
+    if (!id || !campaign) return;
+    copyText(window.location.origin + window.location.pathname + '#/campaign/' + campaign + '/' + id, e.currentTarget);
   });
   document.getElementById('evBack').addEventListener('click', (e) => {
     e.preventDefault();
