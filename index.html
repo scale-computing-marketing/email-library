@@ -1019,6 +1019,17 @@ body.is-email-route .page { display: none; }
 }
 .ev-bar-actions { display: flex; gap: 8px; flex-shrink: 0; align-items: center; }
 .ev-bar-actions .btn { flex: 0 0 auto; }
+.ev-stepper { display: inline-flex; align-items: center; gap: 4px; margin-right: 4px; }
+.ev-step {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; border-radius: 8px;
+  border: 1px solid var(--line); background: var(--panel); color: var(--ink-2);
+  cursor: pointer; transition: all 0.13s;
+}
+.ev-step:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.ev-step:disabled { opacity: 0.35; cursor: default; }
+.ev-step svg { width: 14px; height: 14px; }
+.ev-step-count { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink-3); min-width: 38px; text-align: center; }
 
 /* One unified panel — build details (left) + rendered email (right) */
 .ev-panel {
@@ -2206,6 +2217,15 @@ body.is-email-route .page { display: none; }
             <div class="ev-title" id="evTitle">Email title</div>
           </div>
           <div class="ev-bar-actions">
+            <div class="ev-stepper" id="evStepper">
+              <button class="ev-step" id="evPrev" type="button" title="Previous email in this campaign (←)" aria-label="Previous email">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <span class="ev-step-count" id="evStepCount">1 / 1</span>
+              <button class="ev-step" id="evNext" type="button" title="Next email in this campaign (→)" aria-label="Next email">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
             <button class="btn" id="evCopyBtn">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
               Copy HTML
@@ -3481,18 +3501,53 @@ body.is-email-route .page { display: none; }
     document.getElementById('evCopyBtn').dataset.id = email.id;
     document.getElementById('evBack').dataset.campaign = campaign.id;
 
+    // Prev/next within the campaign, in the same order the campaign table shows.
+    // onclick (not addEventListener) so repeat visits don't stack handlers.
+    const ordered = [...campaign.emails].sort(bySendDateDesc);
+    const idx = ordered.findIndex(x => x.id === email.id);
+    const stepper = document.getElementById('evStepper');
+    stepper.style.display = ordered.length > 1 ? '' : 'none';
+    document.getElementById('evStepCount').textContent = (idx + 1) + ' / ' + ordered.length;
+    const prevBtn = document.getElementById('evPrev');
+    const nextBtn = document.getElementById('evNext');
+    prevBtn.disabled = idx <= 0;
+    nextBtn.disabled = idx < 0 || idx >= ordered.length - 1;
+    prevBtn.onclick = () => { if (idx > 0) gotoEmail(ordered[idx - 1].id); };
+    nextBtn.onclick = () => { if (idx < ordered.length - 1) gotoEmail(ordered[idx + 1].id); };
+
     loadEmailFrame(email.sourceId);
   }
 
   // Render the real email into the right pane, growing the iframe to its content height.
+  // On narrow screens an email's minimum layout width can exceed the pane; rather than
+  // clipping the right edge, scale the whole frame down to fit (emails stay untouched).
   function loadEmailFrame(sourceId) {
     const frame = document.getElementById('evFrame');
     frame.style.height = '400px';
+    frame.style.width = '';
+    frame.style.transform = '';
+    frame.style.marginBottom = '';
     const resize = () => {
       try {
         const doc = frame.contentDocument || frame.contentWindow.document;
         const h = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight);
-        if (h > 100) frame.style.height = (h + 40) + 'px';
+        const naturalW = Math.max(doc.body.scrollWidth, doc.documentElement.scrollWidth);
+        const availW = frame.parentElement.clientWidth;
+        if (naturalW > availW + 4) {
+          const s = availW / naturalW;
+          frame.style.width = naturalW + 'px';
+          frame.style.transform = 'scale(' + s + ')';
+          frame.style.transformOrigin = '0 0';
+          if (h > 100) {
+            frame.style.height = (h + 40) + 'px';
+            frame.style.marginBottom = -((h + 40) * (1 - s)) + 'px';
+          }
+        } else {
+          frame.style.width = '';
+          frame.style.transform = '';
+          frame.style.marginBottom = '';
+          if (h > 100) frame.style.height = (h + 40) + 'px';
+        }
         const imgs = doc.images;
         for (let i = 0; i < imgs.length; i++) {
           if (!imgs[i].complete) imgs[i].addEventListener('load', resize);
@@ -3517,6 +3572,14 @@ body.is-email-route .page { display: none; }
       } else fallbackCopy(emailHtml, finish);
     }).catch(() => alert('Could not load the email HTML to copy.'));
   }
+  // Arrow keys step between sibling emails while the build view is open.
+  document.addEventListener('keydown', (e) => {
+    if (!document.body.classList.contains('is-email-route')) return;
+    if (e.target.closest && e.target.closest('input, textarea, select, [contenteditable]')) return;
+    if (e.key === 'ArrowLeft') document.getElementById('evPrev').click();
+    else if (e.key === 'ArrowRight') document.getElementById('evNext').click();
+  });
+
   function copyText(text, btn) {
     const finish = () => {
       const original = btn.innerHTML;
