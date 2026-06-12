@@ -185,7 +185,7 @@ archive; don't follow its publishing steps.
 a token from another email; sibling emails can be off-spec.** The three card tints
 are meaningful and not interchangeable: navy `#0a2540` = action, grey `#f1f0ee` =
 explanatory prose (Informational Card — e.g. "Report Overview" / "How to Leverage"),
-soft blue-gray `#f7f9fc` = structured data (Numbered Outcome Grid, Save-the-Date).
+soft blue-gray `#f7f9fc` = structured data (Numbered Outcome Grid, Save-the-Date, Signature Stat Ticket).
 
 ## Resolving & creating
 

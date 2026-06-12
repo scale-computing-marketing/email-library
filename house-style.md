@@ -255,7 +255,7 @@ Logo asset: `https://info.scalecomputing.com/l/46782/2026-05-22/9ncf6z/46782/177
 
 **Tint families (keep the three card colors meaningful):**
 - **Navy `#0a2540`** = action / marquee — Featured Keynote Callout, Linked Action Tiles.
-- **Soft blue-gray `#f7f9fc`** = structured data — Numbered Outcome Grid (ranked points), Save-the-Date Ticket (event facts).
+- **Soft blue-gray `#f7f9fc`** = structured data — Numbered Outcome Grid (ranked points), Save-the-Date Ticket (event facts), Signature Stat Ticket (hero stat).
 - **Grey `#f1f0ee`** = explanatory prose grouped as a section — Informational Card.
 
 **Per-send variables (structure is locked; these change per send):** the eyebrow label, the H2 text, and the body paragraphs. Everything else (grey, border, navy heading, paddings, classes) is fixed.
@@ -330,7 +330,43 @@ Add these to the `@media only screen and (max-width:700px)` block:
 
 Layout: each card is its own full-width `table` with `background:#f7f9fc; border-radius:8px`, separated by a 12px spacer row. Inside each card, a two-column row: left `<td width="40" style="padding:18px 0 18px 20px; width:40px;">` holds the numeral (30px / 30px bold blue, `letter-spacing:-1px`); right `<td style="padding:18px 20px 18px 0;">` holds the eyebrow / H3 / description with the same type ramp as the grid version, except the description bumps to 15px / 22px since the card is wider. Card height grows to fit its content — no fixed heights, no equal-height tricks.
 
-**Don't:** force the grid form when copy lengths differ. If card 1's description wraps to 4 lines and card 3 wraps to 2, the grid will look uneven no matter what CSS you throw at it. Either rewrite the copy so all cards have the same shape (same eyebrow length, same title line count, same description line count) or use the stacked variant.
+**3-across mini-card variant (visual-first emails):** Use this *instead* of the full grid when the email is built visual-first (one-sentence intros, no lead-in paragraphs — e.g. the Uptime Optimization 2026 product emails) and all three items reduce to **a one-word label plus a single short line**. It drops the H3 title entirely — the uppercase label does the naming — so each card stays a compact three-element stack and the row reads as one glance.
+
+Layout: one row of three equal columns (`width:33%` / `34%` / `33%`, classes `col-stack split-text`), gutters via per-cell padding (`0 5px 0 0` / `0 5px` / `0 0 0 5px`). Each card is a `#f7f9fc` rounded box (`border-radius:8px`) with inner cell `padding:22px 18px`. Card contents:
+1. Numeral — bright blue `#1e88e5`, **28px / 28px** bold, `letter-spacing:-1px` (smaller than the full grid's 32px). `margin:0 0 8px`.
+2. Label — muted `#6e6e6e`, 11px / 14px, uppercase, 2px letter-spacing, bold. `margin:0 0 6px`. One word ("Detect," "Resolve," "Scale").
+3. Description — 14px / 21px, `#1a1a1a`, class `dark-text`. `margin:0`. **One line of copy** ("Automation finds problems in real time.").
+
+The cell is `padding:8px 35px 0` directly under a Section Header. Mobile: cards stack via `.col-stack` / `.split-text`. The one-line constraint is the contract: if any description needs two sentences or a title, you've outgrown this variant — use the full grid or stacked form.
+
+**Don't:** force the grid form when copy lengths differ. If card 1's description wraps to 4 lines and card 3 wraps to 2, the grid will look uneven no matter what CSS you throw at it. Either rewrite the copy so all cards have the same shape (same eyebrow length, same title line count, same description line count) or use the stacked variant. Don't add an H3 title to the mini-card variant (that's the full grid) or run mini cards with copy of visibly different lengths — at a third of the card width, even a few words' difference shows.
+
+**Mini-card markup (3-across):**
+```html
+<!-- NUMBERED OUTCOME GRID (3-across mini cards) -->
+<tr>
+  <td class="mobile-padding" style="padding:8px 35px 0;">
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%;">
+      <tr>
+        <!-- Mini card 01 -->
+        <td class="col-stack split-text" width="33%" valign="top" style="width:33%; padding:0 5px 0 0;">
+          <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%; background:#f7f9fc; border-radius:8px;">
+            <tr>
+              <td style="padding:22px 18px; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif;">
+                <p style="margin:0 0 8px; font-size:28px; line-height:28px; letter-spacing:-1px; color:#1e88e5; font-weight:bold;">01</p>
+                <p style="margin:0 0 6px; font-size:11px; line-height:14px; letter-spacing:2px; text-transform:uppercase; color:#6e6e6e; font-weight:bold;">LABEL</p>
+                <p class="dark-text" style="margin:0; font-size:14px; line-height:21px; color:#1a1a1a;">ONE_LINE_DESCRIPTION</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+        <!-- Mini card 02 — same structure; width:34%, padding:0 5px -->
+        <!-- Mini card 03 — same structure; width:33%, padding:0 0 0 5px -->
+      </tr>
+    </table>
+  </td>
+</tr>
+```
 
 **Why this exists:** to give static lists visual weight that a Linked Session List would falsely imply is clickable. The numerals carry the visual hierarchy that arrows carry elsewhere.
 
@@ -424,6 +460,59 @@ Layout: each card is its own full-width `table` with `background:#f7f9fc; border
 ```
 
 **Why this exists:** event logistics are parallel facts, and the ticket motif gives the date real presence while keeping venue and booth scannable — building anticipation in a way a flat list can't, without depending on image assets. (Icons are an opt-in-per-send enhancement only, never baked in — a missing icon would break the layout.)
+
+---
+
+## Pattern: Signature Stat Ticket (hero stat + payoff)
+
+**Use when:** a product or campaign email has **one signature number** worth anchoring the pitch on — a savings figure, a capability ceiling, a service level — paired with a single sentence explaining the payoff. The Save-the-Date Ticket's shell repurposed for product emails: navy stub carries the stat instead of a date, details column carries one bold payoff line instead of venue/booth. First used: Uptime Optimization 2026 product emails.
+
+**Triggers in the brief:**
+- One standout figure framed as the takeaway ("save 25%+," "up to 20Gbps," "24/7 support")
+- A stat + one-sentence benefit with no per-item links
+- Visual-first direction where a paragraph of proof points should compress to one number
+
+**Placement:** Inside the white content card, in the body region — typically directly after a Numbered Outcome Grid (cell `padding:16px 35px 0`, closing the section the grid opened) and before the Closing + Primary CTA. It contains a navy stub, so treat it like a navy moment: don't stand it beside another navy box.
+
+**Visual:** Identical shell to the Save-the-Date Ticket — `#f7f9fc` rounded box (`border-radius:8px; overflow:hidden`), 200px navy `#0a2540` stub (class `ticket-stub`), dashed `#cdd6e4` perforation, details cell (class `ticket-details`); same mobile stacking rules (both classes in the media query, divider flips `border-left` → `border-top`). Contents differ:
+1. **Stat stub** (centered): framing eyebrow sky-blue `#7ec4ff` (11px, uppercase, 3px letter-spacing, bold, `margin:0 0 6px` — e.g. `Save` / `Up To` / `Always On`); the **stat** white `#ffffff` 40px / 40px bold, `letter-spacing:-1px` (e.g. `25%+`, `20Gbps`, `24/7` — short enough to fit the 200px stub on one line); qualifier `#b8c5d6` 14px / 16px, 2px letter-spacing, uppercase, bold (`margin:6px 0 0` — e.g. `VS LEGACY`, `BANDWIDTH`).
+2. **Payoff** (details cell, `valign:middle`, `padding:26px 28px`): one label→value pair only — eyebrow `The Payoff` muted `#6e6e6e` (11px, uppercase, 2px letter-spacing, bold, `margin:0 0 4px`) + a single bold navy `#0a2540` sentence, 15px / 22px, class `dark-text`.
+
+**Per-campaign variables (structure is locked; these change per send):**
+- `STAT_EYEBROW` — the framing word(s) above the stat
+- `STAT` — the signature figure (keep it to ~6 characters; if it wraps in the stub it's not a stub stat)
+- `STAT_QUALIFIER` — the context line under the stat
+- `PAYOFF` — the one-sentence value statement (the `The Payoff` label is locked)
+
+**Don't:** stack multiple label→value rows in the details cell (that's the Save-the-Date Ticket's job — this is one stat, one sentence); put a CTA inside (the primary action stays in Closing + Primary CTA); use a stat too long for the stub; use it twice in one email (it's the *signature* stat); or place it beside another navy box.
+
+**Markup:**
+```html
+<!-- SIGNATURE STAT TICKET -->
+<tr>
+  <td class="mobile-padding" style="padding:16px 35px 0;">
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%; background:#f7f9fc; border-radius:8px; overflow:hidden;">
+      <tr>
+        <!-- STAT STUB -->
+        <td class="ticket-stub" width="200" valign="middle" align="center" style="width:200px; background:#0a2540; padding:30px 18px; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif;">
+          <p style="margin:0 0 6px; font-size:11px; line-height:14px; letter-spacing:3px; text-transform:uppercase; color:#7ec4ff; font-weight:bold;">STAT_EYEBROW</p>
+          <p style="margin:0; font-size:40px; line-height:40px; letter-spacing:-1px; color:#ffffff; font-weight:bold;">STAT</p>
+          <p style="margin:6px 0 0; font-size:14px; line-height:16px; letter-spacing:2px; color:#b8c5d6; font-weight:bold;">STAT_QUALIFIER</p>
+        </td>
+        <!-- DETAILS (dashed perforation on the left edge) -->
+        <td class="ticket-details" valign="middle" style="padding:26px 28px; border-left:2px dashed #cdd6e4; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif;">
+          <p style="margin:0 0 4px; font-size:11px; line-height:14px; letter-spacing:2px; text-transform:uppercase; color:#6e6e6e; font-weight:bold;">The Payoff</p>
+          <p class="dark-text" style="margin:0; font-size:15px; line-height:22px; color:#0a2540; font-weight:bold;">PAYOFF</p>
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
+```
+
+**Current defaults (Uptime Optimization 2026 sends):** HyperCore = `Save` / `25%+` / `VS LEGACY`; Connect = `Up To` / `20Gbps` / `BANDWIDTH`; AcuVigil = `Always On` / `24/7` / `EXPERT SUPPORT` — each with a one-sentence payoff.
+
+**Why this exists:** one big number on the ticket motif carries more proof than a paragraph of claims, and it reuses the locked ticket shell (classes, mobile rules) rather than inventing a new surface.
 
 ---
 
