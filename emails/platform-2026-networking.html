@@ -1,28 +1,324 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Networking Sessions — placeholder</title>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="x-apple-disable-message-reformatting">
+  <meta name="format-detection" content="telephone=no, date=no, address=no, email=no, url=no">
+  <meta name="color-scheme" content="light only">
+  <meta name="supported-color-schemes" content="light only">
+  <title>Is Your Network Holding Back Your Edge?</title>
+
+  <!--[if mso]>
+  <noscript>
+    <xml>
+      <o:OfficeDocumentSettings>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+        <o:AllowPNG/>
+      </o:OfficeDocumentSettings>
+    </xml>
+  </noscript>
+  <style>
+    table, td, div, h1, h2, h3, p, a, span { font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', Arial, sans-serif !important; }
+  </style>
+  <![endif]-->
+
+  <style type="text/css">
+    body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-collapse: collapse; }
+    img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; display: block; }
+    body { margin: 0 !important; padding: 0 !important; width: 100% !important; height: 100% !important; background-color: #f2f2f2; }
+    a { color: #0a5db5; text-decoration: underline; }
+
+    a[x-apple-data-detectors] {
+      color: inherit !important;
+      text-decoration: none !important;
+      font-size: inherit !important;
+      font-family: inherit !important;
+      font-weight: inherit !important;
+      line-height: inherit !important;
+    }
+
+    @media screen and (max-width: 700px) {
+      .email-container { width: 100% !important; max-width: 100% !important; }
+      .fluid { width: 100% !important; max-width: 100% !important; height: auto !important; }
+      .mobile-padding { padding-left: 24px !important; padding-right: 24px !important; }
+      .mobile-h1 { font-size: 28px !important; line-height: 34px !important; }
+      .mobile-h2 { font-size: 22px !important; line-height: 28px !important; }
+      .mobile-h3 { font-size: 18px !important; line-height: 24px !important; }
+      .mobile-eyebrow { font-size: 11px !important; letter-spacing: 2px !important; }
+      .mobile-body { font-size: 16px !important; line-height: 25px !important; }
+      .cta-button-primary { width: 100% !important; max-width: 100% !important; }
+      .cta-button-primary a { display: block !important; width: 100% !important; box-sizing: border-box; }
+      .logo-img { max-width: 160px !important; height: auto !important; }
+      .col-stack {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+      .split-img { padding: 0 0 24px 0 !important; }
+      .split-text { padding: 0 !important; }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body, .body-bg { background-color: #f2f2f2 !important; }
+      .content-bg { background-color: #ffffff !important; }
+      .dark-text { color: #1a1a1a !important; }
+      .muted-text { color: #6e6e6e !important; }
+    }
+  </style>
 </head>
+
 <body style="margin:0; padding:0; background-color:#f2f2f2;">
-  <div style="display:none; max-height:0; overflow:hidden; mso-hide:all;">Two paths to simpler edge networking: SC//AcuVigil managed networks and SC//Connect cloud SD-WAN.</div>
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f2f2f2;">
+
+  <!-- PREVIEW TEXT -->
+  <div style="display:none; font-size:1px; color:#f2f2f2; line-height:1px; max-height:0px; max-width:0px; opacity:0; overflow:hidden; mso-hide:all;">
+    Two paths to simpler edge networking: SC//AcuVigil managed networks and SC//Connect cloud SD-WAN. &nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;
+  </div>
+
+  <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" class="body-bg" style="background-color:#f2f2f2;">
     <tr>
-      <td align="center" style="padding:40px 16px;">
-        <table role="presentation" width="680" cellpadding="0" cellspacing="0" border="0" style="width:680px; max-width:100%; background-color:#ffffff; border-radius:8px;">
+      <td align="center" style="padding:24px 10px 0 10px;">
+
+        <!--[if mso | IE]>
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="680" align="center"><tr><td>
+        <![endif]-->
+
+        <!-- LOGO BAR -->
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="680" class="email-container" style="width:100%; max-width:680px; background-color:#f2f2f2;">
           <tr>
-            <td style="padding:48px 40px; font-family:'Trebuchet MS', Arial, sans-serif; text-align:center;">
-              <p style="margin:0 0 10px; font-size:11px; line-height:14px; letter-spacing:2.5px; text-transform:uppercase; color:#9c2e91; font-weight:bold;">Placeholder &mdash; build pending</p>
-              <h1 style="margin:0 0 16px; font-size:24px; line-height:30px; color:#0a2540;">Networking Sessions</h1>
-              <p style="margin:0 0 6px; font-size:14px; line-height:22px; color:#1a1a1a;"><strong>Planned subject:</strong> Is Your Network Holding Back Your Edge?</p>
-              <p style="margin:0 0 6px; font-size:14px; line-height:22px; color:#1a1a1a;"><strong>Planned send:</strong> August 25, 2026 &middot; 10:00 AM EST</p>
-              <p style="margin:18px 0 0; font-size:13px; line-height:21px; color:#6e6e6e;">This email has not been built yet. It will be composed to the locked house style from the Platform//2026 post-event build doc, covering: Inside the SC//AcuVigil Roadmap · SC//Connect: Learn About the Cloud SD-WAN from Adaptiv Networks.</p>
+            <td align="left" class="mobile-padding" style="padding:8px 0 8px 0; background-color:#f2f2f2;">
+              <img src="https://info.scalecomputing.com/l/46782/2026-05-22/9ncf6z/46782/1779485235Zbzzbthu/PRIMARY_horizontal_scale_logo_blue_grey_tm.png" width="175" height="auto" alt="Scale Computing" class="logo-img" style="display:block; width:175px; max-width:175px; height:auto; border:0; margin:0;" border="0">
             </td>
           </tr>
         </table>
+
+        <!-- MAIN CONTENT CONTAINER -->
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="680" class="email-container content-bg" style="width:100%; max-width:680px; background-color:#ffffff; border-radius:8px; overflow:hidden;">
+
+          <!-- ====================================== -->
+          <!-- 1. HERO BLOCK                          -->
+          <!-- ====================================== -->
+          <tr>
+            <td align="center" valign="top" bgcolor="#0a2540" style="background-color:#0a2540; padding:0;">
+
+              <!-- Top thin accent -->
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#0a2540;">
+                <tr>
+                  <td height="3" style="height:3px; line-height:3px; font-size:0; background-color:#1e88e5;">&nbsp;</td>
+                </tr>
+              </table>
+
+              <!-- HERO IMAGE (clickable banner) -->
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                  <td style="padding:0; font-size:0; line-height:0; background-color:#0a2540;">
+                    <img src="https://info.scalecomputing.com/l/46782/2026-05-27/9nf3gd/46782/1779924001vRM39Gnw/Email__7___Networking_1.png" width="680" height="auto" alt="Platform//2026 networking sessions: is your network holding back your edge?" class="fluid" style="display:block; width:100%; max-width:680px; height:auto; border:0;" border="0">
+                  </td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+
+          <!-- ====================================== -->
+          <!-- GREETING + INTRO COPY                   -->
+          <!-- ====================================== -->
+          <tr>
+            <td class="mobile-padding" style="padding:35px 35px 0px 35px; background-color:#ffffff;">
+              <p class="mobile-body dark-text" style="margin:0 0 20px 0; font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', Arial, sans-serif; font-size:15px; line-height:24px; color:#1a1a1a;">
+                Hi {{Recipient.FirstName}},
+              </p>
+              <p class="mobile-body dark-text" style="margin:0 0 16px 0; font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', Arial, sans-serif; font-size:15px; line-height:24px; color:#1a1a1a;">
+                As your distributed edge environments scale, the traditional approach to networking &mdash; with dedicated, single-purpose physical appliances &mdash; is becoming too costly and complex. Organizations are under pressure to simplify network operations, maintain high performance, and reduce hardware sprawl.
+              </p>
+              <p class="mobile-body dark-text" style="margin:0; font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', Arial, sans-serif; font-size:15px; line-height:24px; color:#1a1a1a;">
+                At Platform//2026, we presented two complementary sessions outlining clear paths to modernizing your network architecture at the edge.
+              </p>
+            </td>
+          </tr>
+
+          <!-- ====================================== -->
+          <!-- SECTION HEADER                          -->
+          <!-- ====================================== -->
+          <tr>
+            <td class="mobile-padding" style="padding:35px 35px 8px 35px; background-color:#ffffff;">
+              <p style="margin:0 0 8px 0; font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', Arial, sans-serif; font-size:11px; line-height:14px; color:#1e88e5; letter-spacing:2.5px; font-weight:bold; text-transform:uppercase;" class="mobile-eyebrow">
+                The Sessions
+              </p>
+              <h2 class="mobile-h2" style="margin:0 0 12px 0; font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', Arial, sans-serif; font-size:24px; line-height:30px; color:#1a1a1a; font-weight:bold; letter-spacing:-0.3px;">
+                Two Paths to a Modern Edge Network
+              </h2>
+              <p class="mobile-body dark-text" style="margin:0; font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', Arial, sans-serif; font-size:15px; line-height:24px; color:#1a1a1a;">
+                These sessions detail how you can eliminate complexity and achieve unprecedented agility.
+              </p>
+            </td>
+          </tr>
+
+          <!-- SESSION ROW -->
+          <tr>
+            <td class="mobile-padding" style="padding:24px 35px 0 35px; background-color:#ffffff;">
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-left:3px solid #1e88e5;">
+                <tr>
+                  <td style="padding:4px 0 4px 16px;">
+                    <p style="margin:0 0 4px 0; font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', Arial, sans-serif; font-size:11px; line-height:14px; color:#6e6e6e; letter-spacing:2px; font-weight:bold; text-transform:uppercase;">
+                      Thanh Rodke &mdash; Technical Deep Dive
+                    </p>
+                    <h3 class="mobile-h3" style="margin:0 0 8px 0; font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', Arial, sans-serif; font-size:18px; line-height:24px; color:#1a1a1a; font-weight:bold;">
+                      <a href="https://platform.scalecomputing.com/eventsplus/6de21267-e30f-4746-a5dc-26000e5f5fed/video-channels/videos/4aee23cc-f6fa-4543-857a-8ebaf9c318f2" target="_blank" style="color:#0a5db5; text-decoration:none;">SC//AcuVigil&trade; Managed Network Solutions &rarr;</a>
+                    </h3>
+                    <p class="mobile-body dark-text" style="margin:0; font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', Arial, sans-serif; font-size:15px; line-height:24px; color:#1a1a1a;">
+                      How organizations implement network segmentation strategies, monitor firewalls, network devices, and logs across distributed sites from a single management plane &mdash; and maintain uptime with multi-WAN failover, proactive monitoring, and rapid incident response workflows.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- SESSION ROW -->
+          <tr>
+            <td class="mobile-padding" style="padding:24px 35px 0 35px; background-color:#ffffff;">
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-left:3px solid #1e88e5;">
+                <tr>
+                  <td style="padding:4px 0 4px 16px;">
+                    <p style="margin:0 0 4px 0; font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', Arial, sans-serif; font-size:11px; line-height:14px; color:#6e6e6e; letter-spacing:2px; font-weight:bold; text-transform:uppercase;">
+                      Bernard Breton &mdash; CEO, Adaptiv Networks&reg;
+                    </p>
+                    <h3 class="mobile-h3" style="margin:0 0 8px 0; font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', Arial, sans-serif; font-size:18px; line-height:24px; color:#1a1a1a; font-weight:bold;">
+                      <a href="https://platform.scalecomputing.com/eventsplus/6de21267-e30f-4746-a5dc-26000e5f5fed/video-channels/videos/6e036536-59d2-496a-a501-2706e5a985bd" target="_blank" style="color:#0a5db5; text-decoration:none;">SC//Connect&trade;: Learn About Cloud SD-WAN &rarr;</a>
+                    </h3>
+                    <p class="mobile-body dark-text" style="margin:0; font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', Arial, sans-serif; font-size:15px; line-height:24px; color:#1a1a1a;">
+                      How cloud-managed SD-WAN provides centralized, secure, and resilient network connectivity across every edge location, optimizing performance by intelligently managing traffic from a single, cloud-based platform.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- ====================================== -->
+          <!-- LINKED ACTION TILES (closing actions)   -->
+          <!-- ====================================== -->
+          <tr>
+            <td class="mobile-padding" style="padding:28px 35px 19px 35px; background-color:#ffffff;">
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                  <td class="col-stack split-img" width="50%" valign="top" style="width:50%; padding:0 8px 16px 0;">
+                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#0a2540; border-radius:8px;">
+                      <tr>
+                        <td style="padding:24px 22px 22px 22px;">
+                          <p style="margin:0 0 8px 0; font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', Arial, sans-serif; font-size:11px; line-height:14px; color:#7ec4ff; letter-spacing:2px; font-weight:bold; text-transform:uppercase;">Technical Deep Dive</p>
+                          <h3 class="mobile-h3" style="margin:0; font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', Arial, sans-serif; font-size:18px; line-height:24px; font-weight:bold;">
+                            <a href="https://platform.scalecomputing.com/eventsplus/6de21267-e30f-4746-a5dc-26000e5f5fed/video-channels/videos/4aee23cc-f6fa-4543-857a-8ebaf9c318f2" target="_blank" style="color:#ffffff; text-decoration:none;">Watch the SC//AcuVigil&trade; Session <span style="color:#1e88e5;">&rarr;</span></a>
+                          </h3>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                  <td class="col-stack split-text" width="50%" valign="top" style="width:50%; padding:0 0 16px 8px;">
+                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#0a2540; border-radius:8px;">
+                      <tr>
+                        <td style="padding:24px 22px 22px 22px;">
+                          <p style="margin:0 0 8px 0; font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', Arial, sans-serif; font-size:11px; line-height:14px; color:#7ec4ff; letter-spacing:2px; font-weight:bold; text-transform:uppercase;">Partner Session</p>
+                          <h3 class="mobile-h3" style="margin:0; font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', Arial, sans-serif; font-size:18px; line-height:24px; font-weight:bold;">
+                            <a href="https://platform.scalecomputing.com/eventsplus/6de21267-e30f-4746-a5dc-26000e5f5fed/video-channels/videos/6e036536-59d2-496a-a501-2706e5a985bd" target="_blank" style="color:#ffffff; text-decoration:none;">Watch the SC//Connect&trade; Session <span style="color:#1e88e5;">&rarr;</span></a>
+                          </h3>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+        </table>
+
+        <!-- ================================ -->
+        <!-- FOOTER                            -->
+        <!-- ================================ -->
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="680" class="email-container" style="width:100%; max-width:680px; background-color:#f2f2f2;">
+
+          <tr>
+            <td align="center" class="mobile-padding" style="padding:16px 35px 12px 35px; background-color:#f2f2f2; font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', Arial, sans-serif;">
+              <p style="margin:0; font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', Arial, sans-serif; font-size:12px; line-height:16px; color:#6e6e6e; text-align:center;">
+                &copy; 2026 Scale Computing, Inc. All rights reserved. Scale Computing and other Scale Computing marks are trademarks of Scale Computing, Inc. All other trademarks are the property of their respective owners. Information on Scale Computing patents and trademarks is available at <a href="https://www.scalecomputing.com/legal" style="color:#6e6e6e; text-decoration:underline;">www.scalecomputing.com/legal</a>.
+              </p>
+            </td>
+          </tr>
+
+          <tr>
+            <td align="center" style="padding:4px 35px 12px 35px; background-color:#f2f2f2;">
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" align="center">
+                <tr>
+                  <td style="padding:0 8px;">
+                    <a href="https://www.facebook.com/ScaleComputing" target="_blank" style="text-decoration:none;">
+                      <img src="https://img.icons8.com/ios-glyphs/60/b8bcc2/facebook-new.png" width="28" height="28" alt="Facebook" style="display:block; width:28px; height:28px; border:0;" border="0">
+                    </a>
+                  </td>
+                  <td style="padding:0 8px;">
+                    <a href="https://twitter.com/ScaleComputing" target="_blank" style="text-decoration:none;">
+                      <img src="https://img.icons8.com/ios-glyphs/60/b8bcc2/twitterx--v2.png" width="28" height="28" alt="X" style="display:block; width:28px; height:28px; border:0;" border="0">
+                    </a>
+                  </td>
+                  <td style="padding:0 8px;">
+                    <a href="https://www.linkedin.com/company/scale-computing" target="_blank" style="text-decoration:none;">
+                      <img src="https://img.icons8.com/ios-glyphs/60/b8bcc2/linkedin.png" width="28" height="28" alt="LinkedIn" style="display:block; width:28px; height:28px; border:0;" border="0">
+                    </a>
+                  </td>
+                  <td style="padding:0 8px;">
+                    <a href="https://www.youtube.com/user/ScaleComputing" target="_blank" style="text-decoration:none;">
+                      <img src="https://img.icons8.com/ios-glyphs/60/b8bcc2/youtube-play.png" width="28" height="28" alt="YouTube" style="display:block; width:28px; height:28px; border:0;" border="0">
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <tr>
+            <td align="center" class="mobile-padding" style="padding:4px 35px 12px 35px; background-color:#f2f2f2; font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', Arial, sans-serif;">
+              <p style="margin:0 0 2px 0; font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', Arial, sans-serif; font-size:12px; line-height:16px; color:#6e6e6e; text-align:center;">
+                Scale Computing
+              </p>
+              <p style="margin:0 0 2px 0; font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', Arial, sans-serif; font-size:12px; line-height:16px; color:#6e6e6e; text-align:center;">
+                3307 Northland Dr, Suite 500
+              </p>
+              <p style="margin:0; font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', Arial, sans-serif; font-size:12px; line-height:16px; color:#6e6e6e; text-align:center;">
+                Austin, TX 78731
+              </p>
+            </td>
+          </tr>
+
+          <tr>
+            <td align="center" style="padding:6px 35px 10px 35px; background-color:#f2f2f2;">
+              <p style="margin:0; font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', Arial, sans-serif; font-size:12px; line-height:16px; color:#6e6e6e; text-align:center;">
+                <a href="https://www.scalecomputing.com/contact" style="color:#6e6e6e; text-decoration:underline;">Contact Us</a>
+                &nbsp;|&nbsp;
+                <a href="https://www.scalecomputing.com/privacy-policy" style="color:#6e6e6e; text-decoration:underline;">Privacy Policy</a>
+              </p>
+            </td>
+          </tr>
+
+          <tr>
+            <td align="center" class="mobile-padding" style="padding:4px 35px 36px 35px; background-color:#f2f2f2;">
+              <p style="margin:0; font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', Arial, sans-serif; font-size:12px; line-height:16px; color:#6e6e6e; text-align:center;">
+                If you wish to unsubscribe or update your email preferences, <a href="{{unsubscribe}}" style="color:#6e6e6e; text-decoration:underline;">click here</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+
+        <!--[if mso | IE]>
+        </td></tr></table>
+        <![endif]-->
+
       </td>
     </tr>
   </table>
+
 </body>
 </html>
