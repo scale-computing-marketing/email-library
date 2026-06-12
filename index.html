@@ -1279,6 +1279,22 @@ body.is-email-route .page { display: none; }
 .pv-check.warn { color: #a4570a; }
 .pv-check.fail { color: #b3261e; }
 
+/* Link audit (every href in the email, flags mirrored from the validator) */
+.pv-link-row { padding: 2px 0; min-width: 0; }
+.pv-link-url {
+  display: block; font-family: 'DM Mono', monospace; font-size: 11px;
+  color: var(--ink-2); text-decoration: none; line-height: 1.6;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+a.pv-link-url:hover { color: var(--accent); text-decoration: underline; }
+.pv-link-count { color: var(--ink-3); }
+.pv-link-flag {
+  display: flex; align-items: flex-start; gap: 5px;
+  font-family: 'DM Sans', sans-serif; font-size: 11.5px; font-weight: 500;
+  line-height: 1.45; color: #a4570a;
+}
+.pv-link-flag svg { width: 12px; height: 12px; flex: none; margin-top: 2px; }
+
 /* Collapsed: left section becomes a slim strip inside the same panel */
 .ev-panel.is-collapsed .pv-rail { flex: 0 0 50px; padding: 18px 0; }
 .ev-panel.is-collapsed .pv-full { display: none; }
@@ -1320,6 +1336,10 @@ body.is-email-route .page { display: none; }
    the email's own mobile rules apply (fixed-width emails scale down instead). */
 .pv-render-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
 .pv-render-head .pv-render-eyebrow { margin-bottom: 0; }
+.pv-render-tools { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+/* Dark preview: the stage darkens with the email so the invert reads in context. */
+.pv-stage.is-dark { background: #23262c; border-color: #3a3f47; }
+.pv-stage.is-dark .pv-email { background: #0d0d0d; border-color: #3a3f47; }
 .pv-width-toggle {
   display: inline-flex; padding: 2px;
   border: 1px solid var(--line); border-radius: 999px; background: #fff;
@@ -3141,9 +3161,15 @@ Scale Computing
         <section class="pv-render">
           <div class="pv-render-head">
             <div class="pv-render-eyebrow">Rendered email</div>
-            <div class="pv-width-toggle" id="pvWidthToggle" role="group" aria-label="Preview width">
-              <button type="button" class="pv-width-btn is-active" data-width="desktop" title="Render at full width (680px card)">Desktop</button>
-              <button type="button" class="pv-width-btn" data-width="mobile" title="Render in a 375px phone viewport">Mobile</button>
+            <div class="pv-render-tools">
+              <div class="pv-width-toggle" id="pvThemeToggle" role="group" aria-label="Preview theme">
+                <button type="button" class="pv-width-btn is-active" data-theme="light" title="Render as authored">Light</button>
+                <button type="button" class="pv-width-btn" data-theme="dark" title="Simulate a dark-mode client (full color invert, the Gmail dark-mode treatment)">Dark</button>
+              </div>
+              <div class="pv-width-toggle" id="pvWidthToggle" role="group" aria-label="Preview width">
+                <button type="button" class="pv-width-btn is-active" data-width="desktop" title="Render at full width (680px card)">Desktop</button>
+                <button type="button" class="pv-width-btn" data-width="mobile" title="Render in a 375px phone viewport">Mobile</button>
+              </div>
             </div>
           </div>
           <div class="pv-stage">
@@ -4785,6 +4811,14 @@ Scale Computing
       detail: compat.join('; ')
     });
 
+    // Gmail clips messages over 102 KB ("View entire message"), hiding
+    // everything past the cut — including the unsubscribe link.
+    const bytes = new TextEncoder().encode(html).length;
+    checks.push({
+      label: 'Email weight', ok: bytes <= 102 * 1024, level: 'warn',
+      detail: bytes <= 102 * 1024 ? '' : Math.round(bytes / 1024) + ' KB — Gmail clips messages over 102 KB, hiding the rest (including the unsubscribe link)'
+    });
+
     // Palette drift (validator step 8): every hex must be a spec token.
     // Skipped when the spec files couldn't be fetched (empty palette).
     // Numeric character references (&#128181; — emoji) look like hex; strip.
@@ -4908,6 +4942,49 @@ Scale Computing
     }).catch(() => fill('<div class="pv-value muted">Could not load the email to check.</div>'));
   }
 
+  // ===== Link audit: every href in the email, in document order ===========
+  // Flags mirror the validator's step 10. Hosted assets get the list without
+  // flags — they're browser-viewed pages, not sends, so deeplink tokens and
+  // in-page anchors are fine there.
+  function linkAudit(html, isSend) {
+    const rows = [];
+    const seen = new Map(); // href -> row (dedupe, keep first position)
+    for (const m of html.matchAll(/href\s*=\s*"([^"]*)"/gi)) {
+      const href = m[1].trim();
+      if (seen.has(href)) { seen.get(href).count++; continue; }
+      let flag = '';
+      if (isSend) {
+        if (href === '' || href === '#') flag = 'placeholder — points nowhere';
+        else if (/^http:\/\//i.test(href)) flag = 'insecure http — use https';
+        else if (!/^(https:\/\/|mailto:|tel:|#.|\{\{)/i.test(href)) flag = "won't resolve in an email client";
+      }
+      const row = { href, count: 1, flag };
+      seen.set(href, row);
+      rows.push(row);
+    }
+    return rows;
+  }
+
+  function renderLinkAudit(email, expectedId) {
+    const fill = (inner) => {
+      const box = document.getElementById('pvLinks');
+      if (!box || box.dataset.for !== expectedId) return;
+      document.getElementById('pvLinksBody').innerHTML = inner;
+    };
+    getEmailHTMLOnce(email.sourceId).then(html => {
+      const rows = linkAudit(html, !isMarketingCenter(email));
+      if (!rows.length) { fill('<div class="pv-value muted">No links in this email</div>'); return; }
+      fill(rows.map(r => {
+        const label = r.href ? r.href.replace(/^https?:\/\/(www\.)?/i, '') : '(empty href)';
+        const text = esc(label) + (r.count > 1 ? ` <span class="pv-link-count">×${r.count}</span>` : '');
+        const url = /^(https?:\/\/|mailto:)/i.test(r.href)
+          ? `<a class="pv-link-url" href="${esc(r.href)}" target="_blank" rel="noopener" title="${esc(r.href)}">${text}</a>`
+          : `<span class="pv-link-url" title="${esc(r.href)}">${text}</span>`;
+        return `<div class="pv-link-row">${url}${r.flag ? `<div class="pv-link-flag">${ICONS.alert}<span>${esc(r.flag)}</span></div>` : ''}</div>`;
+      }).join(''));
+    }).catch(() => fill('<div class="pv-value muted">Could not load the email to scan.</div>'));
+  }
+
   // A value cell, or a muted placeholder when the model doesn't carry that field.
   function pvVal(value, placeholder) {
     return value
@@ -4935,6 +5012,10 @@ Scale Computing
         <div class="pv-field" id="pvPatterns" data-for="${esc(email.id)}">
           <div class="pv-label">Patterns &amp; blocks</div>
           <div id="pvPatternsBody"><div class="pv-value muted">Scanning…</div></div>
+        </div>
+        <div class="pv-field" id="pvLinks" data-for="${esc(email.id)}">
+          <div class="pv-label">Links</div>
+          <div id="pvLinksBody"><div class="pv-value muted">Scanning…</div></div>
         </div>
       </div>
 
@@ -4994,6 +5075,7 @@ Scale Computing
     setPreviewTextCell(email.sourceId, email.id);
     renderPreSendChecks(email, email.id);
     renderPatternBadges(email, email.id);
+    renderLinkAudit(email, email.id);
   }
 
   // Populated rail values copy on click (delegated once — the rail body's
@@ -5127,9 +5209,40 @@ Scale Computing
       } catch (e) {}
     };
     evFrameResize = resize;
-    frame.onload = () => { [100, 400, 900, 1800].forEach(t => setTimeout(resize, t)); };
+    frame.onload = () => { applyPreviewTheme(frame); [100, 400, 900, 1800].forEach(t => setTimeout(resize, t)); };
     frame.src = emailFileUrl(sourceId);
   }
+
+  // Light / Dark preview theme. Dark simulates the worst-case dark-mode client
+  // treatment (Gmail's full color invert): everything inverts with hues kept,
+  // images re-inverted back to normal. Injected into the same-origin frame so
+  // images aren't caught by a wrapper filter. Sticks while stepping between
+  // emails (re-applied on every frame load).
+  let pvDarkMode = false;
+  function applyPreviewTheme(frame) {
+    try {
+      const doc = frame.contentDocument || frame.contentWindow.document;
+      if (!doc || !doc.documentElement) return;
+      let style = doc.getElementById('pvDarkSim');
+      if (pvDarkMode && !style) {
+        style = doc.createElement('style');
+        style.id = 'pvDarkSim';
+        style.textContent = 'html{filter:invert(1) hue-rotate(180deg);background:#0d0d0d;}img,video{filter:invert(1) hue-rotate(180deg);}';
+        (doc.head || doc.documentElement).appendChild(style);
+      } else if (!pvDarkMode && style) {
+        style.remove();
+      }
+    } catch (e) {}
+  }
+  document.getElementById('pvThemeToggle').addEventListener('click', (e) => {
+    const btn = e.target.closest('.pv-width-btn');
+    if (!btn || btn.classList.contains('is-active')) return;
+    document.querySelectorAll('#pvThemeToggle .pv-width-btn')
+      .forEach(b => b.classList.toggle('is-active', b === btn));
+    pvDarkMode = btn.dataset.theme === 'dark';
+    document.querySelector('.pv-stage').classList.toggle('is-dark', pvDarkMode);
+    applyPreviewTheme(document.getElementById('evFrame'));
+  });
 
   // Desktop / Mobile preview width. The choice sticks while stepping between
   // emails (the container persists); the frame re-measures at the new width.

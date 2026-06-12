@@ -43,16 +43,25 @@ for Pardot). `index.html` is the page itself — **you almost never edit it.**
   markup major email clients drop (flex/grid/position, vh/vw/rem, `<svg>` /
   `<form>` / `<button>` / `<iframe>` / external stylesheets, background images
   or button-style links without MSO/VML fallbacks, `<img>` missing alt text).
-  A palette-drift lint warns on any hex color not found in the locked spec
+  An email-weight check warns when a file exceeds 102 KB (Gmail clips it,
+  hiding everything past the cut — including the unsubscribe link). A link
+  audit makes a placeholder `href="#"`/empty href an error while the send is
+  upcoming (warning once sent) and warns on `http://` links or hrefs no email
+  client can resolve. A palette-drift lint warns on any hex color not found in the locked spec
   files (`house-style.md` / `reusable-blocks.md` / `plain-text-style.md` —
   the specs ARE the approved palette, so registering a token in a spec
   approves it). Hosted assets (Marketing Center) are exempt.
   The app mirrors these content checks live too (palette lint included):
   each email's build rail opens with a passive "Pre-send checks" section
-  (green pass / amber warn / red error) and a "Patterns & blocks" section
-  that fingerprints which locked patterns/blocks the email is composed from.
+  (green pass / amber warn / red error), a "Patterns & blocks" section
+  that fingerprints which locked patterns/blocks the email is composed from,
+  and a "Links" section listing every href in document order (deduped with
+  ×N counts, validator flags mirrored; hosted assets get the list unflagged).
   The build view's rendered-email pane also has a Desktop / Mobile
-  width toggle (Mobile = a true 375px viewport, so responsive emails reflow).
+  width toggle (Mobile = a true 375px viewport, so responsive emails reflow)
+  and a Light / Dark toggle (Dark simulates the Gmail dark-mode treatment —
+  full color invert with hues kept, images re-inverted — and sticks while
+  stepping between emails).
 - `house-style.md`, `reusable-blocks.md`, `plain-text-style.md` — the locked
   build specs (see "Which spec to build from").
 

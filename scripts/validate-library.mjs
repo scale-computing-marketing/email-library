@@ -31,6 +31,12 @@
  *      plain-text-style.md — the specs ARE the approved palette). Catches
  *      the "sibling emails can be off-spec" trap: a color inferred from
  *      another email instead of looked up in the token table. Warnings only.
+ *   9. Gmail clipping: an email file over 102 KB gets clipped in Gmail
+ *      ("[Message clipped] View entire message"), hiding everything past the
+ *      cut — including the unsubscribe link. Warning at the threshold.
+ *  10. Link audit: a placeholder href ("#" or empty) is an error while the
+ *      send is upcoming (warning once sent); http:// links and hrefs no email
+ *      client can resolve (not https/mailto/tel/anchor/merge-token) warn.
  *
  * Run locally before you push:   node scripts/validate-library.mjs
  * Runs automatically in CI via .github/workflows/validate.yml
@@ -288,6 +294,26 @@ for (const c of manifest.campaigns) {
 
     // d) client-compatibility lint (step 7)
     for (const f of clientCompatFindings(html)) warnings.push(`${ref}: ${f}.`);
+
+    // f) Gmail clipping (step 9)
+    const bytes = Buffer.byteLength(html, 'utf8');
+    if (bytes > 102 * 1024) {
+      warnings.push(`${ref}: ${Math.round(bytes / 1024)} KB — Gmail clips messages over 102 KB ("View entire message" hides the rest, including the unsubscribe link).`);
+    }
+
+    // g) link audit (step 10). Placeholder links are fixable pre-send (error);
+    // the rest is advisory. The app's build rail mirrors these flags.
+    const hrefs = [...html.matchAll(/href\s*=\s*"([^"]*)"/gi)].map(m => m[1].trim());
+    for (const href of [...new Set(hrefs)]) {
+      if (href === '' || href === '#') {
+        (upcoming ? errors : warnings).push(
+          `${ref}: placeholder link href="${href}"${upcoming ? ' — must point somewhere before this sends' : ' (already sent; recorded as shipped)'}.`);
+      } else if (/^http:\/\//i.test(href)) {
+        warnings.push(`${ref}: insecure link ${href} — use https.`);
+      } else if (!/^(https:\/\/|mailto:|tel:|#.|\{\{)/i.test(href)) {
+        warnings.push(`${ref}: link href="${href}" won't resolve in an email client (expected https, mailto, tel, an in-email anchor, or a {{merge token}}).`);
+      }
+    }
 
     // e) palette-drift lint (step 8). Numeric character references (&#128181;
     // — emoji in subject lines) look like hex colors to the regex; strip them.
