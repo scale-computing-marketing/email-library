@@ -269,19 +269,25 @@ body {
 .sched-group-head { display: flex; align-items: center; gap: 14px; padding: 11px 16px; cursor: pointer; }
 .sched-group-items {
   border-top: 1px solid var(--line); background: var(--panel-2);
-  padding: 10px 16px 12px 85px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
-  border-radius: 0 0 var(--r) var(--r);
+  border-radius: 0 0 var(--r) var(--r); padding: 4px 0;
 }
 .sched-group-item {
-  background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
-  padding: 9px 12px; cursor: pointer; transition: border-color .12s ease;
+  display: flex; align-items: center; gap: 12px; padding: 8px 16px 8px 85px;
+  cursor: pointer;
 }
-.sched-group-item:hover { border-color: var(--accent); }
-.sched-group-item .sched-title { font-size: 13.5px; }
-.sched-group-item .sched-kind { margin-top: 5px; }
+.sched-group-item::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--line-2); flex-shrink: 0; transition: background .12s ease;
+}
+.sched-group-item + .sched-group-item { border-top: 1px solid var(--line); }
+.sched-group-item:hover { background: var(--accent-soft); }
+.sched-group-item:hover::before { background: var(--accent); }
+.sched-group-item:hover .sched-title { color: var(--accent-2); }
+.sched-group-item .sched-title { font-size: 13.5px; flex: 1; min-width: 0; }
+.sched-group-item .sched-kind { background: transparent; }
 @media (max-width: 700px) {
   .sched-group-head { flex-wrap: wrap; gap: 8px 12px; }
-  .sched-group-items { padding-left: 16px; grid-template-columns: 1fr; }
+  .sched-group-item { padding-left: 16px; flex-wrap: wrap; gap: 6px 10px; }
 }
 @media (max-width: 700px) {
   .sched-wrap { padding-left: 0; max-width: none; }
