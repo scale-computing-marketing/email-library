@@ -1168,6 +1168,21 @@ body.is-email-route .page { display: none; }
 }
 .pv-field { margin-bottom: 16px; }
 .pv-divider { border-top: 1px solid var(--line); margin: 16px 0; }
+/* Carded rail groups: the group title carries the structure (no per-field
+   dividers), so the white console reads as a few labeled sections. */
+.pv-group {
+  background: #f7f9fb; border: 1px solid var(--line); border-radius: 10px;
+  padding: 14px 16px; margin: 0 0 12px;
+}
+.pv-group:last-child { margin-bottom: 0; }
+.pv-group-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--accent); font-weight: 700; margin: 0 0 12px;
+}
+.pv-group > .pv-grid-2, .pv-group > .pv-grid-3 { margin-bottom: 16px; }
+.pv-group > :last-child { margin-bottom: 0 !important; }
+.pv-group .pv-tag { background: #fff; }
 .pv-name-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 4px; }
 .pv-badge {
   font-family: 'JetBrains Mono', monospace;
@@ -1267,6 +1282,14 @@ body.is-email-route .page { display: none; }
   font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
   color: var(--accent); font-weight: 700; margin-bottom: 14px;
 }
+/* The stage: a clearly tinted surface under the email so the rendered
+   artifact reads apart from the white console around it. */
+.pv-stage {
+  background: #eef1f5;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 22px;
+}
 .pv-email {
   /* 680px card + the 16px gutter each side the emails' outer cell carries + 1px borders */
   width: 714px; max-width: 100%;
@@ -1274,7 +1297,7 @@ body.is-email-route .page { display: none; }
   background: #f2f2f2;
   border: 1px solid var(--line);
   border-radius: var(--r);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  box-shadow: 0 14px 34px -22px rgba(16,24,38,0.45);
   overflow: hidden;
 }
 .pv-email iframe {
@@ -3114,8 +3137,10 @@ Scale Computing
               <button type="button" class="pv-width-btn" data-width="mobile" title="Render in a 375px phone viewport">Mobile</button>
             </div>
           </div>
-          <div class="pv-email" id="pvEmail">
-            <iframe id="evFrame" title="Email preview"></iframe>
+          <div class="pv-stage">
+            <div class="pv-email" id="pvEmail">
+              <iframe id="evFrame" title="Email preview"></iframe>
+            </div>
           </div>
         </section>
       </div>
@@ -4793,65 +4818,58 @@ Scale Computing
       : (sendStatus(email) === 'sent' ? '— not recorded —' : undefined);
     const pardotName = email.pardotName || (campaign ? `${campaign.title} │ ${email.title}` : email.title);
     const html = `
-      ${mc ? '' : `
-      <div class="pv-field" id="pvChecks" data-for="${esc(email.id)}">
-        <div class="pv-label">Pre-send checks</div>
-        <div id="pvChecksBody"><div class="pv-value muted">Checking…</div></div>
-      </div>
-      <div class="pv-divider"></div>`}
-      <div class="pv-field" id="pvPatterns" data-for="${esc(email.id)}">
-        <div class="pv-label">Patterns &amp; blocks</div>
-        <div id="pvPatternsBody"><div class="pv-value muted">Scanning…</div></div>
-      </div>
-      <div class="pv-divider"></div>
-      <div class="pv-name-row">
-        <span class="pv-label" style="margin:0;">Pardot Email Name</span>
-      </div>
-      <div class="pv-value mono">${esc(pardotName)}</div>
-
-      <div class="pv-divider"></div>
-
-      <div class="pv-field"><div class="pv-label">Subject line A</div><div class="pv-value">${esc(email.subject || '')}</div></div>
-      <div class="pv-field"><div class="pv-label">Subject line B · A/B test off</div><div class="pv-value muted">— not set —</div></div>
-      <div class="pv-field"><div class="pv-label">Preview text</div><div class="pv-value muted" id="metaPreviewText" data-for="${esc(email.id)}">Loading…</div></div>
-
-      <div class="pv-divider"></div>
-
-      <div class="pv-grid-2">
-        <div class="pv-field"><div class="pv-label">Send date</div>${pvVal(email.sendDate, ph)}</div>
-        <div class="pv-field"><div class="pv-label">Send time</div>${pvVal(email.sendTime, ph)}</div>
+      <div class="pv-group">
+        <div class="pv-group-title">Checks &amp; Composition</div>
+        ${mc ? '' : `
+        <div class="pv-field" id="pvChecks" data-for="${esc(email.id)}">
+          <div class="pv-label">Pre-send checks</div>
+          <div id="pvChecksBody"><div class="pv-value muted">Checking…</div></div>
+        </div>`}
+        <div class="pv-field" id="pvPatterns" data-for="${esc(email.id)}">
+          <div class="pv-label">Patterns &amp; blocks</div>
+          <div id="pvPatternsBody"><div class="pv-value muted">Scanning…</div></div>
+        </div>
       </div>
 
-      <div class="pv-divider"></div>
-
-      <div class="pv-grid-3">
-        <div class="pv-field"><div class="pv-label">Email type</div>${pvVal(deriveEmailType(email.tags))}</div>
-        <div class="pv-field"><div class="pv-label">Content type</div>${pvVal(deriveContentType(email.tags) || email.contentType || (campaign ? campaign.kind : ''))}</div>
-        <div class="pv-field"><div class="pv-label">Audience</div>${pvVal(deriveAudience(email.tags))}</div>
-        <div class="pv-field"><div class="pv-label">Theme</div>${pvVal(deriveTheme(email.tags))}</div>
-        <div class="pv-field"><div class="pv-label">A/B test</div><div class="pv-value">No</div></div>
-        <div class="pv-field"><div class="pv-label">CTA</div>${pvVal(deriveCTAs(email.tags))}</div>
+      <div class="pv-group">
+        <div class="pv-group-title">Send Setup</div>
+        <div class="pv-field">
+          <div class="pv-label">Pardot Email Name</div>
+          <div class="pv-value mono">${esc(pardotName)}</div>
+        </div>
+        <div class="pv-field"><div class="pv-label">Subject line A</div><div class="pv-value">${esc(email.subject || '')}</div></div>
+        <div class="pv-field"><div class="pv-label">Subject line B · A/B test off</div><div class="pv-value muted">— not set —</div></div>
+        <div class="pv-field"><div class="pv-label">Preview text</div><div class="pv-value muted" id="metaPreviewText" data-for="${esc(email.id)}">Loading…</div></div>
+        <div class="pv-grid-2">
+          <div class="pv-field"><div class="pv-label">Send date</div>${pvVal(email.sendDate, ph)}</div>
+          <div class="pv-field"><div class="pv-label">Send time</div>${pvVal(email.sendTime, ph)}</div>
+        </div>
       </div>
 
-      <div class="pv-divider"></div>
-
-      <div class="pv-field"><div class="pv-label">Sender name</div><div class="pv-value">Scale Computing</div></div>
-      <div class="pv-grid-2">
-        <div class="pv-field"><div class="pv-label">From</div>${pvVal(email.from, ph)}</div>
-        <div class="pv-field"><div class="pv-label">Reply-to</div>${pvVal(email.replyTo, ph)}</div>
-      </div>
-
-      <div class="pv-divider"></div>
-
-      <div class="pv-grid-2">
-        <div class="pv-field"><div class="pv-label">Send to (lists)</div>${pvVal(Array.isArray(email.sendTo) ? email.sendTo.join(', ') : email.sendTo, ph || '— select list —')}</div>
-        <div class="pv-field"><div class="pv-label">Suppression</div>${pvVal(Array.isArray(email.suppression) ? email.suppression.join(', ') : email.suppression, ph)}</div>
+      <div class="pv-group">
+        <div class="pv-group-title">Audience &amp; Delivery</div>
+        <div class="pv-grid-3">
+          <div class="pv-field"><div class="pv-label">Email type</div>${pvVal(deriveEmailType(email.tags))}</div>
+          <div class="pv-field"><div class="pv-label">Content type</div>${pvVal(deriveContentType(email.tags) || email.contentType || (campaign ? campaign.kind : ''))}</div>
+          <div class="pv-field"><div class="pv-label">Audience</div>${pvVal(deriveAudience(email.tags))}</div>
+          <div class="pv-field"><div class="pv-label">Theme</div>${pvVal(deriveTheme(email.tags))}</div>
+          <div class="pv-field"><div class="pv-label">A/B test</div><div class="pv-value">No</div></div>
+          <div class="pv-field"><div class="pv-label">CTA</div>${pvVal(deriveCTAs(email.tags))}</div>
+        </div>
+        <div class="pv-field"><div class="pv-label">Sender name</div><div class="pv-value">Scale Computing</div></div>
+        <div class="pv-grid-2">
+          <div class="pv-field"><div class="pv-label">From</div>${pvVal(email.from, ph)}</div>
+          <div class="pv-field"><div class="pv-label">Reply-to</div>${pvVal(email.replyTo, ph)}</div>
+        </div>
+        <div class="pv-grid-2">
+          <div class="pv-field"><div class="pv-label">Send to (lists)</div>${pvVal(Array.isArray(email.sendTo) ? email.sendTo.join(', ') : email.sendTo, ph || '— select list —')}</div>
+          <div class="pv-field"><div class="pv-label">Suppression</div>${pvVal(Array.isArray(email.suppression) ? email.suppression.join(', ') : email.suppression, ph)}</div>
+        </div>
       </div>
       ${email.tags && email.tags.length ? `
-      <div class="pv-divider"></div>
-      <div class="pv-field">
-        <div class="pv-name-row">
-          <span class="pv-label" style="margin:0;">Tags</span>
+      <div class="pv-group">
+        <div class="pv-name-row" style="margin-bottom:12px;">
+          <span class="pv-group-title" style="margin:0;">Tags</span>
           <button class="pv-tag-copy" id="pvTagsCopy" type="button" title="Copy tags">${ICONS.copy} Copy</button>
         </div>
         <div class="pv-tags">${
