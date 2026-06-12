@@ -12,7 +12,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600;700&family=Bebas+Neue&family=JetBrains+Mono:wght@400;500;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,400;9..144,0,500;9..144,0,600;9..144,1,400;9..144,1,500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/campaign-builder.css">
 <style>
 :root {
@@ -152,10 +151,9 @@ body {
   text-align: left;
   padding: 7px 9px;
   border-radius: 6px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  letter-spacing: -0.01em;
   font-weight: 500;
   color: var(--ink-2);
   display: flex;
@@ -181,7 +179,7 @@ body {
 }
 .nav-icon svg { width: 16px; height: 16px; stroke-width: 1.8; }
 .nav-item:hover .nav-icon, .nav-item.active .nav-icon { color: var(--accent); }
-.nav-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nav-label { flex: 1; min-width: 0; line-height: 1.3; }
 .nav-badge {
   margin-left: auto;
   background: transparent;
@@ -410,7 +408,7 @@ body {
 
 /* ===== OPS TOOLS: CAMPAIGN BUILDER (routed view) =====
    assets/campaign-builder.css is fully self-contained, scoped under #p-builder. */
-#p-builder { font-family: 'Fraunces', Georgia, serif; -webkit-font-smoothing: antialiased; }
+#p-builder { font-family: 'DM Sans', sans-serif; -webkit-font-smoothing: antialiased; }
 
 /* Ops Tools callouts — routed views (#/tags, #/builder), boxed so they
    read as tools rather than another campaign in the list. */
@@ -514,6 +512,9 @@ body {
   font-weight: 400;
 }
 .hero-meta:empty { display: none; }
+/* The library home carries no hero copy — breadcrumb + view label already name
+   the page, so the hero band collapses there and content starts higher. */
+body.is-home-route .hero { display: none; }
 .hero-meta span { color: var(--ink-2); }
 .hero-meta strong { color: var(--ink); font-weight: 600; }
 
@@ -815,31 +816,22 @@ body {
   transform: translateY(-2px);
   box-shadow: 0 6px 18px rgba(17,56,89,.10);
 }
-.campaign-top {
+.campaign-body { flex: 1; min-width: 0; padding: 18px 16px; }
+.campaign-head {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 16px 16px 0;
+  margin-bottom: 10px;
 }
-.campaign-icon {
-  width: 38px; height: 38px;
-  border-radius: 10px;
-  background: rgba(37,114,185,0.10);
-  color: var(--sc-blue);
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
-.campaign-icon svg { width: 18px; height: 18px; }
-.campaign-body { flex: 1; min-width: 0; padding: 12px 16px 18px; }
 .campaign-kind {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  font-weight: 500;
+  font-size: 10.5px;
+  font-weight: 700;
   letter-spacing: 1.5px;
-  color: var(--ink-3);
   text-transform: uppercase;
-  margin-bottom: 5px;
+  min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .campaign-title {
   font-family: 'DM Sans', sans-serif;
@@ -1477,7 +1469,7 @@ body.is-email-route .page { display: none; }
   --ed-ink:#19202b; --ed-navy:#0a2540; --ed-blue:#1e88e5;
   --ed-link:#0a5db5; --ed-line:#e3ddd0; --ed-mono:#5b6675;
   --ed-soft:#f7f9fc; --ed-chipbg:#faf8f3;
-  font-family:'Fraunces',Georgia,serif; -webkit-font-smoothing:antialiased;
+  font-family:'DM Sans',sans-serif; -webkit-font-smoothing:antialiased;
 }
 #brandingView .ed-section{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:12px;
   letter-spacing:3px;text-transform:uppercase;color:var(--ed-navy);
@@ -1493,11 +1485,11 @@ body.is-email-route .page { display: none; }
 #brandingView .brand-logo-wrap--dark{background:var(--ed-navy);border-bottom-color:var(--ed-navy);}
 #brandingView .brand-logo-img{max-width:100%;max-height:56px;width:auto;height:auto;}
 #brandingView .brand-card-body{padding:20px 22px 22px;}
-#brandingView .brand-card-name{font-family:'Fraunces',serif;font-size:19px;font-weight:600;letter-spacing:-.3px;color:var(--ed-ink);
+#brandingView .brand-card-name{font-family:'DM Sans',sans-serif;font-size:16px;font-weight:600;letter-spacing:-.2px;color:var(--ed-ink);
   display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 6px;}
 #brandingView .brand-card-flag{font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;letter-spacing:1.5px;
   text-transform:uppercase;color:#0a5db5;background:#eaf3fb;border:1px solid #cfe3f6;padding:3px 8px;border-radius:999px;}
-#brandingView .brand-card-sub{font-family:'Fraunces',serif;font-size:14px;line-height:1.5;color:#54606f;margin:0 0 16px;}
+#brandingView .brand-card-sub{font-family:'DM Sans',sans-serif;font-size:13.5px;line-height:1.5;color:#54606f;margin:0 0 16px;}
 #brandingView .brand-swatch-row{display:flex;flex-wrap:wrap;gap:8px;}
 #brandingView .brand-swatch{display:inline-flex;align-items:center;gap:7px;font-family:'JetBrains Mono',monospace;font-size:11px;
   font-weight:500;padding:5px 11px 5px 8px;border-radius:999px;border:1px solid var(--ed-line);background:var(--ed-chipbg);
@@ -1672,7 +1664,7 @@ body.is-email-route .page { display: none; }
 #cb-library{
     background:transparent;
     color:var(--ink);
-    font-family:'Fraunces',Georgia,serif;
+    font-family:'DM Sans',sans-serif;
     -webkit-font-smoothing:antialiased;
   }
 #cb-library .wrap{max-width:none;margin:0;padding:0 0 72px;}
@@ -1723,7 +1715,7 @@ body.is-email-route .page { display: none; }
     font-family:'JetBrains Mono',monospace;font-weight:700;font-size:10.5px;
     letter-spacing:2.5px;text-transform:uppercase;color:var(--blue);margin:0 0 9px;
   }
-#cb-library .block-head h2{font-size:26px;line-height:1.1;font-weight:600;letter-spacing:-.5px;margin:0 0 14px;}
+#cb-library .block-head h2{font-size:19px;line-height:1.2;font-weight:600;letter-spacing:-.3px;margin:0 0 14px;}
 #cb-library .chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 0;}
 #cb-library .chip{
     font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;
@@ -2511,6 +2503,7 @@ body.is-email-route .page { display: none; }
   function handleRoute() {
     closeSidebarDrawer();
     const r = parseHash();
+    document.body.classList.toggle('is-home-route', r.route === 'home' || r.route === 'year');
     // Reviewer framing: a session that STARTS on a shared campaign/email deep
     // link hides the Ops Tools nav until the visitor navigates into the app
     // proper — shared links read as a review page, not an internal console.
@@ -3210,16 +3203,26 @@ body.is-email-route .page { display: none; }
     `;
   }
 
+  // Each campaign kind gets a stable accent hue (assigned in order of first
+  // appearance, so it's consistent across views and reloads for the same data).
+  const KIND_HUES = ['#2572b9', '#42b649', '#9c2e91', '#e8780a', '#0a2540', '#1d5a91'];
+  const kindHueMap = new Map();
+  function kindHue(kind) {
+    const k = String(kind || 'Email');
+    if (!kindHueMap.has(k)) kindHueMap.set(k, KIND_HUES[kindHueMap.size % KIND_HUES.length]);
+    return kindHueMap.get(k);
+  }
+
   function campaignCardHTML(c) {
+    const hue = kindHue(c.kind);
     return `
       <div class="campaign" data-campaign-link="${c.id}" role="button" tabindex="0">
-        <span class="campaign-bar"></span>
-        <div class="campaign-top">
-          <div class="campaign-icon">${ICONS.folder}</div>
-          <span class="campaign-count">${c.emails.length} EMAIL${c.emails.length !== 1 ? 'S' : ''}</span>
-        </div>
+        <span class="campaign-bar" style="background:${hue}"></span>
         <div class="campaign-body">
-          <div class="campaign-kind">${c.kind}</div>
+          <div class="campaign-head">
+            <span class="campaign-kind" style="color:${hue}">${c.kind}</span>
+            <span class="campaign-count">${c.emails.length} EMAIL${c.emails.length !== 1 ? 'S' : ''}</span>
+          </div>
           <div class="campaign-title">${c.title}</div>
         </div>
       </div>

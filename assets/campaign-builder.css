@@ -1,6 +1,6 @@
 /* Campaign Builder — scoped under #p-builder. The loader normally gives the page
    class "page gov-ed", so it inherits the dashboard's gov-ed editorial system
-   (Fraunces headings, JetBrains Mono labels/tags, the --ed-* palette). To keep the
+   (DM Sans headings, JetBrains Mono labels/tags, the --ed-* palette). To keep the
    section self-contained per the repo convention ("scope every rule under #p-<id>,
    define custom properties on #p-<id>"), we restate the --ed-* tokens and the base
    .ed-masthead/.ed-kicker/.ed-lede rules here too, so the header renders correctly
@@ -19,10 +19,10 @@
 #p-builder .ed-masthead{padding:14px 0 36px;border-bottom:1px solid var(--ed-line);margin-bottom:10px;}
 #p-builder .ed-kicker{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:11px;
   letter-spacing:3.5px;text-transform:uppercase;color:var(--ed-blue);margin:0 0 18px;}
-#p-builder .ed-masthead h1{font-family:'Fraunces',Georgia,serif;font-size:clamp(32px,5vw,52px);
+#p-builder .ed-masthead h1{font-family:'DM Sans',sans-serif;font-size:clamp(26px,4vw,38px);
   line-height:1.04;font-weight:600;letter-spacing:-1.5px;margin:0 0 20px;color:var(--ed-ink);}
 #p-builder .ed-masthead h1 em{font-style:italic;font-weight:400;color:var(--ed-navy);}
-#p-builder .ed-lede{font-family:'Fraunces',Georgia,serif;font-size:18px;line-height:1.55;
+#p-builder .ed-lede{font-family:'DM Sans',sans-serif;font-size:14.5px;line-height:1.55;
   max-width:66ch;margin:0;color:#3a4351;font-weight:400;}
 
 /* cap the masthead size a touch for this section */
@@ -107,8 +107,8 @@
 #p-builder .dot.warn{background:var(--cb-warn)}
 
 /* ── editor ── */
-#p-builder .cb-editor h2{font-family:'Fraunces',Georgia,serif;font-size:26px;line-height:1.1;font-weight:600;letter-spacing:-.5px;margin:0 0 4px;color:var(--ed-ink)}
-#p-builder .cb-editor .sub{font-family:'Fraunces',Georgia,serif;font-size:15px;line-height:1.55;margin:0 0 18px;color:#3a4351}
+#p-builder .cb-editor h2{font-family:'DM Sans',sans-serif;font-size:19px;line-height:1.2;font-weight:600;letter-spacing:-.3px;margin:0 0 4px;color:var(--ed-ink)}
+#p-builder .cb-editor .sub{font-family:'DM Sans',sans-serif;font-size:13.5px;line-height:1.55;margin:0 0 18px;color:#3a4351}
 #p-builder .ed-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px;flex-wrap:wrap}
 #p-builder .ed-head h2{margin:0}
 #p-builder .ed-acts{display:flex;gap:6px}
