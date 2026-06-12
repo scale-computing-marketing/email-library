@@ -20,15 +20,22 @@ for Pardot). `index.html` is the page itself — **you almost never edit it.**
 - Ops Tools are **routed views inside `index.html`** (`#/tags` = Tag Library
   browser, `#/builder` = Campaign Builder, `#/blocks` = Content Blocks visual
   reference, `#/branding` = logo system) so they share the app shell (sidebar,
-  breadcrumb, hero). The builder's logic is `assets/campaign-builder.{css,js}`
-  (verbatim from the dashboard's old `sections/campaign-builder/`; reads the
-  registry as `window.TAG_DATA`, exports the Word build doc). Branding and
-  Content Blocks markup is verbatim from the dashboard's old sections.
-  `tags.html` / `builder.html` are just redirect stubs for old links.
-- `scripts/validate-library.mjs` — consistency checker (run before every commit).
+  breadcrumb, hero). The Tag Library shows live per-tag usage counts from the
+  manifest (click through to the filtered library) and an amber gap list of any
+  manifest tags missing from the registry. The builder's logic is
+  `assets/campaign-builder.{css,js}` (from the dashboard's old
+  `sections/campaign-builder/`; reads the registry as `window.TAG_DATA`, exports
+  the Word build doc, and notes under the campaign name whether that campaign
+  already exists in the library). Content Blocks cards each carry a Copy HTML
+  button for the block's Pardot-ready markup. `tags.html` / `builder.html` are
+  just redirect stubs for old links.
+- `scripts/validate-library.mjs` — consistency checker (run before every commit;
+  CI also runs it on every push via `.github/workflows/validate.yml`).
   Audits every manifest tag against `data/tag-library.json`; minted
   per-campaign tags (`campaign-*`, `event-*`, `ab-variant-*`) are
-  shape-checked. An unknown tag is a warning: fix it or register it.
+  shape-checked. An unknown tag is a warning: fix it or register it. The app
+  mirrors this check live — emails carrying unregistered tags get an amber
+  warning badge in lists and on their build-rail tag pills.
 - `house-style.md`, `reusable-blocks.md`, `plain-text-style.md` — the locked
   build specs (see "Which spec to build from").
 
@@ -113,9 +120,15 @@ re-run the validator, commit.
 ## Reviewer sharing
 
 To get a campaign reviewed, open the live library, click into the campaign, and
-copy its shareable link — e.g.
+use the **Copy share link** button (every campaign page has one; the email build
+view has a **Copy link** button for a single email) — e.g.
 `https://scale-computing-marketing.github.io/email-library/#/campaign/<campaign-id>`.
-Anyone with the link can review the rendered emails; no login required.
+Anyone with the link can review the rendered emails; no login required. A browser
+whose first visit lands on a shared campaign/email link gets the reviewer
+framing — the Ops Tools nav is hidden until it browses into the app proper
+(remembered per-browser via localStorage, so insiders refreshing mid-campaign
+keep the full nav). Reviewers step between a campaign's emails with the ‹ › 
+arrows in the build-view header (or arrow keys).
 
 ## Visual QA (rendering differs across clients)
 

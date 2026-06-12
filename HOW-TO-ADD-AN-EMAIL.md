@@ -20,7 +20,7 @@ the email HTML) and say:
 
 > Build this email to house style. Save it as `emails/<short-id>.html`, add the
 > matching entry to the right campaign in `manifest.json` (id + sourceId =
-> `<short-id>`, set kind/title/subject/icon/tags/sendDate), run
+> `<short-id>`, set kind/title/subject/tags/sendDate), run
 > `node scripts/validate-library.mjs`, and commit.
 
 That's the whole loop — no GitHub web UI, no separate manifest edit, and the
@@ -44,7 +44,6 @@ same: "change the CTA copy in `<id>` and re-commit."
      "kind": "End User Prospect",
      "title": "Q3 Webinar Invite",
      "subject": "You're invited: live HyperCore demo",
-     "icon": "blue",
      "sourceId": "q3-2026-webinar-invite",
      "tags": ["one-time-send", "audience-end-user-prospect", "cta-demo"],
      "sendDate": "August 5, 2026"
@@ -52,7 +51,9 @@ same: "change the CTA copy in `<id>` and re-commit."
    ```
 
    - **`sourceId` must exactly match the file name** (without `.html`).
-   - `icon` is one of `blue`, `green`, `purple`, `orange`.
+   - `tags` come from the registry in `data/tag-library.json` (browse it at
+     `#/tags` in the live library) — don't invent new ones. The `icon` field is
+     retired; don't add it to new entries.
    - New campaign instead? Copy an existing campaign block (`id`, `title`,
      `kind`, `year`, `emails`) and give it a fresh `emails` list.
 4. Commit/save. GitHub Pages redeploys in a minute or so.
@@ -72,14 +73,16 @@ node scripts/validate-library.mjs
 
 It confirms `manifest.json` is valid JSON (a trailing comma blanks the page),
 every `sourceId` has a matching `emails/<sourceId>.html` (a missing file breaks
-that email's Preview), flags orphan files, duplicates, bad `icon` values, and
-missing required fields. Green = safe to publish.
+that email's Preview), flags orphan files, duplicates, missing required fields,
+and audits every tag against the registry in `data/tag-library.json` (unknown
+tags are warnings; minted `campaign-*` / `event-*` / `ab-variant-*` tags are
+shape-checked). Green = safe to publish.
 
 The same check runs automatically on GitHub via
-`.github/workflows/validate-library.yml` — so even browser-only edits get caught.
-If you want it to actually *block* a broken state from deploying, make changes
-through a pull request and set "Validate email library" as a required check in
-branch protection.
+`.github/workflows/validate.yml` ("Validate library" in the Actions tab) — so
+even browser-only edits get caught within a minute of pushing. If you want it
+to actually *block* a broken state from deploying, make changes through a pull
+request and set "Validate library" as a required check in branch protection.
 
 ---
 
