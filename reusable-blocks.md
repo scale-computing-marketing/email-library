@@ -37,10 +37,6 @@ Each block entry follows this template:
 | 4 | Gartner Review Block (navy reward card) | CTA | ✅ Built |
 | 5 | Full Stack Cross-Promo (3 layer bars) | CTA | ✅ Built |
 | 6 | Layer-Strip Hero (designed HTML hero) | Structural / Hero | ✅ Built |
-| 7 | _(next block)_ | — | ⬜ To build |
-| … | | | |
-
-> Build backlog: 9+ blocks to migrate from BeePro. Hand them to Claude one at a time — paste the BeePro HTML or describe the block, and it'll be rebuilt in house-style format and added below.
 
 ## Approved color tokens (extends house-style.md palette)
 
