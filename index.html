@@ -2939,6 +2939,69 @@ body.is-email-route .page { display: none; }
     </div>
   </div>
 
+  <!-- ===================== PLAIN-TEXT FORMAT ===================== -->
+  <p class="section-label">Plain-text format (spec in plain-text-style.md)</p>
+
+  <div class="block">
+    <div class="block-head">
+      <p class="type">Format · Personal outreach · spec in plain-text-style.md</p>
+      <h2>Plain-Text Email — logo + prose + links</h2>
+      <div class="chips">
+        <span class="chip">Background: <b>white, no card</b></span>
+        <span class="chip">Images: <b>logo only</b></span>
+        <span class="chip"><i class="dot blue"></i> One CTA: <b>bold link, no button</b></span>
+        <span class="chip">Kind: <b>Plain-Text Outreach</b></span>
+      </div>
+      <p class="note">The whole sibling format, not a block: survey asks, rep outreach, reminders, low-key notes that should read like a one-to-one email. No hero, cards, buttons, or section patterns &mdash; bold only on the lead-in and the CTA, at most one emoji pointer, and the <code>{{#if Sender.Name}}</code> signature conditional with company fallback. Shown: the spec&rsquo;s filled ARC-reminder example (CTA destination per send). Log these with kind <b>Plain-Text Outreach</b>.</p>
+    </div>
+    <div class="stage">
+      <div class="stage-inner">
+        <div class="email-card">
+          <!-- PLAIN-TEXT EMAIL (plain-text-style.md — single column, white, max 600px) -->
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#ffffff;">
+            <tr>
+              <td align="center" style="padding:24px 16px;">
+                <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px; max-width:600px; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif; color:#1a1a1a;">
+
+                  <!-- LOGO -->
+                  <tr><td style="padding:0 0 24px;">
+                    <img src="https://info.scalecomputing.com/l/46782/2026-05-22/9ncf6z/46782/1779485235Zbzzbthu/PRIMARY_horizontal_scale_logo_blue_grey_tm.png" alt="Scale Computing" width="175" style="width:175px; height:auto; display:block; border:0;" />
+                  </td></tr>
+
+                  <!-- BODY -->
+                  <tr><td style="font-size:15px; line-height:24px;" align="left">
+                    <p style="margin:0 0 18px; text-align:left;">Hi {{Recipient.FirstName}},</p>
+                    <p style="margin:0 0 18px; text-align:left;">For over 40 years, the CRN Annual Report Card has recognized vendor partners for their commitment to the channel. This recognition is based on feedback from channel partners who share their opinions on how vendor products, programs, and performance influence channel strategy.</p>
+                    <p style="margin:0 0 18px; text-align:left;"><strong>Reminder!</strong> You have been selected as one of our most valued partners to complete this year&rsquo;s ARC Survey, which should only take 10 minutes to complete.</p>
+                    <p style="margin:0 0 18px; text-align:left;">&#128073; <a href="#" style="color:#0a5db5; font-weight:bold;">Click here to take the survey</a></p>
+                    <p style="margin:0 0 18px; text-align:left;">We will give survey respondents a $100 Amazon.com gift card in exchange for their time. Once you have completed the survey, please send a screenshot of your confirmation to <a href="mailto:crn@scalecomputing.com" style="color:#0a5db5;">crn@scalecomputing.com</a> to receive your gift card. Scale Computing&trade; will not have access to their identities or responses.</p>
+                    <p style="margin:0 0 18px; text-align:left;">The results will be published in October. You can view last year&rsquo;s at <a href="https://www.CRN.com/ARC" style="color:#0a5db5;">www.CRN.com/ARC</a>.</p>
+
+                    <!-- SIGNATURE -->
+                    <p style="margin:0 0 18px; white-space:pre-line; text-align:left;">{{#if Sender.Name}}{{Sender.FirstName}} {{Sender.LastName}}
+{{Sender.Email}} // {{Sender.Phone}} {{else}}
+Scale Computing
+{{/if}}
+<a href="https://www.scalecomputing.com" style="color:#0a5db5;">scalecomputing.com</a></p>
+                  </td></tr>
+
+                  <!-- FOOTER (synced from house-style.md, no social icons) -->
+                  <tr><td style="padding:24px 0 0; font-size:12px; line-height:16px; color:#6e6e6e;" align="left">
+                    <p style="margin:0 0 14px; text-align:left;">&copy; 2026 Scale Computing, Inc. All rights reserved. Scale Computing and other Scale Computing marks are trademarks of Scale Computing, Inc. All other trademarks are the property of their respective owners. Information on Scale Computing patents and trademarks is available at <a href="https://www.scalecomputing.com/legal" style="color:#6e6e6e;">scalecomputing.com/legal</a>.</p>
+                    <p style="margin:0 0 14px; text-align:left;">Scale Computing<br/>3307 Northland Dr, Suite 500<br/>Austin, TX 78731</p>
+                    <p style="margin:0 0 14px; text-align:left;"><a href="https://www.scalecomputing.com/contact" style="color:#6e6e6e;">Contact Us</a> &nbsp;|&nbsp; <a href="https://www.scalecomputing.com/privacy-policy" style="color:#6e6e6e;">Privacy Policy</a></p>
+                    <p style="margin:0; text-align:left;">If you wish to unsubscribe or update your email preferences, <a href="{{unsubscribe}}" style="color:#6e6e6e;">click here</a>.</p>
+                  </td></tr>
+
+                </table>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <p class="note" style="margin-top:40px;border-left-color:var(--blue);">Boilerplate patterns (Logo Bar, Hero Block, Greeting + Intro, Footer) aren&rsquo;t carded here — they appear identically in every email, so any email in the library is a faithful reference. Specs in <code>house-style.md</code>.</p>
 
 </div>
@@ -4283,6 +4346,28 @@ body.is-email-route .page { display: none; }
   // hidden preheader, and the markup must avoid what major email clients drop
   // (client-compatibility lint). Hosted assets never reach here (not sends).
   const SPEC_MERGE_TOKENS = new Set(['{{unsubscribe}}', '{{Recipient.FirstName}}']);
+
+  // Approved palette = every hex token in the locked spec files (same source
+  // of truth as the validator's step 8 — registering a token in a spec
+  // approves it here automatically). Fetched once; an unreachable spec file
+  // degrades to skipping the palette check rather than false-flagging.
+  const normalizeHex = (h) => {
+    h = h.toLowerCase();
+    return h.length === 4 ? '#' + [...h.slice(1)].map(ch => ch + ch).join('') : h;
+  };
+  let _paletteOnce = null;
+  function getApprovedPaletteOnce() {
+    if (!_paletteOnce) {
+      _paletteOnce = Promise.all(['house-style.md', 'reusable-blocks.md', 'plain-text-style.md'].map(f =>
+        fetch(f).then(r => r.ok ? r.text() : '').catch(() => '')
+      )).then(texts => {
+        const set = new Set();
+        for (const t of texts) for (const m of t.match(/#(?:[0-9a-f]{6}|[0-9a-f]{3})\b/gi) || []) set.add(normalizeHex(m));
+        return set;
+      });
+    }
+    return _paletteOnce;
+  }
   function clientCompatFindings(html) {
     const findings = [];
     const css = [
@@ -4314,7 +4399,7 @@ body.is-email-route .page { display: none; }
     if (noAlt) findings.push(`${noAlt} <img> without alt text (blank when images are blocked)`);
     return findings;
   }
-  function preSendChecks(email, html) {
+  function preSendChecks(email, html, palette) {
     const upcoming = sendStatus(email) !== 'sent'; // undated = still editable = upcoming
     const checks = [];
 
@@ -4337,6 +4422,17 @@ body.is-email-route .page { display: none; }
       label: 'Client compatibility', ok: compat.length === 0, level: 'warn',
       detail: compat.join('; ')
     });
+
+    // Palette drift (validator step 8): every hex must be a spec token.
+    // Skipped when the spec files couldn't be fetched (empty palette).
+    if (palette && palette.size) {
+      const colors = [...new Set((html.match(/#(?:[0-9a-f]{6}|[0-9a-f]{3})\b/gi) || []).map(normalizeHex))];
+      const offPalette = colors.filter(cl => !palette.has(cl));
+      checks.push({
+        label: 'Palette', ok: offPalette.length === 0, level: 'warn',
+        detail: offPalette.length ? 'off-palette ' + offPalette.join(', ') + ' (not in any locked spec — look tokens up in the spec, not sibling emails)' : ''
+      });
+    }
 
     if (upcoming) {
       const hasPreheader = [...html.matchAll(/style="([^"]*)"/gi)].some(m => {
@@ -4407,8 +4503,8 @@ body.is-email-route .page { display: none; }
       if (!box || box.dataset.for !== expectedId) return;
       document.getElementById('pvChecksBody').innerHTML = inner;
     };
-    getEmailHTMLOnce(email.sourceId).then(html => {
-      const checks = preSendChecks(email, html);
+    Promise.all([getEmailHTMLOnce(email.sourceId), getApprovedPaletteOnce()]).then(([html, palette]) => {
+      const checks = preSendChecks(email, html, palette);
       if (checks.every(c => c.ok)) {
         fill(`<div class="pv-check pass">${ICONS.check}<span>All checks pass — ${esc(checks.map(c => c.label.toLowerCase()).join(' · '))}</span></div>`);
         return;

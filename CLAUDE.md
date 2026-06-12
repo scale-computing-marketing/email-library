@@ -43,10 +43,15 @@ for Pardot). `index.html` is the page itself — **you almost never edit it.**
   markup major email clients drop (flex/grid/position, vh/vw/rem, `<svg>` /
   `<form>` / `<button>` / `<iframe>` / external stylesheets, background images
   or button-style links without MSO/VML fallbacks, `<img>` missing alt text).
-  Hosted assets (Marketing Center) are exempt.
-  The app mirrors these content checks live too: each email's build rail opens
-  with a passive "Pre-send checks" section (green pass / amber warn / red
-  error). The build view's rendered-email pane also has a Desktop / Mobile
+  A palette-drift lint warns on any hex color not found in the locked spec
+  files (`house-style.md` / `reusable-blocks.md` / `plain-text-style.md` —
+  the specs ARE the approved palette, so registering a token in a spec
+  approves it). Hosted assets (Marketing Center) are exempt.
+  The app mirrors these content checks live too (palette lint included):
+  each email's build rail opens with a passive "Pre-send checks" section
+  (green pass / amber warn / red error) and a "Patterns & blocks" section
+  that fingerprints which locked patterns/blocks the email is composed from.
+  The build view's rendered-email pane also has a Desktop / Mobile
   width toggle (Mobile = a true 375px viewport, so responsive emails reflow).
 - `house-style.md`, `reusable-blocks.md`, `plain-text-style.md` — the locked
   build specs (see "Which spec to build from").
