@@ -66,8 +66,12 @@ body {
   overflow-y: auto;
   z-index: 50;
 }
-.sidebar::-webkit-scrollbar { width: 6px; }
-.sidebar::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 3px; }
+/* Scrollbars (here and below): slim and invisible until the pane is hovered —
+   styling ::-webkit-scrollbar at all opts out of macOS overlay bars, so the
+   transparent-thumb default is what keeps them from showing permanently. */
+.sidebar::-webkit-scrollbar { width: 5px; }
+.sidebar::-webkit-scrollbar-thumb { background: transparent; border-radius: 3px; }
+.sidebar:hover::-webkit-scrollbar-thumb { background: var(--line-2); }
 .sidebar-brand {
   display: flex;
   align-items: center;
@@ -740,8 +744,9 @@ body.is-home-route .hero { display: none; }
   overflow-y: auto;
   padding: 6px;
 }
-.tag-filter-list::-webkit-scrollbar { width: 6px; }
-.tag-filter-list::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 3px; }
+.tag-filter-list::-webkit-scrollbar { width: 5px; }
+.tag-filter-list::-webkit-scrollbar-thumb { background: transparent; border-radius: 3px; }
+.tag-filter-list:hover::-webkit-scrollbar-thumb { background: var(--line-2); }
 .tag-option {
   display: flex;
   align-items: center;
@@ -1119,8 +1124,9 @@ body.is-email-route .page { display: none; }
 }
 /* shared independent scroll for both sections */
 .pv-rail, .pv-render { overflow-y: auto; -webkit-overflow-scrolling: touch; }
-.pv-rail::-webkit-scrollbar, .pv-render::-webkit-scrollbar { width: 8px; }
-.pv-rail::-webkit-scrollbar-thumb, .pv-render::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 4px; }
+.pv-rail::-webkit-scrollbar, .pv-render::-webkit-scrollbar { width: 5px; }
+.pv-rail::-webkit-scrollbar-thumb, .pv-render::-webkit-scrollbar-thumb { background: transparent; border-radius: 3px; }
+.pv-rail:hover::-webkit-scrollbar-thumb, .pv-render:hover::-webkit-scrollbar-thumb { background: var(--line-2); }
 
 /* Left section: build details (fixed; scrolls only if tall) */
 .pv-rail {
@@ -4926,6 +4932,9 @@ Scale Computing
   }
 
   function showEmailView(campaign, email) {
+    // Captured before the class is set: stepping email→email (already on the
+    // route) keeps the user's rail collapse state; a fresh entry expands it.
+    const wasInEmailView = document.body.classList.contains('is-email-route');
     document.body.classList.add('is-email-route');
     document.getElementById('scheduleView').style.display = 'none';
     document.getElementById('homeView').style.display = 'none';
@@ -4961,9 +4970,12 @@ Scale Computing
     document.getElementById('evTitle').textContent = email.title;
     document.getElementById('evBackLabel').textContent = 'Back to ' + campaign.title;
     renderBuildDetails(email, campaign);
-    // Enter with the build-details rail expanded and panes at the top.
-    document.getElementById('evPanel').classList.remove('is-collapsed');
-    document.getElementById('pvRailHead').setAttribute('aria-expanded', 'true');
+    // Enter with the build-details rail expanded and panes at the top —
+    // stepping between emails leaves a collapsed rail collapsed.
+    if (!wasInEmailView) {
+      document.getElementById('evPanel').classList.remove('is-collapsed');
+      document.getElementById('pvRailHead').setAttribute('aria-expanded', 'true');
+    }
     document.getElementById('pvRail').scrollTop = 0;
     document.querySelector('.pv-render').scrollTop = 0;
     document.getElementById('evCopyBtn').dataset.id = email.id;
