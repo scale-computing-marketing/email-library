@@ -312,11 +312,8 @@ body {
 .tl-fbtn:hover { border-color: var(--accent); color: var(--accent); }
 .tl-fbtn.active { background: var(--sc-dark); border-color: var(--sc-dark); color: #fff; }
 /* Send Schedule kind filter — same chip language as the Tag Library filters.
-   Two groups so wrapping never strands a control: chips wrap on the left,
-   the view controls (past toggle + Week/Month) stay together on the right. */
-.sched-filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; align-items: flex-start; justify-content: space-between; }
-.sched-fgroup { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; flex: 1 1 auto; min-width: 0; }
-.sched-controls { display: flex; gap: 8px; align-items: center; flex: none; margin-left: auto; }
+   One line of chips; the Week/Month switch lives in the hero actions slot. */
+.sched-filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; align-items: center; }
 .sched-past-toggle { border-style: dashed; }
 .scal { max-width: 980px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--sh); overflow: hidden; }
 .scal-head { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
@@ -515,7 +512,14 @@ body {
   margin: 0 auto;
   padding: 18px 28px 16px;
   background: transparent;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px 18px; flex-wrap: wrap;
 }
+.hero-text { min-width: 0; }
+/* Per-view controls slot, right-aligned beside the title (e.g. the Send
+   Schedule's Week/Month switch). The router empties it on every route. */
+.hero-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.hero-actions:empty { display: none; }
 .hero::after {
   content: "";
   position: absolute;
@@ -1399,9 +1403,12 @@ body.is-email-route .page { display: none; }
     </div>
 
     <div class="hero">
-      <div class="hero-label" id="heroLabel"></div>
-      <h2 id="heroTitle">Email Library</h2>
-      <div class="hero-meta" id="heroMeta"></div>
+      <div class="hero-text">
+        <div class="hero-label" id="heroLabel"></div>
+        <h2 id="heroTitle">Email Library</h2>
+        <div class="hero-meta" id="heroMeta"></div>
+      </div>
+      <div class="hero-actions" id="heroActions"></div>
     </div>
 
     <div class="page">
@@ -2582,6 +2589,7 @@ body.is-email-route .page { display: none; }
 
   function handleRoute() {
     closeSidebarDrawer();
+    document.getElementById('heroActions').innerHTML = ''; // view-specific controls re-render per route
     const r = parseHash();
     document.body.classList.toggle('is-home-route', r.route === 'home' || r.route === 'year');
     // Reviewer framing: a session that STARTS on a shared campaign/email deep
@@ -2813,22 +2821,19 @@ body.is-email-route .page { display: none; }
       ? 'Every dated send on a month grid — step between months with the arrows. Click an email to open its preview.'
       : 'Every scheduled send from this week forward, grouped by week. Click an email to open its preview.';
 
-    // Two stable groups: kind chips wrap among themselves on the left; the
-    // view controls (past toggle + Week/Month) stay pinned together top-right.
-    let html = '<div class="sched-filters">'
-      + '<div class="sched-fgroup">'
-      + (showFilters ? ['All', ...kinds].map(k =>
-          `<button class="tl-fbtn${k === schedKindFilter ? ' active' : ''}" type="button" data-schedkind="${esc(k)}">${esc(k)}</button>`
-        ).join('') : '')
-      + '</div>'
-      + '<div class="sched-controls">'
-      + (schedViewMode === 'week' && pastCount ? `<button class="tl-fbtn sched-past-toggle${schedShowPast ? ' active' : ''}" type="button" data-schedpast>${schedShowPast ? 'Hide past sends' : 'Show past sends (' + pastCount + ')'}</button>` : '')
-      + `<div class="pv-width-toggle sched-vt" role="group" aria-label="Schedule layout">
-           <button type="button" class="pv-width-btn${schedViewMode === 'week' ? ' is-active' : ''}" data-schedview="week">Week</button>
-           <button type="button" class="pv-width-btn${schedViewMode === 'month' ? ' is-active' : ''}" data-schedview="month">Month</button>
-         </div>`
-      + '</div>'
-      + '</div>';
+    // The Week/Month switch lives in the hero beside the page title — the
+    // filter row below stays a single line of chips (past toggle included).
+    document.getElementById('heroActions').innerHTML = `
+      <div class="pv-width-toggle" role="group" aria-label="Schedule layout">
+        <button type="button" class="pv-width-btn${schedViewMode === 'week' ? ' is-active' : ''}" data-schedview="week">Week</button>
+        <button type="button" class="pv-width-btn${schedViewMode === 'month' ? ' is-active' : ''}" data-schedview="month">Month</button>
+      </div>`;
+    const filterChips =
+      (showFilters ? ['All', ...kinds].map(k =>
+        `<button class="tl-fbtn${k === schedKindFilter ? ' active' : ''}" type="button" data-schedkind="${esc(k)}">${esc(k)}</button>`
+      ).join('') : '')
+      + (schedViewMode === 'week' && pastCount ? `<button class="tl-fbtn sched-past-toggle${schedShowPast ? ' active' : ''}" type="button" data-schedpast>${schedShowPast ? 'Hide past sends' : 'Show past sends (' + pastCount + ')'}</button>` : '');
+    let html = filterChips ? '<div class="sched-filters">' + filterChips + '</div>' : '';
 
     if (schedViewMode === 'month') {
       html += schedMonthHTML(monthRows);
@@ -2935,7 +2940,7 @@ body.is-email-route .page { display: none; }
     });
     const pastToggle = container.querySelector('[data-schedpast]');
     if (pastToggle) pastToggle.addEventListener('click', () => { schedShowPast = !schedShowPast; renderSchedule(); });
-    container.querySelectorAll('[data-schedview]').forEach(btn => {
+    document.querySelectorAll('#heroActions [data-schedview]').forEach(btn => {
       btn.addEventListener('click', () => {
         if (btn.dataset.schedview === schedViewMode) return;
         schedViewMode = btn.dataset.schedview;
