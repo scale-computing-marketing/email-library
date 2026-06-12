@@ -1019,17 +1019,22 @@ body.is-email-route .page { display: none; }
 }
 .ev-bar-actions { display: flex; gap: 8px; flex-shrink: 0; align-items: center; }
 .ev-bar-actions .btn { flex: 0 0 auto; }
-.ev-stepper { display: inline-flex; align-items: center; gap: 4px; margin-right: 4px; }
+.ev-stepper {
+  display: inline-flex; align-items: center; gap: 6px; margin-right: 6px;
+  background: var(--panel-2); border: 1px solid var(--line); border-radius: 999px;
+  padding: 3px 6px;
+}
 .ev-step {
   display: inline-flex; align-items: center; justify-content: center;
-  width: 28px; height: 28px; border-radius: 8px;
-  border: 1px solid var(--line); background: var(--panel); color: var(--ink-2);
+  width: 30px; height: 30px; border-radius: 50%;
+  border: 1px solid var(--line-2); background: var(--panel); color: var(--accent-2);
   cursor: pointer; transition: all 0.13s;
+  box-shadow: 0 1px 2px rgba(17,56,89,.08);
 }
-.ev-step:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
-.ev-step:disabled { opacity: 0.35; cursor: default; }
-.ev-step svg { width: 14px; height: 14px; }
-.ev-step-count { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink-3); min-width: 38px; text-align: center; }
+.ev-step:hover:not(:disabled) { background: var(--accent); border-color: var(--accent); color: #fff; }
+.ev-step:disabled { opacity: 0.3; cursor: default; box-shadow: none; }
+.ev-step svg { width: 16px; height: 16px; stroke-width: 2.4; }
+.ev-step-count { font-family: 'DM Mono', monospace; font-size: 11.5px; font-weight: 500; color: var(--ink-2); min-width: 38px; text-align: center; }
 
 /* One unified panel — build details (left) + rendered email (right) */
 .ev-panel {
@@ -2468,12 +2473,18 @@ body.is-email-route .page { display: none; }
     // Reviewer framing: a session that STARTS on a shared campaign/email deep
     // link hides the Ops Tools nav until the visitor navigates into the app
     // proper — shared links read as a review page, not an internal console.
-    if (!handleRoute._routedOnce) {
-      handleRoute._routedOnce = true;
-      if (r.route === 'campaign') document.body.classList.add('is-reviewer');
-    } else if (r.route !== 'campaign') {
+    // A browser that has ever browsed beyond campaign pages is remembered as
+    // an insider (localStorage) so refreshing mid-campaign never hides the nav.
+    const INSIDER_KEY = 'emailLibraryInsider';
+    let insider = false;
+    try { insider = localStorage.getItem(INSIDER_KEY) === '1'; } catch (e) {}
+    if (r.route !== 'campaign') {
       document.body.classList.remove('is-reviewer');
+      try { localStorage.setItem(INSIDER_KEY, '1'); } catch (e) {}
+    } else if (!handleRoute._routedOnce && !insider) {
+      document.body.classList.add('is-reviewer');
     }
+    handleRoute._routedOnce = true;
     if (r.route === 'campaign') {
       const c = getCampaignById(r.id);
       if (!c) { navigate(''); return; }
