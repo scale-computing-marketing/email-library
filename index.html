@@ -1067,15 +1067,9 @@ body.is-email-route .page { display: none; }
   background: #f0f2f5;
   flex-shrink: 0;
 }
-/* Compact back pill (still names its destination) — quieter than the solid
-   campaign-page back button so the title owns the row. */
-.ev-back {
-  flex-shrink: 0;
-  background: var(--accent-soft); border-color: rgba(10,93,181,0.25);
-  color: var(--accent-2);
-}
-.ev-back:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
-.ev-back-label { max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Back buttons are uniform app-wide: solid dark blue, label just "Back"
+   (the destination lives in the title tooltip and the breadcrumb). */
+.ev-back { flex-shrink: 0; }
 .ev-bar-main {
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
   flex: 1 1 0; min-width: 0;
@@ -1545,9 +1539,9 @@ body.is-email-route .page { display: none; }
       <!-- ===== DETAIL VIEW: Single campaign emails ===== -->
       <div id="detailView" style="display:none;">
         <div class="back-row">
-          <button class="back-link" id="backLink" type="button">
+          <button class="back-link" id="backLink" type="button" title="Back to Email Library">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-            Back to Email Library
+            Back
           </button>
           <button class="share-link" id="campaignShareBtn" type="button" title="Copy a shareable review link to this campaign — anyone with the link can preview the rendered emails">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
@@ -4970,7 +4964,8 @@ Scale Computing
     // Bar titles + build details (kicker keeps the campaign visible at the deepest level)
     document.getElementById('evKicker').textContent = campaign.title + ' · ' + (email.kind || 'Email');
     document.getElementById('evTitle').textContent = email.title;
-    document.getElementById('evBackLabel').textContent = 'Back to ' + campaign.title;
+    document.getElementById('evBackLabel').textContent = 'Back';
+    document.getElementById('evBack').title = 'Back to ' + campaign.title;
     renderBuildDetails(email, campaign);
     // Enter with the build-details rail expanded and panes at the top —
     // stepping between emails leaves a collapsed rail collapsed.
