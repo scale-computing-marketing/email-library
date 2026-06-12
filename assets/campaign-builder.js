@@ -95,6 +95,8 @@ function buildDocBody(data){const parts=[];const camp=data.campaign||{};const in
     parts.push(dsection('External',[{label:'Send Date (MM/DD/YYYY)',value:e.sendDate},{label:'Send Time',value:e.sendTime}]));
     const ebRows=[{label:'Hero Image',value:e.hero,valueColor:DC.link},{label:'Body Copy',value:e.body,html:true},{label:'Main CTA \u2014 Button Text',value:e.mainCtaText},{label:'Main CTA \u2014 Link',value:e.mainCtaLink,valueColor:DC.link}];
     if(e.secCtaBlock&&String(e.secCtaBlock).trim()){ebRows.push({label:'Secondary CTA \u2014 Content Block',value:e.secCtaBlock});}
+    if(e.secCtaHeader&&String(e.secCtaHeader).trim()){ebRows.push({label:'Secondary CTA \u2014 Main Header',value:e.secCtaHeader});}
+    if(e.secCtaSub&&String(e.secCtaSub).trim()){ebRows.push({label:'Secondary CTA \u2014 Sub Header',value:e.secCtaSub});}
     if(e.secCtaCopy&&String(e.secCtaCopy).replace(/<[^>]*>/g,'').trim()){ebRows.push({label:'Secondary CTA \u2014 Copy',value:e.secCtaCopy,html:true});}
     if((e.secCtaText&&String(e.secCtaText).trim())||(e.secCtaLink&&String(e.secCtaLink).trim())){ebRows.push({label:'Secondary CTA \u2014 Button Text',value:e.secCtaText},{label:'Secondary CTA \u2014 Link',value:e.secCtaLink,valueColor:DC.link});}
     parts.push(dsection('Email build',ebRows));
@@ -217,7 +219,7 @@ function newQualified(){return{nameEdited:false,name:'',segment:'',headline:'',b
 const TC_TYPES=[];
 function newEmail(){return{pardotName:'',pardotEdited:false,hasOrder:true,number:'',emailType:'',contentType:'',audience:'',funnel:'',theme:'',geo:'',vertical:'',incentive:'',ab:'No',cta:[],
   lists:'',suppressionList:DEFAULT_SUPPRESSION.slice(),senderName:'Scale Computing',fromEmail:'noreply@scalecomputing.com',replyTo:'noreply@scalecomputing.com',
-  subjectA:'',subjectB:'',preview:'',sendDate:'',sendTime:'',hero:'',body:'',mainCtaText:'',mainCtaLink:'',secCtaBlock:'',secCtaCopy:'',secCtaText:'',secCtaLink:'',open:false};}
+  subjectA:'',subjectB:'',preview:'',sendDate:'',sendTime:'',hero:'',body:'',mainCtaText:'',mainCtaLink:'',secCtaBlock:'',secCtaHeader:'',secCtaSub:'',secCtaCopy:'',secCtaText:'',secCtaLink:'',open:false};}
 
 //// ============ COMPUTE (Pardot name + tags) ============
 function isEvergreen(){return state.campaign.quarter==='na'||state.campaign.year==='na';}
@@ -355,6 +357,7 @@ function cbParseBuildDoc(xml){
       cur.hero=v(m,'Hero Image');cur.body=cbParasToHtml(m['Body Copy']?m['Body Copy'].paras:[]);
       cur.mainCtaText=v(m,'Main CTA \u2014 Button Text')||v(m,'Main CTA');cur.mainCtaLink=v(m,'Main CTA \u2014 Link');
       cur.secCtaBlock=v(m,'Secondary CTA \u2014 Content Block');
+      cur.secCtaHeader=v(m,'Secondary CTA \u2014 Main Header');cur.secCtaSub=v(m,'Secondary CTA \u2014 Sub Header');
       cur.secCtaCopy=cbParasToHtml(m['Secondary CTA \u2014 Copy']?m['Secondary CTA \u2014 Copy'].paras:[]);
       cur.secCtaText=v(m,'Secondary CTA \u2014 Button Text')||v(m,'Secondary CTA Copy');cur.secCtaLink=v(m,'Secondary CTA \u2014 Link')||v(m,'Secondary CTA');
     } else if(t==='Pardot Form'){if(!st.form)st.form=newForm();st.form.open=false;m=mapOf(sec);var nm=v(m,'Internal Name');if(nm)st.form.name=nm;
@@ -443,6 +446,14 @@ function aesc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,
 function ICON(n){var s='<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:0 0 auto">';
   if(n==='copy')return s+'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>';
   if(n==='trash')return s+'<path d="M4 7h16"/><path d="M10 11v6M14 11v6"/><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/><path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/></svg>';
+  if(n==='eye')return s+'<path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="3"/></svg>';
+  if(n==='tag')return s+'<path d="M3 12V5a2 2 0 0 1 2-2h7l9 9-9 9-9-9z"/><circle cx="8" cy="8" r="1.5"/></svg>';
+  if(n==='users')return s+'<circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7"/><path d="M17.5 14.5c2.1.8 3.5 2.9 3.5 5.5"/></svg>';
+  if(n==='send')return s+'<path d="M21 3L10 14"/><path d="M21 3l-7 18-4-7-7-4 18-7z"/></svg>';
+  if(n==='subject')return s+'<path d="M4 7V5h16v2"/><path d="M12 5v14"/><path d="M9 19h6"/></svg>';
+  if(n==='calendar')return s+'<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M16 3v4M8 3v4M4 11h16"/></svg>';
+  if(n==='mail')return s+'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>';
+  if(n==='dot')return s+'<circle cx="12" cy="12" r="3"/></svg>';
   return s+'</svg>';}
 function prefix(){var c=state.campaign;return isEvergreen()?'':('Q'+(c.quarter||'?')+'-'+(c.year||'YYYY')+' | ');}
 function autoFormName(){return prefix()+(cleanName(state.campaign.name)||'Campaign name');}
@@ -567,7 +578,21 @@ function fld(def,val,key){
   }
   return '<div class="cbf '+(def.wide?'wide':'')+'">'+l+ctrl+'</div>';
 }
-function group(title,inner){return '<div class="grp">'+(title?'<div class="grp-h">'+title+'</div>':'')+'<div class="grid">'+inner+'</div></div>';}
+var grpN=0;
+function grpIcon(title){var t=String(title).toLowerCase();
+  if(t.indexOf('tagging')===0)return 'tag';
+  if(t.indexOf('to ')===0)return 'users';
+  if(t.indexOf('from')===0)return 'send';
+  if(t.indexOf('subject')===0)return 'subject';
+  if(t.indexOf('schedule')===0)return 'calendar';
+  if(t.indexOf('email build')===0)return 'mail';
+  return 'dot';}
+function grpHead(title,extra){grpN++;var num=(grpN<10?'0':'')+grpN;
+  return '<div class="grp-head"><span class="grp-num">'+num+'</span><span class="grp-t">'+title+'</span>'+(extra||'')+'<span class="grp-ic">'+ICON(grpIcon(title))+'</span></div>';}
+function group(title,inner){
+  if(!title)return '<div class="grp"><div class="grid">'+inner+'</div></div>';
+  return '<div class="grp grp-card">'+grpHead(title)+'<div class="grp-body"><div class="grid">'+inner+'</div></div></div>';
+}
 
 /* ---- Content Blocks library options (read from the #/blocks view markup) ---- */
 var CB_BLOCK_OPTS=null;
@@ -603,7 +628,7 @@ function blockContent(name){
     if(!h2||h2.textContent.trim()!==name)continue;
     var card=heads[i].parentNode.querySelector('.email-card');
     if(!card)return null;
-    var lines=[],ctas=[];
+    var out={header:'',sub:'',copy:'',btnText:'',btnLink:''},lines=[],ctas=[];
     var nodes=card.querySelectorAll('h1,h2,h3,p,a[href]');
     for(var j=0;j<nodes.length;j++){
       var n=nodes[j],tag=n.tagName.toLowerCase(),txt=n.textContent.replace(/\s+/g,' ').trim();
@@ -611,18 +636,32 @@ function blockContent(name){
       if(tag==='a'){
         if(n.parentNode.closest('p,h1,h2,h3'))continue; /* inline link — already in its paragraph */
         ctas.push({text:txt,href:n.getAttribute('href')||''});
-      } else {
-        var inner=cleanInline(n);if(!inner)continue;
-        lines.push('<div>'+(/^h[1-3]$/.test(tag)?'<b>'+inner+'</b>':inner)+'</div>');
+        continue;
       }
+      var cls=n.className||'',sty=n.getAttribute('style')||'';
+      if(!out.header&&(/^h[1-3]$/.test(tag)||/mobile-h2/.test(cls)||(/font-weight\s*:\s*bold/i.test(sty)&&!/eyebrow/.test(cls)&&!lines.length))){out.header=txt;continue;}
+      if(!out.sub&&/eyebrow/.test(cls)){out.sub=txt;continue;}
+      var inner=cleanInline(n);if(!inner)continue;
+      lines.push('<div>'+(/^h[1-3]$/.test(tag)?'<b>'+inner+'</b>':inner)+'</div>');
     }
-    var out={copy:'',btnText:'',btnLink:''};
     if(ctas.length===1){out.btnText=ctas[0].text;out.btnLink=ctas[0].href;}
     else ctas.forEach(function(c){lines.push('<div><a href="'+aesc(c.href)+'">'+escH(c.text)+'</a>'+((c.href&&c.href!=='#')?' ('+escH(c.href)+')':'')+'</div>');});
     out.copy=lines.join('');
     return out;
   }
   return null;
+}
+function snapshotHtml(name){
+  var heads=document.querySelectorAll('#blocksView .block-head');
+  for(var i=0;i<heads.length;i++){
+    var h2=heads[i].querySelector('h2');
+    if(!h2||h2.textContent.trim()!==name)continue;
+    var card=heads[i].parentNode.querySelector('.email-card');
+    if(!card)return '';
+    return '<div class="cb-snap wide"><div class="cb-snap-h">'+ICON('eye')+'<span>Block snapshot — as it ships in the library</span></div>'
+      +'<div class="cb-snap-stage"><div class="cb-snap-zoom">'+card.outerHTML+'</div></div></div>';
+  }
+  return '';
 }
 
 /* ===================== EDITORS ===================== */
@@ -670,15 +709,19 @@ function editorEmail(i){
     +fld({l:'Body Copy',hint:'(rich text)',wide:true,type:'rte',ph:'Write the email body\u2026'},e.body,'e.'+i+'.body')
     +fld({l:'Main CTA \u2014 button text',ph:'Get Pricing'},e.mainCtaText,'e.'+i+'.mainCtaText')
     +fld({l:'Main CTA \u2014 link',ph:'https://www.scalecomputing.com/pricing'},e.mainCtaLink,'e.'+i+'.mainCtaLink')
-    +(blockOpts().length?fld({l:'Secondary CTA \u2014 content block',hint:'(optional \u2014 picking a block pulls its copy in below to keep or edit)',type:'select',opts:blockOpts(),wide:true,none:'\u2014 none / custom \u2014'},e.secCtaBlock,'e.'+i+'.secCtaBlock'):'')
-    +fld({l:'Secondary CTA \u2014 copy',hint:'(optional \u2014 write your own, or pulled from the selected block)',wide:true,type:'rte',ph:'Write the secondary CTA copy\u2026'},e.secCtaCopy,'e.'+i+'.secCtaCopy')
-    +fld({l:'Secondary CTA \u2014 button text',hint:'(optional)',ph:'Schedule a Demo'},e.secCtaText,'e.'+i+'.secCtaText')
-    +fld({l:'Secondary CTA \u2014 link',hint:'(optional)',ph:'https://...'},e.secCtaLink,'e.'+i+'.secCtaLink');
+    +'<div class="cb-subdiv wide"><span>Secondary CTA</span></div>'
+    +(blockOpts().length?fld({l:'Content block',hint:'(optional \u2014 pulls the block in below to keep or edit)',type:'select',opts:blockOpts(),wide:true,none:'\u2014 none / custom \u2014'},e.secCtaBlock,'e.'+i+'.secCtaBlock'):'')
+    +(e.secCtaBlock?snapshotHtml(e.secCtaBlock):'')
+    +fld({l:'Main header',wide:true,ph:'Secondary CTA headline\u2026'},e.secCtaHeader,'e.'+i+'.secCtaHeader')
+    +fld({l:'Sub header',hint:'(optional)',wide:true,ph:'Eyebrow / supporting line\u2026'},e.secCtaSub,'e.'+i+'.secCtaSub')
+    +fld({l:'Copy',hint:'(rich text)',wide:true,type:'rte',ph:'Write the secondary CTA copy\u2026'},e.secCtaCopy,'e.'+i+'.secCtaCopy')
+    +fld({l:'Button text',hint:'(optional)',ph:'Schedule a Demo'},e.secCtaText,'e.'+i+'.secCtaText')
+    +fld({l:'Button link',hint:'(optional)',ph:'https://...'},e.secCtaLink,'e.'+i+'.secCtaLink');
   var head='<div class="ed-head"><h2>'+escH(emailTitle(i))+'</h2>'
     +'<div class="ed-acts"><button type="button" class="cb-iconbtn" data-dup="'+i+'">'+ICON('copy')+'Duplicate</button>'
     +(state.emails.length>1?'<button type="button" class="cb-iconbtn cb-danger" data-del="'+i+'">'+ICON('trash')+'Remove</button>':'')+'</div></div>';
   return head
-    +group('',tagging)
+    +group('Tagging \u2014 name, type &amp; tags',tagging)
     +fan
     +group('To \u2014 audience &amp; lists',to)
     +group('From \u2014 sender',from)
@@ -759,6 +802,7 @@ function ensureActiveValid(){
 }
 function renderEditor(){
   ensureActiveValid();
+  grpN=0;
   var html;
   if(active.type==='email')html=editorEmail(active.i);
   else if(active.type==='form')html=editorForm();
@@ -846,8 +890,9 @@ document.addEventListener('change',function(ev){if(!inApp(ev))return;cbScheduleS
   if(t.type==='checkbox'&&k.indexOf('e.')===0){var p=k.split('.');state.emails[+p[1]][p[2]]=t.checked;renderEditor();renderTree();return;}
   if(k.indexOf('c.')===0){state.campaign[k.slice(2)]=t.value;renderEditor();renderTree();renderRail();updateStatus();}
   else if(k.indexOf('e.')===0){var p2=k.split('.');if(p2[2]==='pardotName')return;state.emails[+p2[1]][p2[2]]=t.value;
-    if(p2[2]==='secCtaBlock'&&t.value){var bc=blockContent(t.value);
-      if(bc){var em=state.emails[+p2[1]];em.secCtaCopy=bc.copy;em.secCtaText=bc.btnText;em.secCtaLink=bc.btnLink;renderEditor();}}
+    if(p2[2]==='secCtaBlock'){var bc=t.value?blockContent(t.value):null;
+      if(bc){var em=state.emails[+p2[1]];em.secCtaHeader=bc.header;em.secCtaSub=bc.sub;em.secCtaCopy=bc.copy;em.secCtaText=bc.btnText;em.secCtaLink=bc.btnLink;}
+      renderEditor();}
     renderRail();renderTree();updateStatus();}
   else if(k.indexOf('f.')===0)state.form[k.slice(2)]=t.value;
 });
@@ -936,7 +981,7 @@ async function doGenerate(){
         theme:revLabel(THEME,e.theme),geo:revLabel(GEO,e.geo),vertical:revLabel(VERTICAL,e.vertical),incentive:revLabel(INCENTIVE,e.incentive),abTest:e.ab||'No',cta:(e.cta||[]).map(function(t){return revLabel(CTAOPTS,t);}).join(', '),
         lists:e.lists,suppression:(e.suppressionList||[]).join('\n'),senderName:e.senderName,fromEmail:e.fromEmail,replyTo:e.replyTo,
         subjectA:e.subjectA,subjectB:e.subjectB,preview:e.preview,sendDate:fmtDate(e.sendDate),sendTime:e.sendTime,
-        hero:e.hero,body:e.body,mainCtaText:e.mainCtaText,mainCtaLink:e.mainCtaLink,secCtaBlock:e.secCtaBlock,secCtaCopy:e.secCtaCopy,secCtaText:e.secCtaText,secCtaLink:e.secCtaLink};})};
+        hero:e.hero,body:e.body,mainCtaText:e.mainCtaText,mainCtaLink:e.mainCtaLink,secCtaBlock:e.secCtaBlock,secCtaHeader:e.secCtaHeader,secCtaSub:e.secCtaSub,secCtaCopy:e.secCtaCopy,secCtaText:e.secCtaText,secCtaLink:e.secCtaLink};})};
     if(inc.form&&state.form){var f=state.form;data.form={name:effFormName(),fields:f.fields.map(function(x){return{label:x.label,req:x.req,custom:x.custom};}),previewLink:f.previewLink,iframe:f.iframe,source:f.source,leadSource:f.leadSource,slack:f.slack,autoresponder:f.autoresponder,displayMsg:f.displayMsg,tc:f.tc};}
     if(inc.cadence&&state.cadence){var cd=state.cadence;data.cadence={name:effCadenceName(),steps:(cd.steps||[]).map(function(s){return{subject:s.subject,body:s.body};})};}
     if(inc.qualified&&state.qualified){var qd=state.qualified;data.qualified={name:effQualifiedName(),segment:qd.segment,headline:qd.headline,body:qd.body,imageUrl:qd.imageUrl,subtext:qd.subtext,ctas:qd.ctas};}
