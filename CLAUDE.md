@@ -40,6 +40,10 @@ for Pardot). `index.html` is the page itself — **you almost never edit it.**
   send is still upcoming (warning once sent), merge tokens must be the locked
   `{{Recipient.FirstName}}` / `{{unsubscribe}}`, and upcoming sends without a
   hidden preheader get a warning. Hosted assets (Marketing Center) are exempt.
+  The app mirrors these content checks live too: each email's build rail opens
+  with a passive "Pre-send checks" section (green pass / amber warn / red
+  error). The build view's rendered-email pane also has a Desktop / Mobile
+  width toggle (Mobile = a true 375px viewport, so responsive emails reflow).
 - `house-style.md`, `reusable-blocks.md`, `plain-text-style.md` — the locked
   build specs (see "Which spec to build from").
 

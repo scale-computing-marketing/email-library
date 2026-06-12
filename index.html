@@ -1151,6 +1151,18 @@ body.is-email-route .page { display: none; }
 .pv-tag-copy svg { width: 11px; height: 11px; }
 .pv-tag-copy.copied { border-color: var(--sc-green); color: #2a7e30; background: rgba(66,182,73,0.12); }
 
+/* Pre-send checks (the validator's content checks, mirrored live in the rail) */
+.pv-check {
+  display: flex; align-items: flex-start; gap: 7px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px; font-weight: 500; line-height: 1.45;
+  padding: 2px 0;
+}
+.pv-check svg { width: 13px; height: 13px; flex: none; margin-top: 2px; }
+.pv-check.pass { color: #2a7e30; }
+.pv-check.warn { color: #a4570a; }
+.pv-check.fail { color: #b3261e; }
+
 /* Collapsed: left section becomes a slim strip inside the same panel */
 .ev-panel.is-collapsed .pv-rail { flex: 0 0 50px; padding: 18px 0; }
 .ev-panel.is-collapsed .pv-full { display: none; }
@@ -1180,6 +1192,24 @@ body.is-email-route .page { display: none; }
   border: none; display: block;
   background: #f2f2f2;
 }
+/* Preview width toggle: Mobile narrows the frame to a 375px phone viewport so
+   the email's own mobile rules apply (fixed-width emails scale down instead). */
+.pv-render-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.pv-render-head .pv-render-eyebrow { margin-bottom: 0; }
+.pv-width-toggle {
+  display: inline-flex; padding: 2px;
+  border: 1px solid var(--line); border-radius: 999px; background: #fff;
+}
+.pv-width-btn {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase;
+  border: none; background: transparent; color: var(--ink-3);
+  border-radius: 999px; padding: 4px 11px; cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+.pv-width-btn:hover { color: var(--accent); }
+.pv-width-btn.is-active { background: var(--accent-soft); color: var(--accent-2); }
+.pv-email.is-mobile { width: 377px; } /* 375px viewport + the container's 1px borders */
 
 /* ===== RESPONSIVE — one mobile breakpoint (≤900px) and one wide tier (≥1400px). ===== */
 
@@ -2287,8 +2317,14 @@ body.is-email-route .page { display: none; }
 
         <!-- RIGHT: rendered email (scrolls independently) -->
         <section class="pv-render">
-          <div class="pv-render-eyebrow">Rendered email</div>
-          <div class="pv-email">
+          <div class="pv-render-head">
+            <div class="pv-render-eyebrow">Rendered email</div>
+            <div class="pv-width-toggle" id="pvWidthToggle" role="group" aria-label="Preview width">
+              <button type="button" class="pv-width-btn is-active" data-width="desktop" title="Render at full width (680px card)">Desktop</button>
+              <button type="button" class="pv-width-btn" data-width="mobile" title="Render in a 375px phone viewport">Mobile</button>
+            </div>
+          </div>
+          <div class="pv-email" id="pvEmail">
             <iframe id="evFrame" title="Email preview"></iframe>
           </div>
         </section>
@@ -3439,6 +3475,17 @@ body.is-email-route .page { display: none; }
       return hidden ? hidden.textContent.replace(/\s+/g, ' ').trim() : '';
     } catch (e) { return ''; }
   }
+  // One shared fetch per email for the rail extras (preview text, pre-send
+  // checks). Copy HTML keeps its own no-store fetch so copies are always fresh.
+  const emailHtmlOnce = {};
+  function getEmailHTMLOnce(sourceId) {
+    if (!emailHtmlOnce[sourceId]) {
+      emailHtmlOnce[sourceId] = fetchEmailHTML(sourceId);
+      emailHtmlOnce[sourceId].catch(() => { delete emailHtmlOnce[sourceId]; });
+    }
+    return emailHtmlOnce[sourceId];
+  }
+
   function setPreviewTextCell(sourceId, expectedId) {
     const fill = (text) => {
       const cell = document.getElementById('metaPreviewText');
@@ -3448,9 +3495,66 @@ body.is-email-route .page { display: none; }
       else { cell.textContent = 'No preview text in this email.'; cell.className = 'pv-value muted'; }
     };
     if (preheaderCache[sourceId] !== undefined) { fill(preheaderCache[sourceId]); return; }
-    fetchEmailHTML(sourceId)
+    getEmailHTMLOnce(sourceId)
       .then(html => { const t = extractPreheader(html); preheaderCache[sourceId] = t; fill(t); })
       .catch(() => fill(''));
+  }
+
+  // ===== Pre-send checks: the validator's content checks, mirrored live =====
+  // Same rules as scripts/validate-library.mjs step 6: an unsubscribe link must
+  // exist (an error while the send is upcoming, a warning once sent), merge
+  // tokens must be the locked-spec ones, and upcoming sends should carry a
+  // hidden preheader. Hosted assets never reach here (not sends).
+  const SPEC_MERGE_TOKENS = new Set(['{{unsubscribe}}', '{{Recipient.FirstName}}']);
+  function preSendChecks(email, html) {
+    const upcoming = sendStatus(email) !== 'sent'; // undated = still editable = upcoming
+    const checks = [];
+
+    const hasUnsub = /unsubscribe/i.test(html);
+    checks.push({
+      label: 'Unsubscribe link', ok: hasUnsub,
+      level: upcoming ? 'error' : 'warn',
+      detail: hasUnsub ? '' : (upcoming ? 'missing; must be fixed before this sends' : 'missing (already sent; recorded as shipped)')
+    });
+
+    const tokens = [...new Set(html.match(/{{[^}]*}}|%%[^%\s]*%%/g) || [])];
+    const offSpec = tokens.filter(t => !SPEC_MERGE_TOKENS.has(t));
+    checks.push({
+      label: 'Merge tokens', ok: offSpec.length === 0, level: 'warn',
+      detail: offSpec.length ? 'off-spec ' + offSpec.join(', ') + ' (may render literally in Pardot)' : ''
+    });
+
+    if (upcoming) {
+      const hasPreheader = [...html.matchAll(/style="([^"]*)"/gi)].some(m => {
+        const s = m[1].replace(/\s/g, '');
+        return s.includes('display:none') && s.includes('max-height:0');
+      });
+      checks.push({
+        label: 'Hidden preheader', ok: hasPreheader, level: 'warn',
+        detail: hasPreheader ? '' : 'missing; the inbox preview will show whatever text comes first'
+      });
+    }
+    return checks;
+  }
+
+  function renderPreSendChecks(email, expectedId) {
+    if (!document.getElementById('pvChecks')) return; // hosted asset — no send, nothing to check
+    const fill = (inner) => {
+      const box = document.getElementById('pvChecks');
+      if (!box || box.dataset.for !== expectedId) return;
+      document.getElementById('pvChecksBody').innerHTML = inner;
+    };
+    getEmailHTMLOnce(email.sourceId).then(html => {
+      const checks = preSendChecks(email, html);
+      if (checks.every(c => c.ok)) {
+        fill(`<div class="pv-check pass">${ICONS.check}<span>All checks pass — ${esc(checks.map(c => c.label.toLowerCase()).join(' · '))}</span></div>`);
+        return;
+      }
+      fill(checks.map(c => {
+        const cls = c.ok ? 'pass' : (c.level === 'error' ? 'fail' : 'warn');
+        return `<div class="pv-check ${cls}">${c.ok ? ICONS.check : ICONS.alert}<span>${esc(c.label) + (c.ok ? '' : ' — ' + esc(c.detail))}</span></div>`;
+      }).join(''));
+    }).catch(() => fill('<div class="pv-value muted">Could not load the email to check.</div>'));
   }
 
   // A value cell, or a muted placeholder when the model doesn't carry that field.
@@ -3470,6 +3574,12 @@ body.is-email-route .page { display: none; }
       : (sendStatus(email) === 'sent' ? '— not recorded —' : undefined);
     const pardotName = email.pardotName || (campaign ? `${campaign.title} │ ${email.title}` : email.title);
     const html = `
+      ${mc ? '' : `
+      <div class="pv-field" id="pvChecks" data-for="${esc(email.id)}">
+        <div class="pv-label">Pre-send checks</div>
+        <div id="pvChecksBody"><div class="pv-value muted">Checking…</div></div>
+      </div>
+      <div class="pv-divider"></div>`}
       <div class="pv-name-row">
         <span class="pv-label" style="margin:0;">Pardot Email Name</span>
       </div>
@@ -3533,6 +3643,7 @@ body.is-email-route .page { display: none; }
     document.querySelectorAll('#pvRailBody .pv-value:not(.muted)')
       .forEach(el => { el.title = 'Click to copy'; });
     setPreviewTextCell(email.sourceId, email.id);
+    renderPreSendChecks(email, email.id);
   }
 
   // Populated rail values copy on click (delegated once — the rail body's
@@ -3625,6 +3736,7 @@ body.is-email-route .page { display: none; }
   // Render the real email into the right pane, growing the iframe to its content height.
   // On narrow screens an email's minimum layout width can exceed the pane; rather than
   // clipping the right edge, scale the whole frame down to fit (emails stay untouched).
+  let evFrameResize = null; // current frame's sizing pass, re-run by the width toggle
   function loadEmailFrame(sourceId) {
     const frame = document.getElementById('evFrame');
     frame.style.height = '400px';
@@ -3658,9 +3770,21 @@ body.is-email-route .page { display: none; }
         }
       } catch (e) {}
     };
+    evFrameResize = resize;
     frame.onload = () => { [100, 400, 900, 1800].forEach(t => setTimeout(resize, t)); };
     frame.src = emailFileUrl(sourceId);
   }
+
+  // Desktop / Mobile preview width. The choice sticks while stepping between
+  // emails (the container persists); the frame re-measures at the new width.
+  document.getElementById('pvWidthToggle').addEventListener('click', (e) => {
+    const btn = e.target.closest('.pv-width-btn');
+    if (!btn || btn.classList.contains('is-active')) return;
+    document.querySelectorAll('#pvWidthToggle .pv-width-btn')
+      .forEach(b => b.classList.toggle('is-active', b === btn));
+    document.getElementById('pvEmail').classList.toggle('is-mobile', btn.dataset.width === 'mobile');
+    if (evFrameResize) [0, 150, 400].forEach(t => setTimeout(evFrameResize, t));
+  });
   function copyHTML(id, btn) {
     const email = getEmailById(id);
     const sourceId = email ? email.sourceId : id;
