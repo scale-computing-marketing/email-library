@@ -70,7 +70,19 @@ function drow(label,value,o){o=o||{};const vc=o.valueColor||DC.body;const lbl=`<
   return`<w:tr><w:tc><w:tcPr><w:tcW w:w="${LW}" w:type="dxa"/>${DBORDER}<w:shd w:val="clear" w:color="auto" w:fill="${DC.cream}"/>${DCMAR}<w:vAlign w:val="center"/></w:tcPr><w:p><w:pPr><w:spacing w:before="20" w:after="20"/></w:pPr>${lbl}</w:p></w:tc><w:tc><w:tcPr><w:tcW w:w="${VW}" w:type="dxa"/>${DBORDER}<w:shd w:val="clear" w:color="auto" w:fill="${DC.white}"/>${DCMAR}<w:vAlign w:val="center"/></w:tcPr>${o.html?bodyParas(value):valueParas(value,vc)}</w:tc></w:tr>`;}
 function dtable(rows){return`<w:tbl><w:tblPr><w:tblW w:w="${FW}" w:type="dxa"/><w:tblLayout w:type="fixed"/><w:tblCellMar><w:top w:w="0" w:type="dxa"/><w:left w:w="0" w:type="dxa"/><w:bottom w:w="0" w:type="dxa"/><w:right w:w="0" w:type="dxa"/></w:tblCellMar></w:tblPr><w:tblGrid><w:gridCol w:w="${LW}"/><w:gridCol w:w="${VW}"/></w:tblGrid>${rows}</w:tbl>`;}
 const dspacer=()=>`<w:p><w:pPr><w:spacing w:before="0" w:after="0"/><w:rPr><w:sz w:val="12"/></w:rPr></w:pPr></w:p>`;
-function dheading(text,size,before,after,border){return`<w:p><w:pPr>${border?`<w:pBdr><w:bottom w:val="single" w:sz="6" w:space="6" w:color="${DC.border}"/></w:pBdr>`:''}<w:spacing w:before="${before}" w:after="${after}"/></w:pPr><w:r><w:rPr>${ARIAL}<w:b/><w:color w:val="${DC.navy}"/><w:sz w:val="${size}"/></w:rPr><w:t xml:space="preserve">${esc(text)}</w:t></w:r></w:p>`;}
+// Module banner: page break, "MODULE n" eyebrow, full-width navy band. Styled
+// Heading 1 so the section lands in the Google Docs outline panel on import.
+function dmodule(num,title){
+  const eyebrow=`<w:p><w:pPr><w:pageBreakBefore/><w:keepNext/><w:spacing w:before="0" w:after="70"/></w:pPr><w:r><w:rPr>${ARIAL}<w:b/><w:color w:val="${DC.red}"/><w:sz w:val="17"/><w:spacing w:val="50"/></w:rPr><w:t xml:space="preserve">MODULE ${num}</w:t></w:r></w:p>`;
+  const band=`<w:p><w:pPr><w:pStyle w:val="Heading1"/><w:keepNext/><w:pBdr><w:top w:val="single" w:sz="4" w:space="4" w:color="${DC.navy}"/><w:left w:val="single" w:sz="4" w:space="6" w:color="${DC.navy}"/><w:bottom w:val="single" w:sz="4" w:space="4" w:color="${DC.navy}"/><w:right w:val="single" w:sz="4" w:space="6" w:color="${DC.navy}"/></w:pBdr><w:shd w:val="clear" w:color="auto" w:fill="${DC.navy}"/><w:spacing w:before="0" w:after="220"/></w:pPr><w:r><w:rPr>${ARIAL}<w:b/><w:color w:val="${DC.white}"/><w:sz w:val="34"/></w:rPr><w:t xml:space="preserve">${esc(title)}</w:t></w:r></w:p>`;
+  return eyebrow+band;
+}
+// Per-email separator inside the Emails module: "Email 2 of 3 — Customer" with
+// a red accent rule. Styled Heading 2 so it nests under Emails in the outline.
+function demailHeading(n,total,audience){
+  const label='Email '+n+(total>1?(' of '+total):'')+(audience?(' — '+audience):'');
+  return `<w:p><w:pPr><w:pStyle w:val="Heading2"/><w:keepNext/><w:pBdr><w:bottom w:val="single" w:sz="12" w:space="4" w:color="${DC.red}"/></w:pBdr><w:spacing w:before="260" w:after="140"/></w:pPr><w:r><w:rPr>${ARIAL}<w:b/><w:color w:val="${DC.navy}"/><w:sz w:val="26"/></w:rPr><w:t xml:space="preserve">${esc(label)}</w:t></w:r></w:p>`;
+}
 function titleBlock(camp){var EVG=function(v){return !v||v==='N/A'||v==='Evergreen';};const q=EVG(camp.quarterLabel)?'':camp.quarterLabel;const y=EVG(camp.yearLabel)?'':camp.yearLabel;
   let dt='';try{dt=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});}catch(e){}
   const meta=[(q||y)?((q?q+' ':'')+y).trim():'',dt?('Generated '+dt):''].filter(Boolean).join('  \u00b7  ');
@@ -82,8 +94,10 @@ function dsection(title,rows){return dtable(dbanner(title)+rows.filter(Boolean).
 function buildDocBody(data){const parts=[];const camp=data.campaign||{};const inc=data.include||{email:true};
   parts.push(titleBlock(camp));
   parts.push(dsection('Campaign',[{label:'Campaign Name',value:camp.name,required:true},{label:'CRM Campaign Link',value:camp.crm,valueColor:DC.link},{label:'Event Name',value:camp.eventName},{label:'Quarter',value:camp.quarterLabel,required:true},{label:'Year',value:camp.yearLabel,required:true}]));
-  if(inc.email)(data.emails||[]).forEach((e,i)=>{
-    parts.push(dheading(e.audience?('Email - '+e.audience):('Email '+(i+1)),28,300,140,true));
+  let mod=0;const emails=data.emails||[];
+  if(inc.email&&emails.length)parts.push(dmodule(++mod,'Emails'));
+  if(inc.email)emails.forEach((e,i)=>{
+    parts.push(demailHeading(i+1,emails.length,e.audience));
     parts.push(dsection('Basic email information',[{label:'Pardot Email Name',value:e.pardotName},{label:'Tags',value:e.tags}]));
     const tagRows=[{label:'Campaign',value:camp.name}];
     if(e.hasOrder)tagRows.push({label:'Email #',value:e.number||String(i+1)});
@@ -102,7 +116,7 @@ function buildDocBody(data){const parts=[];const camp=data.campaign||{};const in
     parts.push(dsection('Email build',ebRows));
   });
   if(inc.form&&data.form){const f=data.form;
-    parts.push(dheading('Pardot Form',32,320,140,true));
+    parts.push(dmodule(++mod,'Pardot Form'));
     parts.push(dsection('Pardot Form',[{label:'Internal Name',value:f.name}]));
     const fr=(f.fields||[]).map(fl=>({label:fl.label||'(unnamed field)',value:[fl.req?'Required':'Optional',fl.custom?'Custom field':''].filter(Boolean).join('  \u00b7  ')}));
     parts.push(dsection('Form Fields',fr.length?fr:[{label:'\u2014',value:'No fields added'}]));
@@ -111,12 +125,12 @@ function buildDocBody(data){const parts=[];const camp=data.campaign||{};const in
     parts.push(dsection('Terms & Conditions',[{label:'Terms & Conditions',value:f.tc,html:true}]));
   }
   if(inc.cadence&&data.cadence){var cad=data.cadence;
-    parts.push(dheading('SalesLoft Cadence',32,320,140,true));
+    parts.push(dmodule(++mod,'SalesLoft Cadence'));
     parts.push(dsection('SalesLoft Cadence',[{label:'Internal Flow Name',value:cad.name}]));
     (cad.steps||[]).forEach(function(stp,i){parts.push(dsection('Email Step '+(i+1),[{label:'Subject Line',value:stp.subject},{label:'Body Copy',value:stp.body}]));});
   }
   if(inc.qualified&&data.qualified){var qx=data.qualified;
-    parts.push(dheading('Qualified Experience',32,320,140,true));
+    parts.push(dmodule(++mod,'Qualified Experience'));
     parts.push(dsection('Qualified Experience',[{label:'Internal Experience Name',value:qx.name},{label:'Page or Audience Segment',value:qx.segment}]));
     parts.push(dsection('Experience Copy',[{label:'Headline',value:qx.headline},{label:'Body Copy',value:qx.body},{label:'Image & Image URL',value:qx.imageUrl,valueColor:DC.link},{label:'Subtext Below Image',value:qx.subtext},{label:'CTA Buttons',value:qx.ctas}]));
   }
@@ -124,7 +138,7 @@ function buildDocBody(data){const parts=[];const camp=data.campaign||{};const in
 function buildDocx(data,logo){const body=buildDocBody(data);
   const hasLogo=!!(logo&&logo.bytes&&logo.w&&logo.h);
   const documentXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><w:body>${body}<w:sectPr><w:headerReference w:type="default" r:id="rIdHdr"/><w:footerReference w:type="default" r:id="rIdFtr"/><w:pgSz w:w="${PAGE_W}" w:h="${PAGE_H}"/><w:pgMar w:top="${HEADER_TOP}" w:right="${MARGIN}" w:bottom="${MARGIN}" w:left="${MARGIN}" w:header="${HEADER_DIST}" w:footer="${FOOTER_DIST}" w:gutter="0"/></w:sectPr></w:body></w:document>`;
-  const stylesXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial" w:eastAsia="Arial"/><w:color w:val="${DC.body}"/><w:sz w:val="20"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:after="0" w:line="240" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults><w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style></w:styles>`;
+  const stylesXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial" w:eastAsia="Arial"/><w:color w:val="${DC.body}"/><w:sz w:val="20"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:after="0" w:line="240" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults><w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style><w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:basedOn w:val="Normal"/><w:next w:val="Normal"/><w:qFormat/><w:pPr><w:keepNext/><w:outlineLvl w:val="0"/></w:pPr><w:rPr>${ARIAL}<w:b/><w:color w:val="${DC.navy}"/><w:sz w:val="34"/></w:rPr></w:style><w:style w:type="paragraph" w:styleId="Heading2"><w:name w:val="heading 2"/><w:basedOn w:val="Normal"/><w:next w:val="Normal"/><w:qFormat/><w:pPr><w:keepNext/><w:outlineLvl w:val="1"/></w:pPr><w:rPr>${ARIAL}<w:b/><w:color w:val="${DC.navy}"/><w:sz w:val="26"/></w:rPr></w:style></w:styles>`;
   // header content: logo image or styled wordmark
   let headerInner;
   if(hasLogo){const cx=LOGO_EMU_W;const cy=Math.round(cx*logo.h/logo.w);
