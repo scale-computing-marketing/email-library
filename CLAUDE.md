@@ -35,7 +35,11 @@ for Pardot). `index.html` is the page itself — **you almost never edit it.**
   per-campaign tags (`campaign-*`, `event-*`, `ab-variant-*`) are
   shape-checked. An unknown tag is a warning: fix it or register it. The app
   mirrors this check live — emails carrying unregistered tags get an amber
-  warning badge in lists and on their build-rail tag pills.
+  warning badge in lists and on their build-rail tag pills. It also checks
+  inside each email file: a missing unsubscribe link is an **error** while the
+  send is still upcoming (warning once sent), merge tokens must be the locked
+  `{{Recipient.FirstName}}` / `{{unsubscribe}}`, and upcoming sends without a
+  hidden preheader get a warning. Hosted assets (Marketing Center) are exempt.
 - `house-style.md`, `reusable-blocks.md`, `plain-text-style.md` — the locked
   build specs (see "Which spec to build from").
 

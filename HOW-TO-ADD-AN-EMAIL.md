@@ -76,7 +76,9 @@ every `sourceId` has a matching `emails/<sourceId>.html` (a missing file breaks
 that email's Preview), flags orphan files, duplicates, missing required fields,
 and audits every tag against the registry in `data/tag-library.json` (unknown
 tags are warnings; minted `campaign-*` / `event-*` / `ab-variant-*` tags are
-shape-checked). Green = safe to publish.
+shape-checked). It also looks inside each email file: an upcoming send with no
+unsubscribe link is an error (can't ship without one), off-spec merge tokens
+and missing preheaders are warnings. Green = safe to publish.
 
 The same check runs automatically on GitHub via
 `.github/workflows/validate.yml` ("Validate library" in the Actions tab) — so
