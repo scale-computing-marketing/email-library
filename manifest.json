@@ -545,6 +545,74 @@
           ]
         }
       ]
+    },
+    {
+      "id": "uptime-optimization-2026",
+      "title": "Uptime Optimization 2026",
+      "kind": "Drip Nurture",
+      "year": "2026",
+      "emails": [
+        {
+          "id": "uptime-optimization-2026-platform",
+          "kind": "Drip Nurture",
+          "title": "The Uptime Thesis (Platform)",
+          "subject": "A Minute of Downtime Is a Mile of Lost Revenue",
+          "sourceId": "uptime-optimization-2026-platform",
+          "tags": [
+            "drip-sequence",
+            "audience-prospect",
+            "stage-tofu",
+            "theme-edge-computing",
+            "campaign-uptime-optimization-q3-2026",
+            "cta-learn-more"
+          ]
+        },
+        {
+          "id": "uptime-optimization-2026-hypercore",
+          "kind": "Drip Nurture",
+          "title": "SC//HyperCore — Infrastructure That Fixes Itself",
+          "subject": "What if your infrastructure fixed itself?",
+          "sourceId": "uptime-optimization-2026-hypercore",
+          "tags": [
+            "drip-sequence",
+            "audience-prospect",
+            "stage-mofu",
+            "theme-edge-computing",
+            "campaign-uptime-optimization-q3-2026",
+            "cta-learn-more"
+          ]
+        },
+        {
+          "id": "uptime-optimization-2026-connect",
+          "kind": "Drip Nurture",
+          "title": "SC//Connect — Connectivity That Doesn’t Blink",
+          "subject": "Connectivity that doesn’t blink",
+          "sourceId": "uptime-optimization-2026-connect",
+          "tags": [
+            "drip-sequence",
+            "audience-prospect",
+            "stage-mofu",
+            "theme-edge-computing",
+            "campaign-uptime-optimization-q3-2026",
+            "cta-learn-more"
+          ]
+        },
+        {
+          "id": "uptime-optimization-2026-acuvigil",
+          "kind": "Drip Nurture",
+          "title": "SC//AcuVigil — See Every Site",
+          "subject": "See every site. Secure every network.",
+          "sourceId": "uptime-optimization-2026-acuvigil",
+          "tags": [
+            "drip-sequence",
+            "audience-prospect",
+            "stage-mofu",
+            "theme-edge-computing",
+            "campaign-uptime-optimization-q3-2026",
+            "cta-learn-more"
+          ]
+        }
+      ]
     }
   ]
 }
