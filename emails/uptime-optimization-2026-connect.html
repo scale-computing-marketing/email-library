@@ -46,6 +46,8 @@
       .mobile-logo-pad { padding-left:0 !important; padding-right:0 !important; }
       .col-stack { display:block !important; width:100% !important; }
       .split-text { display:block !important; width:100% !important; padding:0 0 12px 0 !important; }
+      .ticket-stub { display:block !important; width:100% !important; padding:26px 18px !important; }
+      .ticket-details { display:block !important; width:100% !important; border-left:none !important; border-top:2px dashed #cdd6e4 !important; padding:24px 24px !important; }
     }
 
     @media (prefers-color-scheme: dark) {
@@ -138,49 +140,70 @@
             </td>
           </tr>
 
-          <!-- NUMBERED OUTCOME GRID (stacked, one-line cards) -->
+          <!-- NUMBERED OUTCOME GRID (3-across mini cards) -->
           <tr>
             <td class="mobile-padding" style="padding:8px 35px 0;">
-
-              <!-- Card 01 -->
-              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%; background:#f7f9fc; border-radius:8px;">
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%;">
                 <tr>
-                  <td width="40" valign="top" style="width:40px; padding:18px 0 18px 20px; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif; font-size:30px; line-height:30px; letter-spacing:-1px; color:#1e88e5; font-weight:bold;">01</td>
-                  <td valign="top" style="padding:18px 20px 18px 0; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif;">
-                    <h3 class="mobile-h3 dark-text" style="margin:0 0 6px; font-size:18px; line-height:24px; color:#0a2540; font-weight:bold;">Seamless Failover</h3>
-                    <p class="dark-text" style="margin:0; font-size:15px; line-height:22px; color:#1a1a1a;">Sites stay online when a connection drops &mdash; no IT intervention.</p>
+                  <!-- Mini card 01 -->
+                  <td class="col-stack split-text" width="33%" valign="top" style="width:33%; padding:0 5px 0 0;">
+                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%; background:#f7f9fc; border-radius:8px;">
+                      <tr>
+                        <td style="padding:22px 18px; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif;">
+                          <p style="margin:0 0 8px; font-size:28px; line-height:28px; letter-spacing:-1px; color:#1e88e5; font-weight:bold;">01</p>
+                          <p style="margin:0 0 6px; font-size:11px; line-height:14px; letter-spacing:2px; text-transform:uppercase; color:#6e6e6e; font-weight:bold;">Failover</p>
+                          <p class="dark-text" style="margin:0; font-size:14px; line-height:21px; color:#1a1a1a;">Sites stay online when a connection drops.</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                  <!-- Mini card 02 -->
+                  <td class="col-stack split-text" width="34%" valign="top" style="width:34%; padding:0 5px;">
+                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%; background:#f7f9fc; border-radius:8px;">
+                      <tr>
+                        <td style="padding:22px 18px; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif;">
+                          <p style="margin:0 0 8px; font-size:28px; line-height:28px; letter-spacing:-1px; color:#1e88e5; font-weight:bold;">02</p>
+                          <p style="margin:0 0 6px; font-size:11px; line-height:14px; letter-spacing:2px; text-transform:uppercase; color:#6e6e6e; font-weight:bold;">Prioritize</p>
+                          <p class="dark-text" style="margin:0; font-size:14px; line-height:21px; color:#1a1a1a;">Revenue-critical apps always go first.</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                  <!-- Mini card 03 -->
+                  <td class="col-stack split-text" width="33%" valign="top" style="width:33%; padding:0 0 0 5px;">
+                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%; background:#f7f9fc; border-radius:8px;">
+                      <tr>
+                        <td style="padding:22px 18px; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif;">
+                          <p style="margin:0 0 8px; font-size:28px; line-height:28px; letter-spacing:-1px; color:#1e88e5; font-weight:bold;">03</p>
+                          <p style="margin:0 0 6px; font-size:11px; line-height:14px; letter-spacing:2px; text-transform:uppercase; color:#6e6e6e; font-weight:bold;">Protect</p>
+                          <p class="dark-text" style="margin:0; font-size:14px; line-height:21px; color:#1a1a1a;">Cloud firewall and threat defense built in.</p>
+                        </td>
+                      </tr>
+                    </table>
                   </td>
                 </tr>
               </table>
+            </td>
+          </tr>
 
-              <!-- spacer -->
-              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%"><tr><td style="height:12px; line-height:12px; font-size:0;">&nbsp;</td></tr></table>
-
-              <!-- Card 02 -->
-              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%; background:#f7f9fc; border-radius:8px;">
+          <!-- SIGNATURE STAT TICKET -->
+          <tr>
+            <td class="mobile-padding" style="padding:16px 35px 0;">
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%; background:#f7f9fc; border-radius:8px; overflow:hidden;">
                 <tr>
-                  <td width="40" valign="top" style="width:40px; padding:18px 0 18px 20px; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif; font-size:30px; line-height:30px; letter-spacing:-1px; color:#1e88e5; font-weight:bold;">02</td>
-                  <td valign="top" style="padding:18px 20px 18px 0; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif;">
-                    <h3 class="mobile-h3 dark-text" style="margin:0 0 6px; font-size:18px; line-height:24px; color:#0a2540; font-weight:bold;">Business-Critical Apps First</h3>
-                    <p class="dark-text" style="margin:0; font-size:15px; line-height:22px; color:#1a1a1a;">Bandwidth management up to 20Gbps puts revenue traffic first.</p>
+                  <!-- STAT STUB -->
+                  <td class="ticket-stub" width="200" valign="middle" align="center" style="width:200px; background:#0a2540; padding:30px 18px; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif;">
+                    <p style="margin:0 0 6px; font-size:11px; line-height:14px; letter-spacing:3px; text-transform:uppercase; color:#7ec4ff; font-weight:bold;">Up To</p>
+                    <p style="margin:0; font-size:40px; line-height:40px; letter-spacing:-1px; color:#ffffff; font-weight:bold;">20Gbps</p>
+                    <p style="margin:6px 0 0; font-size:14px; line-height:16px; letter-spacing:2px; color:#b8c5d6; font-weight:bold;">BANDWIDTH</p>
+                  </td>
+                  <!-- DETAILS (dashed perforation on the left edge) -->
+                  <td class="ticket-details" valign="middle" style="padding:26px 28px; border-left:2px dashed #cdd6e4; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif;">
+                    <p style="margin:0 0 4px; font-size:11px; line-height:14px; letter-spacing:2px; text-transform:uppercase; color:#6e6e6e; font-weight:bold;">The Payoff</p>
+                    <p class="dark-text" style="margin:0; font-size:15px; line-height:22px; color:#0a2540; font-weight:bold;">Link load balancing and bandwidth management keep business-critical applications first in line &mdash; at every site.</p>
                   </td>
                 </tr>
               </table>
-
-              <!-- spacer -->
-              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%"><tr><td style="height:12px; line-height:12px; font-size:0;">&nbsp;</td></tr></table>
-
-              <!-- Card 03 -->
-              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%; background:#f7f9fc; border-radius:8px;">
-                <tr>
-                  <td width="40" valign="top" style="width:40px; padding:18px 0 18px 20px; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif; font-size:30px; line-height:30px; letter-spacing:-1px; color:#1e88e5; font-weight:bold;">03</td>
-                  <td valign="top" style="padding:18px 20px 18px 0; font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',Arial,sans-serif;">
-                    <h3 class="mobile-h3 dark-text" style="margin:0 0 6px; font-size:18px; line-height:24px; color:#0a2540; font-weight:bold;">Protection Built In</h3>
-                    <p class="dark-text" style="margin:0; font-size:15px; line-height:22px; color:#1a1a1a;">Cloud firewall, filtering, and threat protection &mdash; no appliance sprawl.</p>
-                  </td>
-                </tr>
-              </table>
-
             </td>
           </tr>
 
