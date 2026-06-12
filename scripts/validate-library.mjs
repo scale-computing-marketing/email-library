@@ -289,9 +289,11 @@ for (const c of manifest.campaigns) {
     // d) client-compatibility lint (step 7)
     for (const f of clientCompatFindings(html)) warnings.push(`${ref}: ${f}.`);
 
-    // e) palette-drift lint (step 8)
+    // e) palette-drift lint (step 8). Numeric character references (&#128181;
+    // — emoji in subject lines) look like hex colors to the regex; strip them.
     if (approvedColors.size) {
-      const colors = [...new Set((html.match(/#(?:[0-9a-f]{6}|[0-9a-f]{3})\b/gi) || []).map(normalizeHex))];
+      const colorSource = html.replace(/&#\d+;/g, '');
+      const colors = [...new Set((colorSource.match(/#(?:[0-9a-f]{6}|[0-9a-f]{3})\b/gi) || []).map(normalizeHex))];
       const offPalette = colors.filter(cl => !approvedColors.has(cl));
       if (offPalette.length) {
         warnings.push(`${ref}: off-palette color(s) ${offPalette.join(', ')} — not in any locked spec (house-style.md / reusable-blocks.md / plain-text-style.md). Look tokens up in the spec, never in sibling emails; if a color is genuinely approved, register it in the spec.`);

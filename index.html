@@ -1235,6 +1235,13 @@ body.is-email-route .page { display: none; }
   .cs-rail { position: static; width: auto; margin-bottom: 18px; }
 }
 
+/* Compare view (#/campaign/<id>/compare) — side-by-side columns */
+.cc-row { display: flex; gap: 14px; align-items: flex-start; overflow-x: auto; padding-bottom: 10px; }
+.cc-col { width: 300px; flex: none; }
+.cc-col-head { margin: 0 0 8px; }
+.cc-col-title { font-size: 12.5px; font-weight: 600; color: var(--ink-2); line-height: 1.35; }
+.cc-col-subj { font-size: 11.5px; color: var(--ink-3); margin: 2px 0 4px; line-height: 1.35; }
+
 /* Pre-send checks (the validator's content checks, mirrored live in the rail) */
 .pv-check {
   display: flex; align-items: flex-start; gap: 7px;
@@ -3302,8 +3309,9 @@ Scale Computing
     const parts = hash.split('/');
     if (parts[0] === 'library') return { route: 'home' };
     if (parts[0] === 'campaign' && parts[1]) {
-      const scrollMode = parts[2] === 'scroll'; // #/campaign/<id>/scroll = single-scroll review
-      return { route: 'campaign', id: decodeURIComponent(parts[1]), emailId: (parts[2] && !scrollMode) ? decodeURIComponent(parts[2]) : null, scrollMode };
+      const scrollMode = parts[2] === 'scroll';    // #/campaign/<id>/scroll = single-scroll review
+      const compareMode = parts[2] === 'compare';  // #/campaign/<id>/compare = side-by-side columns
+      return { route: 'campaign', id: decodeURIComponent(parts[1]), emailId: (parts[2] && !scrollMode && !compareMode) ? decodeURIComponent(parts[2]) : null, scrollMode, compareMode };
     }
     if (parts[0] === 'year' && parts[1]) {
       return { route: 'year', year: parts[1] };
@@ -3350,6 +3358,8 @@ Scale Computing
         showEmailView(c, e);
       } else if (r.scrollMode) {
         showCampaignScroll(c);
+      } else if (r.compareMode) {
+        showCampaignCompare(c);
       } else {
         showCampaignDetail(c);
       }
@@ -3695,14 +3705,17 @@ Scale Computing
     if (todayBtn) todayBtn.addEventListener('click', () => { schedMonthCur = null; renderSchedule(); });
   }
 
-  function showCampaignDetail(campaign) {
+  // Shared shell for the three campaign views (cards / scroll / compare):
+  // view visibility, breadcrumb, hero + view toggle, sidebar state, and the
+  // share link (which deep-links into the active view mode).
+  function setupCampaignShell(campaign, mode) {
     document.body.classList.remove('is-email-route');
     document.getElementById('scheduleView').style.display = 'none';
     document.getElementById('homeView').style.display = 'none';
     document.getElementById('detailView').style.display = '';
     hideOpsViews();
 
-    // Breadcrumb (Email Library is now a clickable span)
+    // Breadcrumb (Email Library is a clickable span)
     document.getElementById('breadcrumb').innerHTML = `
       <span class="bc-group">Channels</span>
       <span class="bc-sep">/</span>
@@ -3719,7 +3732,7 @@ Scale Computing
     document.getElementById('heroLabel').textContent = (campaign.year ? campaign.year + ' · ' : '') + campaign.kind;
     document.getElementById('heroTitle').textContent = campaign.title;
     document.getElementById('heroMeta').innerHTML = '';
-    renderCampaignViewToggle(campaign, 'cards');
+    renderCampaignViewToggle(campaign, mode);
 
     // Update sidebar active state
     document.querySelectorAll('.sidebar .nav-item').forEach(n => n.classList.remove('active'));
@@ -3728,15 +3741,21 @@ Scale Computing
     // Auto-open the By Campaign group
     document.getElementById('navGroup-campaign').classList.add('open');
 
-    // Share link: the reviewer URL for this campaign (see "Reviewer sharing" in CLAUDE.md).
+    // Share link: the reviewer URL for this campaign (see "Reviewer sharing" in
+    // CLAUDE.md), landing in the same view mode the sharer is looking at.
     // onclick (not addEventListener) so repeat visits don't stack handlers.
     const shareBtn = document.getElementById('campaignShareBtn');
     shareBtn.onclick = () => copyText(
-      window.location.origin + window.location.pathname + '#/campaign/' + campaign.id, shareBtn);
+      window.location.origin + window.location.pathname + '#/campaign/' + campaign.id + CAMP_VIEW_SUFFIX[mode], shareBtn);
+
+    detailCampaign = campaign;
+  }
+
+  function showCampaignDetail(campaign) {
+    setupCampaignShell(campaign, 'cards');
 
     // Email table. Short lists stay search-free (grouped by campaign already);
     // a search input appears once a campaign grows past 8 sends.
-    detailCampaign = campaign;
     const searchable = campaign.emails.length >= 8;
     document.getElementById('emailsContainer').innerHTML =
       (searchable
@@ -3750,18 +3769,20 @@ Scale Computing
     renderEmailCards(campaign, '');
   }
 
-  // Cards | Single scroll switch in the hero actions slot (view controls live
-  // in the hero, not in filter rows) — both campaign views render it.
+  // Cards | Single scroll | Compare switch in the hero actions slot (view
+  // controls live in the hero, not in filter rows) — all campaign views render it.
+  const CAMP_VIEW_SUFFIX = { cards: '', scroll: '/scroll', compare: '/compare' };
   function renderCampaignViewToggle(campaign, mode) {
     document.getElementById('heroActions').innerHTML = `
       <div class="pv-width-toggle" role="group" aria-label="Campaign view">
         <button type="button" class="pv-width-btn${mode === 'cards' ? ' is-active' : ''}" data-campview="cards">Cards</button>
         <button type="button" class="pv-width-btn${mode === 'scroll' ? ' is-active' : ''}" data-campview="scroll">Single scroll</button>
+        <button type="button" class="pv-width-btn${mode === 'compare' ? ' is-active' : ''}" data-campview="compare">Compare</button>
       </div>`;
     document.querySelectorAll('#heroActions [data-campview]').forEach(btn => {
       btn.addEventListener('click', () => {
         if (btn.dataset.campview === mode) return;
-        navigate('#/campaign/' + campaign.id + (btn.dataset.campview === 'scroll' ? '/scroll' : ''));
+        navigate('#/campaign/' + campaign.id + CAMP_VIEW_SUFFIX[btn.dataset.campview]);
       });
     });
   }
@@ -3772,40 +3793,7 @@ Scale Computing
   // stepping through build views. Frames render exactly like the build view's
   // Preview pane (same files, same auto-height + scale-to-fit sizing).
   function showCampaignScroll(campaign) {
-    document.body.classList.remove('is-email-route');
-    document.getElementById('scheduleView').style.display = 'none';
-    document.getElementById('homeView').style.display = 'none';
-    document.getElementById('detailView').style.display = '';
-    hideOpsViews();
-
-    document.getElementById('breadcrumb').innerHTML = `
-      <span class="bc-group">Channels</span>
-      <span class="bc-sep">/</span>
-      <span class="bc-group" id="bcLibrary" role="button" tabindex="0" style="cursor:pointer;">Email Library</span>
-      <span class="bc-sep">/</span>
-      <span class="bc-leaf">${campaign.title}</span>
-    `;
-    document.getElementById('bcLibrary').addEventListener('click', () => navigate('#/library'));
-    document.getElementById('bcLibrary').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('#/library'); }
-    });
-
-    document.getElementById('heroLabel').textContent = (campaign.year ? campaign.year + ' · ' : '') + campaign.kind;
-    document.getElementById('heroTitle').textContent = campaign.title;
-    document.getElementById('heroMeta').innerHTML = '';
-    renderCampaignViewToggle(campaign, 'scroll');
-
-    document.querySelectorAll('.sidebar .nav-item').forEach(n => n.classList.remove('active'));
-    const navEl = document.querySelector(`.sidebar .nav-item[data-campaign="${campaign.id}"]`);
-    if (navEl) navEl.classList.add('active');
-    document.getElementById('navGroup-campaign').classList.add('open');
-
-    // Share link lands the reviewer directly in single-scroll.
-    const shareBtn = document.getElementById('campaignShareBtn');
-    shareBtn.onclick = () => copyText(
-      window.location.origin + window.location.pathname + '#/campaign/' + campaign.id + '/scroll', shareBtn);
-
-    detailCampaign = campaign;
+    setupCampaignShell(campaign, 'scroll');
     const emails = campaign.emails; // manifest order = send order
     const total = String(emails.length).padStart(2, '0');
     document.getElementById('emailsContainer').innerHTML = `
@@ -3861,8 +3849,35 @@ Scale Computing
     csOnScroll();
   }
 
+  // ===== Compare view (#/campaign/<id>/compare) =====
+  // Every send side-by-side in fixed-width columns (the row scrolls
+  // horizontally past four) — the at-a-glance consistency check: do the
+  // heroes, strips, and CTAs line up across the drip? Frames reuse the
+  // scale-down-to-fit sizing, so full emails shrink into the columns.
+  function showCampaignCompare(campaign) {
+    setupCampaignShell(campaign, 'compare');
+    const emails = campaign.emails; // manifest order = send order
+    const total = String(emails.length).padStart(2, '0');
+    document.getElementById('emailsContainer').innerHTML = `
+      <div class="cc-row">
+        ${emails.map((e, i) => `
+          <div class="cc-col">
+            <div class="cc-col-head">
+              <div class="cc-col-title"><span class="cs-email-n">${String(i + 1).padStart(2, '0')} / ${total}</span> ${esc(e.title)}</div>
+              <div class="cc-col-subj">${esc(e.subject || '')}</div>
+              <a class="cs-email-open" href="#/campaign/${esc(campaign.id)}/${esc(e.id)}">Open build view &rarr;</a>
+            </div>
+            <!-- width pre-set to 680 so the email lays out DESKTOP before the
+                 scale-to-fit shrinks it — compare shows the designed layout,
+                 not the mobile reflow a 300px frame would trigger -->
+            <div class="cs-frame-wrap"><iframe title="${esc(e.title)}" style="width:680px;" data-cssrc="${esc(e.sourceId)}"></iframe></div>
+          </div>`).join('')}
+      </div>`;
+    document.querySelectorAll('#emailsContainer iframe[data-cssrc]').forEach(loadScrollFrame);
+  }
+
   // The build view's iframe sizing (auto-height, scale-down-to-fit), reusable
-  // per frame for the single-scroll stack.
+  // per frame for the single-scroll stack and compare columns.
   function loadScrollFrame(frame) {
     frame.style.height = '400px';
     const resize = () => {
@@ -4640,8 +4655,10 @@ Scale Computing
 
     // Palette drift (validator step 8): every hex must be a spec token.
     // Skipped when the spec files couldn't be fetched (empty palette).
+    // Numeric character references (&#128181; — emoji) look like hex; strip.
     if (palette && palette.size) {
-      const colors = [...new Set((html.match(/#(?:[0-9a-f]{6}|[0-9a-f]{3})\b/gi) || []).map(normalizeHex))];
+      const colorSource = html.replace(/&#\d+;/g, '');
+      const colors = [...new Set((colorSource.match(/#(?:[0-9a-f]{6}|[0-9a-f]{3})\b/gi) || []).map(normalizeHex))];
       const offPalette = colors.filter(cl => !palette.has(cl));
       checks.push({
         label: 'Palette', ok: offPalette.length === 0, level: 'warn',
