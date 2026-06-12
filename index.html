@@ -264,6 +264,21 @@ body {
 .sched-pill.sent { background: #eef2f6; color: var(--ink-3); } .sched-pill.sent .dot { background: var(--ink-3); }
 .sched-pill.upcoming { background: var(--accent-soft); color: var(--accent-2); } .sched-pill.upcoming .dot { background: var(--accent); }
 .sched-pill.today { background: rgba(66,182,73,.12); color: #23752d; } .sched-pill.today .dot { background: var(--sc-green); }
+/* Grouped card: several emails from one campaign going out the same day */
+.sched-card.is-group { display: block; padding: 0; cursor: default; }
+.sched-group-head { display: flex; align-items: center; gap: 14px; padding: 11px 16px; cursor: pointer; }
+.sched-group-items { border-top: 1px solid var(--line); }
+.sched-group-item {
+  display: flex; align-items: center; gap: 12px; padding: 9px 16px 9px 85px;
+  cursor: pointer; border-top: 1px solid var(--line);
+}
+.sched-group-item:first-child { border-top: none; }
+.sched-group-item:hover { background: var(--panel-2); }
+.sched-group-item .sched-title { font-size: 13.5px; flex: 1; min-width: 0; }
+@media (max-width: 700px) {
+  .sched-group-head { flex-wrap: wrap; gap: 8px 12px; }
+  .sched-group-item { padding-left: 16px; flex-wrap: wrap; gap: 6px 10px; }
+}
 @media (max-width: 700px) {
   .sched-wrap { padding-left: 0; max-width: none; }
   .sched-rail, .sched-month-dot, .sched-week-dot { display: none; }
@@ -2447,7 +2462,23 @@ body.is-email-route .page { display: none; }
       if (isNaN(ts) || weekStartTs(ts) < thisWeek) return;
       rows.push({ ts, email: e, campaign: c });
     }));
-    rows.sort((a, b) => a.ts - b.ts || a.email.title.localeCompare(b.email.title));
+    rows.sort((a, b) => a.ts - b.ts
+      || a.campaign.title.localeCompare(b.campaign.title)
+      || a.email.title.localeCompare(b.email.title));
+
+    // Cluster same-day sends from the same campaign into one grouped card.
+    // Tradeshow campaigns are exempt — those emails are distinct events that
+    // happen to share a date, not one coordinated send.
+    const isTradeshow = c => /tradeshow/i.test((c.kind || '') + ' ' + c.title);
+    const clusters = [];
+    rows.forEach(r => {
+      const last = clusters[clusters.length - 1];
+      if (last && last.ts === r.ts && last.campaign.id === r.campaign.id && !isTradeshow(r.campaign)) {
+        last.items.push(r.email);
+      } else {
+        clusters.push({ ts: r.ts, campaign: r.campaign, items: [r.email] });
+      }
+    });
 
     if (!rows.length) {
       container.innerHTML = '<div class="empty-hint">No upcoming sends are scheduled. Add a sendDate in the manifest to see emails here.</div>';
@@ -2456,7 +2487,7 @@ body.is-email-route .page { display: none; }
 
     let html = '<div class="sched-wrap"><div class="sched-rail"></div>';
     let lastWeek = null, lastMonth = null;
-    rows.forEach(({ ts, email, campaign }) => {
+    clusters.forEach(({ ts, campaign, items }) => {
       const ws = weekStartTs(ts);
       if (ws !== lastWeek) {
         const wsDate = new Date(ws);
@@ -2483,19 +2514,23 @@ body.is-email-route .page { display: none; }
           </div>`;
       }
       const d = new Date(ts);
-      const st = sendStatus(email); // 'sent' | 'today' | 'upcoming'
+      const st = sendStatus(items[0]); // same date → same status for the whole cluster
       const pill = st === 'sent'
         ? '<span class="sched-pill sent"><span class="dot"></span>Sent</span>'
         : st === 'today'
           ? '<span class="sched-pill today"><span class="dot"></span>Sending today</span>'
           : '<span class="sched-pill upcoming"><span class="dot"></span>Scheduled</span>';
-      html += `
-        <div class="sched-row">
-          <div class="sched-card${st === 'sent' ? ' is-sent' : ''}" data-sched-email="${esc(email.id)}" data-sched-campaign="${esc(campaign.id)}" role="button" tabindex="0">
+      const dateBlock = `
             <div class="sched-date">
               <div class="dow">${SCHED_DOW[d.getDay()]}</div>
               <div class="day">${SCHED_MON[d.getMonth()]} ${d.getDate()}</div>
-            </div>
+            </div>`;
+      if (items.length === 1) {
+        const email = items[0];
+        html += `
+        <div class="sched-row">
+          <div class="sched-card${st === 'sent' ? ' is-sent' : ''}" data-sched-email="${esc(email.id)}" data-sched-campaign="${esc(campaign.id)}" role="button" tabindex="0">
+            ${dateBlock}
             <div class="sched-div"></div>
             <div class="sched-main">
               <div class="sched-title">${esc(email.title)}</div>
@@ -2505,16 +2540,44 @@ body.is-email-route .page { display: none; }
             ${pill}
           </div>
         </div>`;
+      } else {
+        html += `
+        <div class="sched-row">
+          <div class="sched-card is-group${st === 'sent' ? ' is-sent' : ''}">
+            <div class="sched-group-head" data-sched-campaign="${esc(campaign.id)}" role="button" tabindex="0">
+              ${dateBlock}
+              <div class="sched-div"></div>
+              <div class="sched-main">
+                <div class="sched-title">${esc(campaign.title)}</div>
+                <div class="sched-camp">${items.length} emails &middot; same-day send</div>
+              </div>
+              ${pill}
+            </div>
+            <div class="sched-group-items">
+              ${items.map(email => `
+              <div class="sched-group-item" data-sched-email="${esc(email.id)}" data-sched-campaign="${esc(campaign.id)}" role="button" tabindex="0">
+                <div class="sched-title">${esc(email.title)}</div>
+                <span class="sched-kind">${esc(email.kind || '')}</span>
+              </div>`).join('')}
+            </div>
+          </div>
+        </div>`;
+      }
     });
     html += '</div>';
     container.innerHTML = html;
 
-    const go = el => navigate('#/campaign/' + el.dataset.schedCampaign + '/' + el.dataset.schedEmail);
-    container.querySelectorAll('.sched-card').forEach(card => {
-      card.addEventListener('click', () => go(card));
-      card.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(card); }
+    const bind = (el, fn) => {
+      el.addEventListener('click', fn);
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(); }
       });
+    };
+    container.querySelectorAll('.sched-card:not(.is-group), .sched-group-item').forEach(el => {
+      bind(el, () => navigate('#/campaign/' + el.dataset.schedCampaign + '/' + el.dataset.schedEmail));
+    });
+    container.querySelectorAll('.sched-group-head').forEach(el => {
+      bind(el, () => navigate('#/campaign/' + el.dataset.schedCampaign));
     });
   }
 
