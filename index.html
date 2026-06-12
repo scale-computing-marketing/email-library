@@ -1112,6 +1112,20 @@ body.is-email-route .page { display: none; }
 }
 .pv-value.muted { color: var(--ink-3); font-style: italic; font-weight: 400; }
 .pv-value.mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 400; color: var(--ink); }
+/* Populated rail values copy on click (like the Branding hex swatches) —
+   Pardot setup is transcription-heavy, so every field is one click to grab. */
+#pvRailBody .pv-value:not(.muted) {
+  cursor: copy; border-radius: 5px;
+  padding: 1px 4px; margin: -1px -4px;
+  transition: background 0.12s;
+}
+#pvRailBody .pv-value:not(.muted):hover { background: var(--accent-soft); }
+#pvRailBody .pv-value.copied { background: rgba(66,182,73,0.12); }
+#pvRailBody .pv-value.copied::after {
+  content: 'Copied'; margin-left: 7px;
+  font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 700;
+  font-style: normal; color: #2a7e30; text-transform: uppercase; letter-spacing: 0.6px;
+}
 .pv-field { margin-bottom: 16px; }
 .pv-divider { border-top: 1px solid var(--line); margin: 16px 0; }
 .pv-name-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 4px; }
@@ -3513,8 +3527,27 @@ body.is-email-route .page { display: none; }
     document.getElementById('pvRailBody').innerHTML = html;
     const tagCopyBtn = document.getElementById('pvTagsCopy');
     if (tagCopyBtn) tagCopyBtn.addEventListener('click', () => copyText(email.tags.join(', '), tagCopyBtn));
+    document.querySelectorAll('#pvRailBody .pv-value:not(.muted)')
+      .forEach(el => { el.title = 'Click to copy'; });
     setPreviewTextCell(email.sourceId, email.id);
   }
+
+  // Populated rail values copy on click (delegated once — the rail body's
+  // innerHTML is replaced per email, the container isn't).
+  document.getElementById('pvRailBody').addEventListener('click', (e) => {
+    if (e.target.closest('button, a')) return;
+    const v = e.target.closest('.pv-value');
+    if (!v || v.classList.contains('muted')) return;
+    const text = v.textContent.trim();
+    if (!text) return;
+    const flash = () => {
+      v.classList.add('copied');
+      setTimeout(() => v.classList.remove('copied'), 1400);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(flash).catch(() => fallbackCopy(text, flash));
+    } else fallbackCopy(text, flash);
+  });
 
   // A table row / preview button routes to the email's own full-page build view.
   function gotoEmail(id) {
