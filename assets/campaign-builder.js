@@ -268,6 +268,17 @@ function computeEmail(i){
 function cadenceName(){const c=state.campaign;const reg=findCampaign(c.name);if(!reg||!reg.salesloft)return '';const ever=isEvergreen();return (ever?'':('Q'+(c.quarter||'?')+'-'+(c.year||'YYYY')+' | '))+(c.name||'Campaign name');}
 function effPardot(i){const e=state.emails[i];return e.pardotEdited?(e.pardotName||''):computeEmail(i).pardotName;}
 
+/* ============ LIBRARY AWARENESS — manifest.json via the shell's CAMPAIGNS global ============ */
+/* The builder runs inside index.html, which declares `let CAMPAIGNS` at script
+   top level (shared global lexical scope). Guarded so the builder still works
+   if previewed outside the shell. */
+function cbManifestCampaigns(){return (typeof CAMPAIGNS!=='undefined'&&Array.isArray(CAMPAIGNS))?CAMPAIGNS:[];}
+function cbCampaignId(){var c=state.campaign;var s=slug(cleanName(c.name))||'campaign';return isEvergreen()?s:('q'+(c.quarter||'?')+'-'+(c.year||'yyyy')+'-'+s);}
+function cbFindLibraryCampaign(){var c=state.campaign;if(!String(c.name||'').trim())return null;var list=cbManifestCampaigns();var id=cbCampaignId();
+  for(var i=0;i<list.length;i++)if(list[i].id===id)return list[i];
+  var nn=norm(cleanName(c.name));if(!nn)return null;
+  for(var j=0;j<list.length;j++){var t=norm(cleanName(list[j].title||''));if(t&&(t===nn||t.indexOf(nn)>=0||nn.indexOf(t)>=0))return list[j];}
+  return null;}
 
 /* ===== render(208-441) & events(608-end) removed; replaced by redesigned UI below ===== */
 
@@ -688,7 +699,9 @@ function editorCampaign(){
     +fld({l:'Quarter',req:true,type:'select',opts:QUARTERS},c.quarter,'c.quarter')
     +fld({l:'Year',req:true,type:'select',opts:YEARS},c.year,'c.year');
   var ever=isEvergreen()?'<p class="cb-evg-note">Evergreen selected — Pardot names and tags will skip the <code>Qx-YYYY</code> prefix.</p>':'';
-  var match='';
+  var match='';var lib=cbFindLibraryCampaign();
+  if(lib){match='<p class="cb-evg-note cb-lib-note found">Already in the email library: <b>'+escH(lib.title)+'</b> · '+lib.emails.length+' email'+(lib.emails.length!==1?'s':'')+' — new sends from this build belong under campaign id <code>'+escH(lib.id)+'</code>.</p>';}
+  else if(String(c.name||'').trim()){match='<p class="cb-evg-note cb-lib-note">Not in the email library yet — when its emails are published they’ll get a new campaign id like <code>'+escH(cbCampaignId())+'</code>.</p>';}
   return '<h2>Campaign</h2><p class="sub">Shared by every send, form, and cadence in this build.</p>'+group('',inner)+ever+match;
 }
 function editorEmail(i){

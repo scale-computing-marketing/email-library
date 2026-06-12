@@ -243,6 +243,7 @@
 /* inline evergreen explainer under the campaign fields */
 #p-builder .cb-evg-note{font-family:'DM Sans',sans-serif;font-size:12.5px;line-height:1.5;color:var(--ed-mono);margin:12px 0 0;padding:9px 12px;background:var(--ed-soft);border:1px dashed var(--ed-line);border-radius:9px}
 #p-builder .cb-evg-note code{font-family:'JetBrains Mono',monospace;font-size:11.5px;background:#fff;border:1px solid var(--ed-line);border-radius:5px;padding:1px 5px;color:var(--ed-navy)}
+#p-builder .cb-lib-note.found{border-style:solid;border-color:#bfe3c4;background:#f0f9f1}
 #p-builder .rl-sec .cb-mini{padding:4px 8px;font-size:10px;margin-left:auto}
 
 /* toast */

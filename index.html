@@ -1627,7 +1627,18 @@ body.is-email-route .page { display: none; }
     box-shadow:0 1px 0 rgba(0,0,0,.02),0 22px 44px -30px rgba(25,32,43,.45);
     margin:0 0 40px;
   }
-#cb-library .block-head{padding:26px 30px 24px;border-bottom:1px solid var(--line);}
+#cb-library .block-head{padding:26px 30px 24px;border-bottom:1px solid var(--line);position:relative;}
+#cb-library .cb-copy-btn{
+    position:absolute;top:22px;right:26px;
+    display:inline-flex;align-items:center;gap:7px;cursor:pointer;
+    font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+    letter-spacing:1px;text-transform:uppercase;
+    padding:8px 14px;border-radius:999px;border:1px solid var(--line);
+    background:#faf8f3;color:var(--mono-ink);transition:all .12s;
+  }
+#cb-library .cb-copy-btn:hover{border-color:var(--link);color:var(--link);}
+#cb-library .cb-copy-btn.copied{border-color:#42b649;color:#2a7e30;}
+#cb-library .cb-copy-btn svg{width:13px;height:13px;}
 #cb-library .block-head .type{
     font-family:'JetBrains Mono',monospace;font-weight:700;font-size:10.5px;
     letter-spacing:2.5px;text-transform:uppercase;color:var(--blue);margin:0 0 9px;
@@ -1683,6 +1694,7 @@ body.is-email-route .page { display: none; }
 @media (max-width:560px){
 #cb-library .wrap{padding:0 16px 72px;}
 #cb-library .block-head{padding:22px 20px;}
+#cb-library .cb-copy-btn{position:static;margin-top:14px;}
 }
 </style>
         <div style="max-width:1320px;margin:0 auto;">
@@ -2746,6 +2758,9 @@ body.is-email-route .page { display: none; }
         document.getElementById('tlTagList').innerHTML =
           '<div class="empty-hint">Could not load data/tag-library.json (' + esc(e.message) + ').</div>';
       });
+    } else if (which === 'blocks' && !showOpsTool._blocksWired) {
+      showOpsTool._blocksWired = true;
+      wireBlockCopyButtons();
     } else if (which === 'builder' && !showOpsTool._builderStarted) {
       showOpsTool._builderStarted = true;
       // Registry first, then the section script (it reads window.TAG_DATA on init;
@@ -2756,6 +2771,24 @@ body.is-email-route .page { display: none; }
         document.body.appendChild(s);
       });
     }
+  }
+
+  // Inject a Copy HTML button into each Content Blocks card. Copies the live
+  // markup inside the block's white email card — the same Pardot-ready table
+  // the preview renders, so what you see is exactly what you paste.
+  function wireBlockCopyButtons() {
+    document.querySelectorAll('#cb-library .block').forEach(block => {
+      const head = block.querySelector('.block-head');
+      const card = block.querySelector('.email-card');
+      if (!head || !card) return;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'cb-copy-btn';
+      btn.title = 'Copy this block’s Pardot-ready HTML';
+      btn.innerHTML = ICONS.copy + ' Copy HTML';
+      btn.addEventListener('click', () => copyText(card.innerHTML.trim(), btn));
+      head.appendChild(btn);
+    });
   }
 
   // --- Tag Library rendering ---
