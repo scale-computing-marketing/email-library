@@ -1076,14 +1076,6 @@ body.is-email-route .page { display: none; }
   border-left: 1px solid var(--line-2); padding-left: 14px;
 }
 .ev-bar-titles { min-width: 0; flex: 1 1 auto; }
-.ev-kicker {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px; font-weight: 500;
-  letter-spacing: 1.4px; text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 2px;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
 .ev-title {
   font-family: 'Manrope', sans-serif;
   font-size: 15px; font-weight: 700;
@@ -3105,7 +3097,6 @@ Scale Computing
         </button>
         <div class="ev-bar-main">
           <div class="ev-bar-titles">
-            <div class="ev-kicker" id="evKicker">Kind</div>
             <div class="ev-title" id="evTitle">Email title</div>
           </div>
           <div class="ev-bar-actions">
@@ -4961,8 +4952,7 @@ Scale Computing
     if (navEl) navEl.classList.add('active');
     document.getElementById('navGroup-campaign').classList.add('open');
 
-    // Bar titles + build details (kicker keeps the campaign visible at the deepest level)
-    document.getElementById('evKicker').textContent = campaign.title + ' · ' + (email.kind || 'Email');
+    // Bar title + build details (campaign + email already read in the breadcrumb above the bar)
     document.getElementById('evTitle').textContent = email.title;
     document.getElementById('evBackLabel').textContent = 'Back';
     document.getElementById('evBack').title = 'Back to ' + campaign.title;
