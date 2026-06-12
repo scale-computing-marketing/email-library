@@ -26,6 +26,11 @@
  *      fallback, button-style links with no MSO fallback, and <img> tags
  *      missing alt text. Warnings only — the locked specs' table-based
  *      patterns never hit these. Hosted assets are exempt (browser-viewed).
+ *   8. Palette-drift lint: every hex color in an email must appear in one of
+ *      the locked spec files (house-style.md, reusable-blocks.md,
+ *      plain-text-style.md — the specs ARE the approved palette). Catches
+ *      the "sibling emails can be off-spec" trap: a color inferred from
+ *      another email instead of looked up in the token table. Warnings only.
  *
  * Run locally before you push:   node scripts/validate-library.mjs
  * Runs automatically in CI via .github/workflows/validate.yml
@@ -227,6 +232,24 @@ function clientCompatFindings(html) {
   return findings;
 }
 
+// 8. palette-drift lint (run inside the same per-email loop). The approved
+// palette is extracted from the locked spec files themselves — registering a
+// new token in a spec automatically approves it here, so the specs stay the
+// single source of truth.
+const SPEC_FILES = ['house-style.md', 'reusable-blocks.md', 'plain-text-style.md'];
+const normalizeHex = (h) => {
+  h = h.toLowerCase();
+  return h.length === 4 ? '#' + [...h.slice(1)].map(ch => ch + ch).join('') : h;
+};
+const approvedColors = new Set();
+for (const f of SPEC_FILES) {
+  const p = join(REPO_ROOT, f);
+  if (!existsSync(p)) continue;
+  for (const m of readFileSync(p, 'utf8').match(/#(?:[0-9a-f]{6}|[0-9a-f]{3})\b/gi) || []) {
+    approvedColors.add(normalizeHex(m));
+  }
+}
+
 for (const c of manifest.campaigns) {
   if (!Array.isArray(c?.emails)) continue;
   for (const e of c.emails) {
@@ -265,6 +288,15 @@ for (const c of manifest.campaigns) {
 
     // d) client-compatibility lint (step 7)
     for (const f of clientCompatFindings(html)) warnings.push(`${ref}: ${f}.`);
+
+    // e) palette-drift lint (step 8)
+    if (approvedColors.size) {
+      const colors = [...new Set((html.match(/#(?:[0-9a-f]{6}|[0-9a-f]{3})\b/gi) || []).map(normalizeHex))];
+      const offPalette = colors.filter(cl => !approvedColors.has(cl));
+      if (offPalette.length) {
+        warnings.push(`${ref}: off-palette color(s) ${offPalette.join(', ')} — not in any locked spec (house-style.md / reusable-blocks.md / plain-text-style.md). Look tokens up in the spec, never in sibling emails; if a color is genuinely approved, register it in the spec.`);
+      }
+    }
   }
 }
 
