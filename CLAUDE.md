@@ -147,6 +147,14 @@ framing — the Ops Tools nav is hidden until it browses into the app proper
 keep the full nav). Reviewers step between a campaign's emails with the ‹ › 
 arrows in the build-view header (or arrow keys).
 
+Campaign pages have three view modes, switched in the hero (Cards · Single
+scroll · Compare) and each shareable as a deep link: **Cards** is the email
+list, **Single scroll** (`#/campaign/<id>/scroll`) renders every send
+full-height in order with a sticky jump rail for reading a whole drip
+top-to-bottom, and **Compare** (`#/campaign/<id>/compare`) renders the sends
+side-by-side at desktop layout, scaled into columns, for consistency checks.
+Copy share link copies whichever mode is active.
+
 ## Visual QA (rendering differs across clients)
 
 - Render the file and look at it before editing — describe what specific value is
