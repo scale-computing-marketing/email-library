@@ -313,6 +313,8 @@ body {
 }
 .tl-fbtn:hover { border-color: var(--accent); color: var(--accent); }
 .tl-fbtn.active { background: var(--sc-dark); border-color: var(--sc-dark); color: #fff; }
+/* Send Schedule kind filter — same chip language as the Tag Library filters. */
+.sched-filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
 .tl-cats { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 22px; }
 .tl-cat-group { margin-bottom: 26px; }
 .tl-cat-head { display: flex; align-items: baseline; gap: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--ink); margin-bottom: 10px; }
@@ -2551,19 +2553,28 @@ body.is-email-route .page { display: none; }
     renderSchedule();
   }
 
+  let schedKindFilter = 'All';
+
   function renderSchedule() {
     const container = document.getElementById('scheduleContainer');
     const thisWeek = weekStartTs(todayMidnight());
 
-    const rows = [];
+    const allRows = [];
     CAMPAIGNS.forEach(c => c.emails.forEach(e => {
       const ts = parseSendDate(e.sendDate);
       if (isNaN(ts) || weekStartTs(ts) < thisWeek) return;
-      rows.push({ ts, email: e, campaign: c });
+      allRows.push({ ts, email: e, campaign: c });
     }));
-    rows.sort((a, b) => a.ts - b.ts
+    allRows.sort((a, b) => a.ts - b.ts
       || a.campaign.title.localeCompare(b.campaign.title)
       || a.email.title.localeCompare(b.email.title));
+
+    // Kind filter — like the in-campaign search, it only appears once the
+    // schedule is busy enough to need narrowing (several sends, mixed kinds).
+    const kinds = [...new Set(allRows.map(r => r.email.kind).filter(Boolean))].sort();
+    const showFilters = allRows.length >= 6 && kinds.length >= 2;
+    if (!showFilters || (schedKindFilter !== 'All' && !kinds.includes(schedKindFilter))) schedKindFilter = 'All';
+    const rows = schedKindFilter === 'All' ? allRows : allRows.filter(r => r.email.kind === schedKindFilter);
 
     // Cluster same-day sends from the same campaign into one grouped card.
     // Tradeshow campaigns are exempt — those emails are distinct events that
@@ -2579,12 +2590,18 @@ body.is-email-route .page { display: none; }
       }
     });
 
-    if (!rows.length) {
+    if (!allRows.length) {
       container.innerHTML = '<div class="empty-hint">No upcoming sends are scheduled. Add a sendDate in the manifest to see emails here.</div>';
       return;
     }
 
-    let html = '<div class="sched-wrap"><div class="sched-rail"></div>';
+    let html = '';
+    if (showFilters) {
+      html += '<div class="sched-filters">' + ['All', ...kinds].map(k =>
+        `<button class="tl-fbtn${k === schedKindFilter ? ' active' : ''}" type="button" data-schedkind="${esc(k)}">${esc(k)}</button>`
+      ).join('') + '</div>';
+    }
+    html += '<div class="sched-wrap"><div class="sched-rail"></div>';
     let lastWeek = null, lastMonth = null;
     clusters.forEach(({ ts, campaign, items }) => {
       const ws = weekStartTs(ts);
@@ -2677,6 +2694,9 @@ body.is-email-route .page { display: none; }
     });
     container.querySelectorAll('.sched-group-head').forEach(el => {
       bind(el, () => navigate('#/campaign/' + el.dataset.schedCampaign));
+    });
+    container.querySelectorAll('[data-schedkind]').forEach(btn => {
+      btn.addEventListener('click', () => { schedKindFilter = btn.dataset.schedkind; renderSchedule(); });
     });
   }
 
@@ -3340,7 +3360,12 @@ body.is-email-route .page { display: none; }
 
   // Populate the left build-details rail from the email + its campaign. Fields the manifest
   // model doesn't carry are shown muted rather than invented (mirrors the locked layout).
+  // Empty send-machinery fields read differently by context: a hosted asset has no send
+  // (n/a), a sent email's blanks just weren't recorded, an upcoming send still needs them.
   function renderBuildDetails(email, campaign) {
+    const mc = isMarketingCenter(email);
+    const ph = mc ? 'n/a — hosted asset, not a send'
+      : (sendStatus(email) === 'sent' ? '— not recorded —' : undefined);
     const pardotName = email.pardotName || (campaign ? `${campaign.title} │ ${email.title}` : email.title);
     const html = `
       <div class="pv-name-row">
@@ -3357,8 +3382,8 @@ body.is-email-route .page { display: none; }
       <div class="pv-divider"></div>
 
       <div class="pv-grid-2">
-        <div class="pv-field"><div class="pv-label">Send date</div>${pvVal(email.sendDate)}</div>
-        <div class="pv-field"><div class="pv-label">Send time</div>${pvVal(email.sendTime)}</div>
+        <div class="pv-field"><div class="pv-label">Send date</div>${pvVal(email.sendDate, ph)}</div>
+        <div class="pv-field"><div class="pv-label">Send time</div>${pvVal(email.sendTime, ph)}</div>
       </div>
 
       <div class="pv-divider"></div>
@@ -3376,15 +3401,15 @@ body.is-email-route .page { display: none; }
 
       <div class="pv-field"><div class="pv-label">Sender name</div><div class="pv-value">Scale Computing</div></div>
       <div class="pv-grid-2">
-        <div class="pv-field"><div class="pv-label">From</div>${pvVal(email.from)}</div>
-        <div class="pv-field"><div class="pv-label">Reply-to</div>${pvVal(email.replyTo)}</div>
+        <div class="pv-field"><div class="pv-label">From</div>${pvVal(email.from, ph)}</div>
+        <div class="pv-field"><div class="pv-label">Reply-to</div>${pvVal(email.replyTo, ph)}</div>
       </div>
 
       <div class="pv-divider"></div>
 
       <div class="pv-grid-2">
-        <div class="pv-field"><div class="pv-label">Send to (lists)</div>${pvVal(Array.isArray(email.sendTo) ? email.sendTo.join(', ') : email.sendTo, '— select list —')}</div>
-        <div class="pv-field"><div class="pv-label">Suppression</div>${pvVal(Array.isArray(email.suppression) ? email.suppression.join(', ') : email.suppression)}</div>
+        <div class="pv-field"><div class="pv-label">Send to (lists)</div>${pvVal(Array.isArray(email.sendTo) ? email.sendTo.join(', ') : email.sendTo, ph || '— select list —')}</div>
+        <div class="pv-field"><div class="pv-label">Suppression</div>${pvVal(Array.isArray(email.suppression) ? email.suppression.join(', ') : email.suppression, ph)}</div>
       </div>
       ${email.tags && email.tags.length ? `
       <div class="pv-divider"></div>
