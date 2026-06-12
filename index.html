@@ -349,6 +349,18 @@ body {
 .tl-badge.optional    { background: var(--panel-2); color: var(--ink-2); border-color: var(--line); }
 .tl-badge.conditional { background: rgba(232,120,10,0.10); color: #a4570a; border-color: rgba(232,120,10,0.3); }
 .tl-badge.plat { background: var(--panel-2); color: var(--ink-2); border-color: var(--line); }
+.tl-usage {
+  appearance: none; cursor: pointer;
+  font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700;
+  letter-spacing: 0.8px; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 999px;
+  background: var(--accent-soft); color: var(--accent-2); border: 1px solid rgba(37,114,185,0.25);
+  transition: all 0.12s;
+}
+.tl-usage:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+.tl-usage.zero {
+  cursor: default; background: var(--panel-2); color: var(--ink-3); border-color: var(--line);
+}
 .tl-section-block { margin-top: 40px; }
 .tl-section-block > h2 {
   font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700;
@@ -1060,6 +1072,9 @@ body.is-email-route .page { display: none; }
   background: var(--panel); border: 1px solid var(--line); color: var(--ink-2);
 }
 .pv-tag.is-matched { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-2); }
+.pv-tag.is-unknown { background: rgba(232,120,10,0.10); border-color: rgba(232,120,10,0.45); color: #a4570a; }
+.tag-warn { display: inline-flex; align-items: center; margin-left: 6px; color: #c47410; vertical-align: -2px; }
+.tag-warn svg { width: 13px; height: 13px; }
 .pv-tag-sep { color: var(--ink-3); font-size: 11px; align-self: center; }
 .pv-tag-copy {
   display: inline-flex; align-items: center; gap: 5px;
@@ -2214,7 +2229,8 @@ body.is-email-route .page { display: none; }
     arrowDownRight: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="7" x2="17" y2="17"/><polyline points="17 8 17 17 8 17"/></svg>',
     search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
     link: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
-    x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
+    x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+    alert: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
   };
 
   let detailCampaign = null;
@@ -2298,6 +2314,33 @@ body.is-email-route .page { display: none; }
       c.emails.forEach(e => (e.tags || []).forEach(t => { counts[t] = (counts[t] || 0) + 1; }));
     });
     return Object.keys(counts).sort().map(t => ({ tag: t, count: counts[t] }));
+  }
+
+  // Manifest-wide tag usage, ignoring the year filter — the Tag Library registry
+  // view reports against the whole library, not the current browse scope.
+  function manifestTagCounts() {
+    const counts = {};
+    CAMPAIGNS.forEach(c => c.emails.forEach(e =>
+      (e.tags || []).forEach(t => { counts[t] = (counts[t] || 0) + 1; })));
+    return counts;
+  }
+
+  // Mirrors scripts/validate-library.mjs: a manifest tag is fine if it's in the
+  // registry, registered in the campaigns table, or a minted per-campaign shape.
+  const MINTED_TAG_PATTERNS = [
+    /^campaign-[a-z0-9]+(?:-[a-z0-9]+)*$/,
+    /^event-[a-z0-9]+(?:-[a-z0-9]+)*$/,
+    /^ab-variant-[ab]$/,
+  ];
+  function isTagRegistered(tag) {
+    const d = tagRegistry;
+    if (!d) return true; // registry didn't load — can't judge, stay quiet
+    if ((d.tags || []).some(t => t.tag === tag)) return true;
+    if ((d.campaigns || []).some(c => c.tag === tag && !String(c.tag).includes('['))) return true;
+    return MINTED_TAG_PATTERNS.some(p => p.test(tag));
+  }
+  function unknownTags(email) {
+    return (email.tags || []).filter(t => !isTagRegistered(t));
   }
 
   function emailMatchesSelectedTags(email) {
@@ -2744,11 +2787,14 @@ body.is-email-route .page { display: none; }
                   ...[...new Set(tags.map(t => t.category))].filter(c => !TL_CAT_ORDER.includes(c))];
     const el = document.getElementById('tlTagList');
     if (!tags.length) { el.innerHTML = '<div class="empty-hint">No tags match.</div>'; return; }
+    const usage = manifestTagCounts();
     el.innerHTML = cats.map(cat => {
       const inCat = tags.filter(t => t.category === cat);
       return `<div class="tl-cat-group">
         <div class="tl-cat-head"><span class="tl-cat-title">${esc(cat)}</span><span class="tl-cat-count">${inCat.length} tag${inCat.length === 1 ? '' : 's'}</span></div>
-        ${inCat.map(t => `
+        ${inCat.map(t => {
+          const n = usage[t.tag] || 0;
+          return `
         <div class="tl-tag-row">
           <div class="tl-tag-name-wrap">
             <span class="tl-tag-name">${esc(t.tag)}</span>
@@ -2756,12 +2802,21 @@ body.is-email-route .page { display: none; }
           </div>
           <div class="tl-tag-desc">${esc(t.description)}</div>
           <div class="tl-tag-meta">
+            <button class="tl-usage${n ? '' : ' zero'}" data-tag="${esc(t.tag)}" type="button" ${n ? `title="View the ${n} email${n === 1 ? '' : 's'} carrying this tag"` : 'disabled title="No emails carry this tag yet"'}>${n} email${n === 1 ? '' : 's'}</button>
             <span class="tl-badge ${String(t.rule || '').toLowerCase()}">${esc(t.rule)}</span>
             ${tlPlatforms(t).map(p => `<span class="tl-badge plat">${p === 'Pardot' ? 'P' : 'S'}</span>`).join('')}
           </div>
-        </div>`).join('')}
+        </div>`;
+        }).join('')}
       </div>`;
     }).join('');
+    el.querySelectorAll('.tl-usage:not(.zero)').forEach(btn => btn.addEventListener('click', () => {
+      selectedTags.clear();
+      selectedTags.add(btn.dataset.tag);
+      renderTagList();
+      renderActiveTags();
+      navigate('#/library');
+    }));
     el.querySelectorAll('.tl-tag-copy').forEach(btn => btn.addEventListener('click', () => {
       const done = () => {
         btn.classList.add('copied'); btn.innerHTML = TL_CHECK_ICON;
@@ -2904,6 +2959,10 @@ body.is-email-route .page { display: none; }
     const st = sendStatus(email);
     const flagged = !mc && (st === 'upcoming' || st === 'today');
     const dateClass = flagged ? 'date-upcoming' : 'date-muted';
+    const unk = unknownTags(email);
+    const warn = unk.length
+      ? `<span class="tag-warn" title="Not in the tag registry: ${esc(unk.join(', '))}">${ICONS.alert}</span>`
+      : '';
     return `
       <tr class="email-row${flagged ? ' row-upcoming' : ''}" id="emailCard-${email.id}" data-id="${email.id}">
         <td class="col-email">
@@ -2911,7 +2970,7 @@ body.is-email-route .page { display: none; }
             <span class="email-icon icon-neutral">${ICONS.email}</span>
             <div class="row-email-text">
               <div class="row-kind">${esc(email.kind)}</div>
-              <div class="row-title">${esc(email.title)}</div>
+              <div class="row-title">${esc(email.title)}${warn}</div>
             </div>
           </div>
         </td>
@@ -3252,7 +3311,10 @@ body.is-email-route .page { display: none; }
           <button class="pv-tag-copy" id="pvTagsCopy" type="button" title="Copy tags">${ICONS.copy} Copy</button>
         </div>
         <div class="pv-tags">${
-        email.tags.map(t => `<span class="pv-tag${selectedTags.has(t) ? ' is-matched' : ''}">${esc(t)}</span>`).join('<span class="pv-tag-sep">,</span>')
+        email.tags.map(t => {
+          const unknown = !isTagRegistered(t);
+          return `<span class="pv-tag${selectedTags.has(t) ? ' is-matched' : ''}${unknown ? ' is-unknown' : ''}"${unknown ? ' title="Not in the tag registry (data/tag-library.json)"' : ''}>${esc(t)}</span>`;
+        }).join('<span class="pv-tag-sep">,</span>')
       }</div></div>` : ''}
     `;
     document.getElementById('pvRailBody').innerHTML = html;
