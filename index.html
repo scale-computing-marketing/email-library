@@ -277,6 +277,14 @@ body {
   border-radius: 99px; background: rgba(196,116,16,.1); color: #9a5b0a; white-space: nowrap;
 }
 .sched-week-overlap svg { width: 11px; height: 11px; }
+/* Heavy-week cadence flag: many sends in one week. Navy-tinted to read as a
+   structural load note, distinct from the amber audience-overlap pill. */
+.sched-week-heavy {
+  display: inline-flex; align-items: center; gap: 4px; font-family: 'DM Mono', monospace;
+  font-size: 9.5px; letter-spacing: .8px; text-transform: uppercase; padding: 3px 9px;
+  border-radius: 99px; background: rgba(17,56,89,.09); color: #113859; white-space: nowrap;
+}
+.sched-week-heavy svg { width: 11px; height: 11px; }
 /* Grouped card: several emails from one campaign going out the same day */
 .sched-card.is-group { display: block; padding: 0; cursor: default; }
 .sched-group-head { display: flex; align-items: center; gap: 14px; padding: 11px 16px; cursor: pointer; }
@@ -330,6 +338,19 @@ body {
    One line of chips; the Week/Month switch lives in the hero actions slot. */
 .sched-filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; align-items: center; }
 .sched-past-toggle { border-style: dashed; }
+/* Month view swaps the kind chips for this compact dropdown (saves the row of
+   wrapping chips above the wide grid). Styled to match the chip language. */
+.sched-filter-sel {
+  font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: .04em;
+  color: var(--ink-2); background-color: var(--panel);
+  border: 1px solid var(--line); border-radius: 99px;
+  padding: 6px 30px 6px 13px; cursor: pointer;
+  appearance: none; -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236e6e6e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 10px center; background-size: 13px;
+}
+.sched-filter-sel:hover { border-color: var(--accent); color: var(--ink); }
+.sched-filter-sel:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
 .scal { max-width: 980px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--sh); overflow: hidden; }
 .scal-head { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
 .scal-title { font-size: 16px; font-weight: 700; color: var(--ink); min-width: 132px; }
@@ -471,6 +492,11 @@ body {
    the rail; the divider + section label do the separating. */
 .nav-ops { margin-top: 18px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,.14); }
 .is-reviewer .nav-ops { display: none; }
+/* Reviewer-clean build view: a session that arrived on a shared deep link sees
+   the rendered email + inbox preview only. The internal Build Details rail
+   (Pardot name, pre-send checks, link audit) is insider-only; the render pane
+   (flex: 1 1 auto) fills the freed space on its own. */
+.is-reviewer .pv-rail { display: none; }
 .nav-ops-label {
   font-family: 'DM Mono', monospace;
   font-size: 10px;
@@ -1356,6 +1382,40 @@ a.pv-link-url:hover { color: var(--accent); text-decoration: underline; }
 .pv-width-btn:hover { color: var(--accent); }
 .pv-width-btn.is-active { background: var(--accent-soft); color: var(--accent-2); }
 .pv-email.is-mobile { width: 377px; } /* 375px viewport + the container's 1px borders */
+
+/* Inbox preview row — a mock client list row above the render, so the subject
+   and preheader read the way they'll land in an inbox (truncation + subject
+   length). It's client chrome, not the email, so it sits outside .pv-stage and
+   never inverts with the dark toggle. */
+.pv-inbox {
+  display: flex; align-items: flex-start; gap: 12px;
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: var(--r); padding: 11px 14px; margin-bottom: 12px;
+}
+.pv-inbox-avatar {
+  width: 34px; height: 34px; border-radius: 50%; flex: none;
+  background: var(--sc-dark); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 14px;
+}
+.pv-inbox-main { flex: 1; min-width: 0; }
+.pv-inbox-l1 { display: flex; align-items: baseline; gap: 10px; }
+.pv-inbox-from {
+  font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 13px;
+  color: var(--ink); flex: 1; min-width: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pv-inbox-meta {
+  flex: none; font-family: 'DM Mono', monospace; font-size: 10px;
+  letter-spacing: .04em; color: var(--ink-3); white-space: nowrap;
+}
+.pv-inbox-meta.is-long { color: #a4570a; }
+.pv-inbox-l2 {
+  font-family: 'DM Sans', sans-serif; font-size: 12.5px; line-height: 1.45;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px;
+}
+.pv-inbox-subj { font-weight: 500; color: var(--ink); }
+.pv-inbox-pre { color: var(--ink-3); }
 
 /* ===== RESPONSIVE — one mobile breakpoint (≤900px) and one wide tier (≥1400px). ===== */
 
@@ -3174,6 +3234,21 @@ Scale Computing
               </div>
             </div>
           </div>
+          <!-- Inbox preview: how the subject + preheader land in a client list
+               row (truncation + subject length). A visual, not data — the rail
+               carries those fields as data; this doesn't duplicate that role. -->
+          <div class="pv-inbox" id="pvInbox" aria-label="Inbox preview">
+            <div class="pv-inbox-avatar">S</div>
+            <div class="pv-inbox-main">
+              <div class="pv-inbox-l1">
+                <span class="pv-inbox-from">Scale Computing</span>
+                <span class="pv-inbox-meta" id="pvInboxLen"></span>
+              </div>
+              <div class="pv-inbox-l2">
+                <span class="pv-inbox-subj" id="pvInboxSubject"></span><span class="pv-inbox-pre" id="pvInboxPre"></span>
+              </div>
+            </div>
+          </div>
           <div class="pv-stage">
             <div class="pv-email" id="pvEmail">
               <iframe id="evFrame" title="Email preview"></iframe>
@@ -3573,6 +3648,8 @@ Scale Computing
   }
 
   const SCHED_MON_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  // A week carrying this many sends (or more) gets a "Heavy week" cadence flag.
+  const SCHED_HEAVY_WEEK = 4;
 
   // The month grid: Sun–Sat calendar of every dated send. Chips are status-
   // tinted (sent gray / scheduled blue / today green) with a kind-colored dot;
@@ -3717,10 +3794,16 @@ Scale Computing
         <button type="button" class="pv-width-btn${schedViewMode === 'week' ? ' is-active' : ''}" data-schedview="week">Week</button>
         <button type="button" class="pv-width-btn${schedViewMode === 'month' ? ' is-active' : ''}" data-schedview="month">Month</button>
       </div>`;
-    const filterChips =
-      (showFilters ? ['All', ...kinds].map(k =>
-        `<button class="tl-fbtn${k === schedKindFilter ? ' active' : ''}" type="button" data-schedkind="${esc(k)}">${esc(k)}</button>`
-      ).join('') : '')
+    // Kind filter: chips in week view; a compact dropdown in the month grid
+    // (the grid is wide and the chip row wraps — the select saves that space).
+    const kindFilterHTML = !showFilters ? '' : (schedViewMode === 'month'
+      ? `<select class="sched-filter-sel" data-schedkind-select aria-label="Filter sends by kind">
+          ${['All', ...kinds].map(k => `<option value="${esc(k)}"${k === schedKindFilter ? ' selected' : ''}>${k === 'All' ? 'All sends' : esc(k)}</option>`).join('')}
+        </select>`
+      : ['All', ...kinds].map(k =>
+          `<button class="tl-fbtn${k === schedKindFilter ? ' active' : ''}" type="button" data-schedkind="${esc(k)}">${esc(k)}</button>`
+        ).join(''));
+    const filterChips = kindFilterHTML
       + (schedViewMode === 'week' && pastCount ? `<button class="tl-fbtn sched-past-toggle${schedShowPast ? ' active' : ''}" type="button" data-schedpast>${schedShowPast ? 'Hide past sends' : 'Show past sends (' + pastCount + ')'}</button>` : '');
     let html = filterChips ? '<div class="sched-filters">' + filterChips + '</div>' : '';
 
@@ -3747,13 +3830,15 @@ Scale Computing
         lastWeek = ws;
         const cur = ws === thisWeek;
         const count = rows.filter(r => weekStartTs(r.ts) === ws).length;
+        const heavy = count >= SCHED_HEAVY_WEEK;
         html += `
-          <div class="sched-week${cur ? ' is-current' : ''}">
+          <div class="sched-week${cur ? ' is-current' : ''}${heavy ? ' is-heavy' : ''}">
             <div class="sched-week-dot"></div>
             <div class="sched-week-head">
               <span class="sched-week-eyebrow">${cur ? 'This week' : 'Week of'}</span>
               <span class="sched-week-range">${schedWeekRange(ws)}</span>
               <span class="sched-count">${count} send${count !== 1 ? 's' : ''}</span>
+              ${heavy ? `<span class="sched-week-heavy" title="${count} sends in one week — a heavy cadence; check for audience fatigue">${ICONS.alert}Heavy week</span>` : ''}
               ${(schedOverlapWeeks.get(ws) || []).map(o =>
                 `<span class="sched-week-overlap" title="${esc(o.count)} sends from different campaigns reach the ${esc(audienceLabel(o.tag).toLowerCase())} audience this week">${ICONS.alert}${esc(audienceLabel(o.tag))} ×${o.count}</span>`
               ).join('')}
@@ -3831,6 +3916,8 @@ Scale Computing
     container.querySelectorAll('[data-schedkind]').forEach(btn => {
       btn.addEventListener('click', () => { schedKindFilter = btn.dataset.schedkind; renderSchedule(); });
     });
+    const kindSel = container.querySelector('[data-schedkind-select]');
+    if (kindSel) kindSel.addEventListener('change', () => { schedKindFilter = kindSel.value; renderSchedule(); });
     const pastToggle = container.querySelector('[data-schedpast]');
     if (pastToggle) pastToggle.addEventListener('click', () => { schedShowPast = !schedShowPast; renderSchedule(); });
     document.querySelectorAll('#heroActions [data-schedview]').forEach(btn => {
@@ -4715,6 +4802,33 @@ Scale Computing
     return emailHtmlOnce[sourceId];
   }
 
+  // Inbox preview row (render pane). Subject comes straight from the manifest;
+  // the preheader is the same extraction the rail's Preview-text cell uses
+  // (shared cache). Hidden for hosted assets — they aren't sends.
+  function renderInboxRow(email, expectedId) {
+    const box = document.getElementById('pvInbox');
+    if (!box) return;
+    if (isMarketingCenter(email)) { box.style.display = 'none'; return; }
+    box.style.display = '';
+    box.dataset.for = expectedId;
+    const subject = email.subject || '(no subject)';
+    document.getElementById('pvInboxSubject').textContent = subject;
+    const lenEl = document.getElementById('pvInboxLen');
+    const n = subject.length;
+    lenEl.textContent = n + ' chars';
+    lenEl.classList.toggle('is-long', n > 60);
+    lenEl.title = n > 60
+      ? 'Long subject — inbox clients truncate around 40–60 characters (fewer on mobile)'
+      : 'Subject length — clients truncate around 40–60 characters (fewer on mobile)';
+    const preEl = document.getElementById('pvInboxPre');
+    preEl.textContent = '';
+    const setPre = (t) => { if (box.dataset.for === expectedId) preEl.textContent = t ? ' — ' + t : ''; };
+    if (preheaderCache[email.sourceId] !== undefined) setPre(preheaderCache[email.sourceId]);
+    else getEmailHTMLOnce(email.sourceId)
+      .then(html => { const t = extractPreheader(html); preheaderCache[email.sourceId] = t; setPre(t); })
+      .catch(() => setPre(''));
+  }
+
   function setPreviewTextCell(sourceId, expectedId) {
     const fill = (text) => {
       const cell = document.getElementById('metaPreviewText');
@@ -5142,6 +5256,7 @@ Scale Computing
     document.getElementById('evBackLabel').textContent = 'Back';
     document.getElementById('evBack').title = 'Back to ' + campaign.title;
     renderBuildDetails(email, campaign);
+    renderInboxRow(email, email.id);
     // Enter with the build-details rail expanded and panes at the top —
     // stepping between emails leaves a collapsed rail collapsed.
     if (!wasInEmailView) {
