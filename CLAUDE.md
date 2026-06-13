@@ -47,7 +47,11 @@ for Pardot). `index.html` is the page itself — **you almost never edit it.**
   hiding everything past the cut — including the unsubscribe link). A link
   audit makes a placeholder `href="#"`/empty href an error while the send is
   upcoming (warning once sent) and warns on `http://` links or hrefs no email
-  client can resolve. A palette-drift lint warns on any hex color not found in the locked spec
+  client can resolve. A copy lint warns on leftover draft text in the visible
+  copy — unfilled `[BRACKETED]` placeholders, draft markers (TODO/FIXME/TBD/
+  XXX/lorem ipsum/placeholder), and doubled words (MSO conditional comments are
+  stripped first, and doubled words match within a line, so neither false-flags).
+  A palette-drift lint warns on any hex color not found in the locked spec
   files (`house-style.md` / `reusable-blocks.md` / `plain-text-style.md` —
   the specs ARE the approved palette, so registering a token in a spec
   approves it). Hosted assets (Marketing Center) are exempt.

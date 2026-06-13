@@ -37,6 +37,12 @@
  *  10. Link audit: a placeholder href ("#" or empty) is an error while the
  *      send is upcoming (warning once sent); http:// links and hrefs no email
  *      client can resolve (not https/mailto/tel/anchor/merge-token) warn.
+ *  11. Copy lint: leftover draft text in the visible copy — unfilled
+ *      [BRACKETED] placeholders, draft markers (TODO/FIXME/TBD/XXX/lorem
+ *      ipsum/placeholder), and doubled words ("the the"). Warnings only.
+ *      MSO conditional comments are stripped first so [if mso]/[endif] never
+ *      false-flag, and doubled words are matched within a line so adjacent
+ *      elements ("...Security</h2><li>Security...") don't either.
  *
  * Run locally before you push:   node scripts/validate-library.mjs
  * Runs automatically in CI via .github/workflows/validate.yml
@@ -238,6 +244,30 @@ function clientCompatFindings(html) {
   return findings;
 }
 
+// Copy lint (step 11). Extract visible copy first — strip comments (incl. MSO
+// conditionals, so [if mso]/[endif] never look like placeholders), scripts and
+// styles, then map every remaining tag to a newline so doubled-word detection
+// can't span adjacent elements. The app's build rail mirrors this function.
+function visibleText(html) {
+  return html
+    .replace(/<!--[\s\S]*?-->/g, '\n')
+    .replace(/<(script|style)[\s\S]*?<\/\1>/gi, '\n')
+    .replace(/<[^>]+>/g, '\n')
+    .replace(/&nbsp;|&#160;|&zwnj;|&#8204;/gi, ' ')
+    .replace(/&amp;/g, '&');
+}
+function copyLintFindings(html) {
+  const text = visibleText(html);
+  const findings = [];
+  const brackets = [...new Set(text.match(/\[[^\]\n]{1,40}\]/g) || [])];
+  if (brackets.length) findings.push(`unfilled placeholder ${brackets.slice(0, 3).join(', ')}`);
+  const markers = [...new Set(text.match(/\b(?:TODO|FIXME|TBD|XXX|lorem ipsum|placeholder)\b/gi) || [])];
+  if (markers.length) findings.push(`draft marker ${markers.slice(0, 3).join(', ')}`);
+  const dup = [...new Set((text.match(/\b([A-Za-z]{3,})[ \t ]+\1\b/gi) || []).map(s => s.replace(/\s+/g, ' ')))];
+  if (dup.length) findings.push(`doubled word "${dup[0]}"`);
+  return findings;
+}
+
 // 8. palette-drift lint (run inside the same per-email loop). The approved
 // palette is extracted from the locked spec files themselves — registering a
 // new token in a spec automatically approves it here, so the specs stay the
@@ -300,6 +330,9 @@ for (const c of manifest.campaigns) {
     if (bytes > 102 * 1024) {
       warnings.push(`${ref}: ${Math.round(bytes / 1024)} KB — Gmail clips messages over 102 KB ("View entire message" hides the rest, including the unsubscribe link).`);
     }
+
+    // h) copy lint (step 11)
+    for (const f of copyLintFindings(html)) warnings.push(`${ref}: ${f}.`);
 
     // g) link audit (step 10). Placeholder links are fixable pre-send (error);
     // the rest is advisory. The app's build rail mirrors these flags.

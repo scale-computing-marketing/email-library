@@ -4903,6 +4903,29 @@ Scale Computing
     if (noAlt) findings.push(`${noAlt} <img> without alt text (blank when images are blocked)`);
     return findings;
   }
+  // Copy lint (validator step 11), mirrored. Extract visible copy first —
+  // strip comments (incl. MSO conditionals, so [if mso]/[endif] never look like
+  // placeholders), scripts/styles, then map tags to newlines so doubled-word
+  // detection can't span adjacent elements.
+  function visibleText(html) {
+    return html
+      .replace(/<!--[\s\S]*?-->/g, '\n')
+      .replace(/<(script|style)[\s\S]*?<\/\1>/gi, '\n')
+      .replace(/<[^>]+>/g, '\n')
+      .replace(/&nbsp;|&#160;|&zwnj;|&#8204;/gi, ' ')
+      .replace(/&amp;/g, '&');
+  }
+  function copyLintFindings(html) {
+    const text = visibleText(html);
+    const findings = [];
+    const brackets = [...new Set(text.match(/\[[^\]\n]{1,40}\]/g) || [])];
+    if (brackets.length) findings.push('unfilled placeholder ' + brackets.slice(0, 3).join(', '));
+    const markers = [...new Set(text.match(/\b(?:TODO|FIXME|TBD|XXX|lorem ipsum|placeholder)\b/gi) || [])];
+    if (markers.length) findings.push('draft marker ' + markers.slice(0, 3).join(', '));
+    const dup = [...new Set((text.match(/\b([A-Za-z]{3,})[ \t ]+\1\b/gi) || []).map(s => s.replace(/\s+/g, ' ')))];
+    if (dup.length) findings.push('doubled word "' + dup[0] + '"');
+    return findings;
+  }
   function preSendChecks(email, html, palette) {
     const upcoming = sendStatus(email) !== 'sent'; // undated = still editable = upcoming
     const checks = [];
@@ -4933,6 +4956,13 @@ Scale Computing
     checks.push({
       label: 'Email weight', ok: bytes <= 102 * 1024, level: 'warn',
       detail: bytes <= 102 * 1024 ? '' : Math.round(bytes / 1024) + ' KB — Gmail clips messages over 102 KB, hiding the rest (including the unsubscribe link)'
+    });
+
+    // Copy lint: leftover draft text in the visible copy.
+    const copy = copyLintFindings(html);
+    checks.push({
+      label: 'Copy', ok: copy.length === 0, level: 'warn',
+      detail: copy.join('; ')
     });
 
     // Palette drift (validator step 8): every hex must be a spec token.
